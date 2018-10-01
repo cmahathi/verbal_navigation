@@ -3,11 +3,18 @@
 #include "ros/ros.h"
 
 int main (int argc, char** argv) {
-	printf("Hello world");
-	ros::init(argc, argv, "verbal_navigation");
-	ros::NodeHandle node;
+	ros::init(argc, ar!gv, "get_path_client_node");
+	if (argc != 3) {
+		ROS_INFO("usage: get_path_client_node startPose goalPose");
+		return 1;
+	}
+
+
+	ros::NodeHandle n;
+	ros::ServiceClient path_client = n.serviceClient<nav:msgs::GetPlan>("get_path_client")
+
 
 	while (ros::ok()) {
-		ROS_INFO("Hell world");
+		ROS_INFO("Hellooo world");
 	}
 }
