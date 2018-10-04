@@ -14,7 +14,7 @@
 
 int main (int argc, char** argv) {
 
-	ros::init(argc, argv, "odom listener");
+	ros::init(argc, argv, "odom_listener");
 
 	ros::NodeHandle n;
 
@@ -40,5 +40,6 @@ int main (int argc, char** argv) {
 
 	while (ros::ok()) {
 		// ROS_INFO("Hellooo world");
+		ros::spinOnce();
 	}
 }
