@@ -14,7 +14,7 @@
 	 geometry_msgs::Point startPose = msg->pose.pose.position;
 	 ROS_INFO("x: %f, y: %f, z: %f\n", startPose.x, startPose.y, startPose.z);
  }
-
+//asdf;laksjd
 
 int main (int argc, char** argv) {
 
