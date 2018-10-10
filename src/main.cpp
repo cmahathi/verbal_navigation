@@ -4,6 +4,9 @@
 #include "nav_msgs/Odometry.h"
 #include "nav_msgs/GetPlan.h"
 #include <geometry_msgs/PoseStamped.h>
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+
 
  void odomCallback(const nav_msgs::Odometry::ConstPtr& msg) {
 
@@ -11,7 +14,7 @@
 	 geometry_msgs::Point startPose = msg->pose.pose.position;
 	 ROS_INFO("x: %f, y: %f, z: %f\n", startPose.x, startPose.y, startPose.z);
  }
-
+//asdf;laksjd
 
 int main (int argc, char** argv) {
 
@@ -29,23 +32,38 @@ int main (int argc, char** argv) {
 	geometry_msgs::PoseStamped &start = srv.request.start;
 	geometry_msgs::PoseStamped &goal = srv.request.goal;
 
-	start.header.frame_id = "base_link";
-	goal.header.frame_id = "odom";
+	start.header.frame_id = goal.header.frame_id = "/level_mux_map";
 
 	start.header.stamp = goal.header.stamp = ros::Time::now();
 
-	start.pose.position.x = 0;
-	start.pose.position.y = 0;
-	start.pose.position.z = 0;
+
+	tf::TransformListener listener;
+	geometry_msgs::PointStamped startPoint;
+	geometry_msgs::PointStamped startPointT;
+	startPoint.point.x = 0;
+	startPoint.point.y = 0;
+	startPoint.point.z = 0;
+	startPoint.header.frame_id = "/base_link";
+
+	geometry_msgs::PointStamped endPoint;
+	geometry_msgs::PointStamped endPointT;
+	endPoint.point.x = 5;
+	endPoint.point.y = 0;
+	endPoint.point.z = 0;
+	endPoint.header.frame_id = "/base_link";
+
+	endPoint.header.stamp = startPoint.header.stamp = ros::Time::now();
+	listener.waitForTransform("/base_link", "/level_mux_map", ros::Time(0), ros::Duration(4));
+    listener.transformPoint("/level_mux_map", startPoint, startPointT);
+    listener.transformPoint("/level_mux_map", endPoint, endPointT);
+
+	start.pose.position = startPointT.point;
+	goal.pose.position = endPointT.point;
 
 	start.pose.orientation.x = 0;
 	start.pose.orientation.y = 0;
 	start.pose.orientation.z = 0;
 	start.pose.orientation.w = 1;
-
-	goal.pose.position.x = 0;
-	goal.pose.position.y = 0;
-	goal.pose.position.z = 0;
 
 	goal.pose.orientation.x = 0;
 	goal.pose.orientation.y = 0;
@@ -56,7 +74,6 @@ int main (int argc, char** argv) {
 
 	path_client.call(srv);
 	ROS_INFO("Response received, size %d", srv.response.plan.poses.size());
-
 
 
 
