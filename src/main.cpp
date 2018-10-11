@@ -43,15 +43,12 @@ public:
 	 bool isAvailable() {
 	 	return available;
 	 }
+
+	 geometry_msgs::PoseStamped getPose() {
+	 	return myPose;
+	 }
 };
 
-// =======
-// 	 ROS_INFO("in odom callback");
-// 	 geometry_msgs::Point startPose = msg->pose.pose.position;
-// 	 ROS_INFO("x: %f, y: %f, z: %f\n", startPose.x, startPose.y, startPose.z);
-//  }
-// //asdf;laksjd
-// >>>>>>> 5b92bfa4f3273d1eb96bf834ba1ce523972e081c
 
 int main (int argc, char** argv) {
 
@@ -71,53 +68,13 @@ int main (int argc, char** argv) {
 	ROS_INFO("Path client found");
 
 	nav_msgs::GetPlan srv;
-	// geometry_msgs::PoseStamped &start = srv.request.start;
-	// geometry_msgs::PoseStamped &goal = srv.request.goal;
+	srv.request.start = initialPose.getPose();
+	srv.request.goal = goalPose.getPose();
 
-	// start.header.frame_id = goal.header.frame_id = "/level_mux_map";
+	srv.request.tolerance = -1.0f;
 
-	// start.header.stamp = goal.header.stamp = ros::Time::now();
-
-
-
-
-	// tf::TransformListener listener;
-	// geometry_msgs::PointStamped startPoint;
-	// geometry_msgs::PointStamped startPointT;
-	// startPoint.point.x = 0;
-	// startPoint.point.y = 0;
-	// startPoint.point.z = 0;
-	// startPoint.header.frame_id = "/base_link";
-
-	// geometry_msgs::PointStamped endPoint;
-	// geometry_msgs::PointStamped endPointT;
-	// endPoint.point.x = 5;
-	// endPoint.point.y = 0;
-	// endPoint.point.z = 0;
-	// endPoint.header.frame_id = "/base_link";
-
-	// endPoint.header.stamp = startPoint.header.stamp = ros::Time::now();
-	// listener.waitForTransform("/base_link", "level_mux_map", ros::Time(0), ros::Duration(4));
- //    listener.transformPoint("level_mux_map", startPoint, startPointT);
- //    listener.transformPoint("level_mux_map", endPoint, endPointT);
-
-	// start.pose.position = startPointT.point;
-	// goal.pose.position = endPointT.point;
-
-	// start.pose.orientation.x = 0;
-	// start.pose.orientation.y = 0;
-	// start.pose.orientation.z = 0;
-	// start.pose.orientation.w = 1;
-
-	// goal.pose.orientation.x = 0;
-	// goal.pose.orientation.y = 0;
-	// goal.pose.orientation.z = 0;
-	// goal.pose.orientation.w = 1;
-
-	// srv.request.tolerance = -1.0f;
-
-	// path_client.call(srv);
-	// ROS_INFO("Response received, size %d", srv.response.plan.poses.size());
+	path_client.call(srv);
+	ROS_INFO("Response received, size %d", srv.response.plan.poses.size());
 
 
 
