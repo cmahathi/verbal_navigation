@@ -45,6 +45,13 @@ public:
 	 }
 };
 
+// =======
+// 	 ROS_INFO("in odom callback");
+// 	 geometry_msgs::Point startPose = msg->pose.pose.position;
+// 	 ROS_INFO("x: %f, y: %f, z: %f\n", startPose.x, startPose.y, startPose.z);
+//  }
+// //asdf;laksjd
+// >>>>>>> 5b92bfa4f3273d1eb96bf834ba1ce523972e081c
 
 int main (int argc, char** argv) {
 
