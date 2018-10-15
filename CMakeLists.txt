@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	geometry_msgs
 	tf
+	bwi_planning_common
+	bwi_logical_translator
 )
 
 ## System dependencies are found with CMake's conventions
