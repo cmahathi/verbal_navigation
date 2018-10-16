@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 	tf
 	bwi_planning_common
 	bwi_logical_translator
+	bwi_mapper
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES verbal_navigation
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
@@ -138,7 +139,9 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
-add_executable(main_node src/main.cpp)
+add_executable(main_node 	
+		src/main.cpp
+		src/FuturePoseStamped.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
