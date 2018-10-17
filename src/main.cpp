@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "std_msgs/String.h"
 #include "ros/ros.h"
 #include "nav_msgs/GetPlan.h"
@@ -12,14 +13,12 @@
 #include <verbal_navigation/FuturePoseStamped.h>
 #include <vector>
 
-
-
 std::string getRegion(bwi_logical_translator::BwiLogicalTranslator& translator, geometry_msgs::PoseStamped currentLocation) {
 	float robot_x = currentLocation.pose.position.x;
 	float robot_y = currentLocation.pose.position.y;
 	
 	bwi_mapper::Point2f mapPoint(robot_x, robot_y);
-	//ROS_INFO("mapPoint created. Found region %s", translator.getLocationString(translator.getLocationIdx(mapPoint)).c_str());	
+	//return translator.getLocationString(translator.getLocationIdx(mapPoint)));	
 	return translator.getRegionString(translator.getRegionIdx(mapPoint));
 }
 
@@ -41,8 +40,7 @@ int main (int argc, char** argv) {
 
 
 	while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
-
-	//getRegion(translator, initialPose);
+	
 	ROS_INFO("HAVE START AND GOAL");
 	ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
 	path_client.waitForExistence();
