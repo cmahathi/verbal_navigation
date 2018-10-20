@@ -13,6 +13,8 @@
 #include <vector>
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/RegionPath.h"
+#include "verbal_navigation/Preposition.h"
+
 
 const std::string projectDir = "/home/fri/TGI_FRIdays_ws/";
 

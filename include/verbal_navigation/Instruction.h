@@ -6,6 +6,8 @@
 
 
 class Instruction {
+
+protected:
   std::string name;
 public:
   Instruction(std::string name);

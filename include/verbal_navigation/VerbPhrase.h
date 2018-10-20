@@ -3,14 +3,17 @@
 
 #include <vector>
 #include <string>
+#include "verbal_navigation/Instruction.h"
+#include "verbal_navigation/Preposition.h"
 
-class VerbPhrase:Instruction {
+enum class Directions {NONE, STRAIGHT, LEFT, RIGHT};
+
+class VerbPhrase : Instruction {
 
 public:
-  enum class Directions = {NONE = NULL, STRAIGHT = "Straight", LEFT = "Left", RIGHT = "Right"};
   VerbPhrase(std::string name);
   Directions direction;
   std::vector<Preposition> children;
-  std::string toNaturalLanguage();
+  virtual std::string toNaturalLanguage();
 };
 #endif
