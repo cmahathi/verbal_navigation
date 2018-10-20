@@ -143,6 +143,9 @@ add_executable(main_node
 		src/main.cpp
 		src/FuturePoseStamped.cpp
     src/RegionPath.cpp
+    src/Instruction.cpp
+    src/VerbPhrase.cpp
+    src/Preposition.cpp 
     )
 
 ## Rename C++ executable without prefix
