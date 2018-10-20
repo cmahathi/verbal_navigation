@@ -11,9 +11,10 @@ enum class Directions {NONE, STRAIGHT, LEFT, RIGHT};
 class VerbPhrase : Instruction {
 
 public:
-  VerbPhrase(std::string name);
+  VerbPhrase(std::string name, Directions dir);
   Directions direction;
   std::vector<Preposition> children;
   virtual std::string toNaturalLanguage();
+  void addChild(Preposition p);
 };
 #endif

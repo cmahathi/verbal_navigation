@@ -1,8 +1,7 @@
 #include "verbal_navigation/VerbPhrase.h"
 
-VerbPhrase::VerbPhrase(std::string name) : Instruction(name) {
-
-}
+VerbPhrase::VerbPhrase(std::string name, Directions dir) :
+  Instruction(name), direction(dir) { }
 
 std::string VerbPhrase::toNaturalLanguage() {
   std::string result = name;
@@ -10,9 +9,13 @@ std::string VerbPhrase::toNaturalLanguage() {
   switch (direction)
   {
     case Directions::NONE : directionString = "";
+                            break;
     case Directions::STRAIGHT : directionString = "straight";
+                                break;
     case Directions::LEFT : directionString = "left";
+                            break;
     case Directions::RIGHT : directionString = "right";
+                             break;
   }
   result += " " + directionString;
   for (Preposition &child : children) {
@@ -20,4 +23,8 @@ std::string VerbPhrase::toNaturalLanguage() {
   }
   result += ".\n";
   return result;
+}
+
+void VerbPhrase::addChild (Preposition p) {
+  children.push_back(p);
 }

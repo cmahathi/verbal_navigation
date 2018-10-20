@@ -14,6 +14,7 @@
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/RegionPath.h"
 #include "verbal_navigation/Preposition.h"
+#include "verbal_navigation/VerbPhrase.h"
 
 
 const std::string projectDir = "/home/fri/TGI_FRIdays_ws/";
@@ -62,20 +63,16 @@ int main (int argc, char** argv) {
 	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
 
 	RegionPath regionPath(translator, pose_list);
-	// std::vector<std::string> region_list;
-	// region_list.push_back(getRegion(translator, pose_list.front()));
-	//
-	// for(size_t i = 0; i < pose_list.size(); ++i) {
-	// 	auto region = getRegion(translator, pose_list.at(i));
-	// 	if(region_list.back().compare(region) != 0) {
-	// 		region_list.push_back(region);
-	// 		ROS_INFO("Added region: %s\n", region.c_str());
-	// 	}
-	// }
+
 	// TODO: pass srv.response into new function (compartmentalize!!)
 
 	// there's a list of doors (which are coordinates). Figure out how
 	// that list is stored, and then pick a door from the list.
+
+	// VerbPhrase test("Go", Directions::STRAIGHT);
+	// Preposition testPrep("past", "water fountain");
+	// test.addChild(testPrep);
+	// ROS_INFO("Instruction: %s\n", test.toNaturalLanguage());
 
 
 
