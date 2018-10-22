@@ -64,6 +64,7 @@ int main (int argc, char** argv) {
 
 	RegionPath regionPath(translator, pose_list);
 
+
 	// TODO: pass srv.response into new function (compartmentalize!!)
 
 	// there's a list of doors (which are coordinates). Figure out how
