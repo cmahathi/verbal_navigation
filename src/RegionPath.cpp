@@ -36,7 +36,7 @@ RegionPath::RegionPath(bwi_logical_translator::BwiLogicalTranslator& translator,
       }
     }
   }
-  regionsToAvgOrientation(pointsInRegions);
+  //regionsToAvgOrientation(pointsInRegions);
 }
 
 //takes in a location on the map and returns the region it is in
@@ -55,25 +55,29 @@ std::map<std::string, float> RegionPath::regionsToAvgOrientation(
     std::map<std::string, float> result;
     double yawTotal = 0.0;
     int numPoints = 0;
-    std::map<std::string, std::vector<geometry_msgs::PoseStamped>>:: iterator itr;
-    for (itr = map.begin(); itr != map.end(); ++itr) {
+    for (int i = 0; i < pathOfRegions.size(); i++) {
       ROS_INFO("Getting new pose list");
-      std::vector<geometry_msgs::PoseStamped> poseList = itr->second;
-      ROS_INFO("Region: %s", (itr->first).c_str());
-      for (int i = 0; i < poseList.size(); i++) {
-//ROS_INFO
-        geometry_msgs::PoseStamped pose = poseList.at(i);
-        tf::Quaternion q(
-          pose.pose.orientation.x,
-          pose.pose.orientation.y,
-          pose.pose.orientation.z,
-          pose.pose.orientation.w);
-          tf::Matrix3x3 m(q);
-          double roll, pitch, yaw;
+      std::string region = pathOfRegions.at(i);
+      if (pointsInRegions.find(region) != pointsInRegions.end()) {
+        std::vector<geometry_msgs::PoseStamped> poseList = pointsInRegions.find(region)->second;
+        ROS_INFO("Region: %s", region.c_str());
+        for (int i = 0; i < poseList.size(); i++) {
+  //ROS_INFO
+          geometry_msgs::PoseStamped pose = poseList.at(i);
+          ROS_INFO("Position: %lf %lf %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+          ROS_INFO("Orietation: %lf %lf %lf %lf", pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
+          tf::Quaternion q(
+            pose.pose.orientation.x,
+            pose.pose.orientation.y,
+            pose.pose.orientation.z,
+            pose.pose.orientation.w);
+            tf::Matrix3x3 m(q);
+         double roll, pitch, yaw;
 
-          m.getRPY(roll, pitch, yaw);
-          //ROS_INFO ("YAW: %lf", yaw);
-      }
+         m.getRPY(roll, pitch, yaw);
+         ROS_INFO ("ROLL: %lf, PITCH: %lf, YAW: %lf", roll, pitch, yaw);
+        }
+    }
     }
 }
 

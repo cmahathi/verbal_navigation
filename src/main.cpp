@@ -30,14 +30,37 @@ std::string getRegion(bwi_logical_translator::BwiLogicalTranslator& translator, 
 
 int main (int argc, char** argv) {
 
-	FuturePoseStamped initialPose;
-	FuturePoseStamped goalPose;
-
+	//FuturePoseStamped initialPose;
+	//FuturePoseStamped goalPose;
 	ros::init(argc, argv, "main_node");
-
 	ros::NodeHandle n;
-	ros::Subscriber sub = n.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
-	ros::Subscriber sub1 = n.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+
+	geometry_msgs::PoseStamped initialPose;
+	geometry_msgs::PoseStamped goalPose;
+
+	initialPose.header.stamp = ros::Time::now();
+	initialPose.header.frame_id = "/level_mux_map";
+	initialPose.pose.position.x = 14.6793708801;
+	initialPose.pose.position.y = 110.153694153;
+	initialPose.pose.position.z = 0.0;
+	initialPose.pose.orientation.x = 0.0;
+	initialPose.pose.orientation.y = 0.0;
+	initialPose.pose.orientation.z = -0.04113175032;
+	initialPose.pose.orientation.w = 0.999153731473;
+	
+	goalPose.header.stamp = ros::Time::now();
+	goalPose.header.frame_id = "/level_mux_map";
+	goalPose.pose.position.x = 47.8235244751;
+	goalPose.pose.position.y = 108.96232605;
+	goalPose.pose.position.z = 0.0;
+	goalPose.pose.orientation.x = 0.0;
+	goalPose.pose.orientation.y = 0.0;
+	goalPose.pose.orientation.z = -0.65703277302;
+	goalPose.pose.orientation.w = 0.753862013354;
+
+
+	//ros::Subscriber sub = n.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
+	//ros::Subscriber sub1 = n.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 
 	ros::param::set("~map_file", projectDir +  "src/verbal_navigation/src/3ne/3ne.yaml");
 	ros::param::set("~data_directory", projectDir + "src/verbal_navigation/src/3ne");
@@ -45,7 +68,7 @@ int main (int argc, char** argv) {
 	translator.initialize();
 
 
-	while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
+	//while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
 
 	ROS_INFO("HAVE START AND GOAL");
 	ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
@@ -53,8 +76,10 @@ int main (int argc, char** argv) {
 	ROS_INFO("Path client found");
 
 	nav_msgs::GetPlan srv;
-	srv.request.start = initialPose.getPose();
-	srv.request.goal = goalPose.getPose();
+	// srv.request.start = initialPose.getPose();
+	// srv.request.goal = goalPose.getPose();
+	srv.request.start = initialPose;
+	srv.request.goal = goalPose;
 
 	srv.request.tolerance = -1.0f;
 
