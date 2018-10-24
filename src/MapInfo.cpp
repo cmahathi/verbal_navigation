@@ -1,46 +1,50 @@
-#include "verbal_navigation/RegionPath.h"
+#include "verbal_navigation/MapInfo.h"
 
 //Constructor
-RegionPath::RegionPath(bwi_logical_translator::BwiLogicalTranslator& translator,
-  std::vector<geometry_msgs::PoseStamped> pathOfPoses)
-  : pathOfRegions(), pointsInRegions() {
+MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path)
+  : translator(trans), poseList(path), regionList(), regionToPointsMap() {
 
-  if(pathOfPoses.empty()) {
+  if(poseList.empty()) {
     ROS_INFO("ERROR: Initialized with empty path");
   }
+  buildMapInfo();
+  //regionsToAvgOrientation(regionToPointsMap);
+}
 
+void MapInfo::buildMapInfo() {
   //adds the first region the path goes through
-  pathOfRegions.push_back(getRegion(translator, pathOfPoses.front()));
-  ROS_INFO("Added region: %s\n", getRegion(translator, pathOfPoses.front()).c_str());
+  regionList.push_back(getRegion(translator, poseList.front()));
+  ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
   //adding a region the path goes through
-  for(size_t i = 0; i < pathOfPoses.size(); ++i) {
-    auto currentLocation = pathOfPoses.at(i);
+  for(size_t i = 0; i < poseList.size(); ++i) {
+    //geometry_msgs::PoseStamped
+    auto currentLocation = poseList[i];
+    ROS_INFO("Orientation: %lf, %lf, %lf, %lf", currentLocation.pose.orientation.x,currentLocation.pose.orientation.y,currentLocation.pose.orientation.z,currentLocation.pose.orientation.w);
+
     std::string region = getRegion(translator, currentLocation);
 
     //only adds the region to the list of regions if the previous pose was
     //not in the region
     if (region.compare("") != 0) {
-      if( (pathOfRegions.back()).compare(region) != 0) {
-        pathOfRegions.push_back(region);
+      if( (regionList.back()).compare(region) != 0) {
+        regionList.push_back(region);
         ROS_INFO("Added region: %s\n", region.c_str());
       }
-
       //maps points to regions
-      auto points = pointsInRegions.find(region);
-      if(points == pointsInRegions.end()) {
+      auto points = regionToPointsMap.find(region);
+      if(points == regionToPointsMap.end()) {
         std::vector<geometry_msgs::PoseStamped> newList;
         newList.push_back(currentLocation);
-        pointsInRegions.emplace(std::make_pair(region, newList));
+        regionToPointsMap.emplace(std::make_pair(region, newList));
       } else {
         points->second.push_back(currentLocation);
       }
     }
   }
-  //regionsToAvgOrientation(pointsInRegions);
 }
 
 //takes in a location on the map and returns the region it is in
-std::string RegionPath::getRegion(
+std::string MapInfo::getRegion(
   bwi_logical_translator::BwiLogicalTranslator& translator,
   geometry_msgs::PoseStamped currentLocation) {
   float robot_x = currentLocation.pose.position.x;
@@ -50,19 +54,18 @@ std::string RegionPath::getRegion(
   return translator.getLocationString(translator.getLocationIdx(mapPoint));
 }
 
-std::map<std::string, float> RegionPath::regionsToAvgOrientation(
+void MapInfo::regionsToAvgOrientation(
   std::map<std::string, std::vector<geometry_msgs::PoseStamped>> map) {
     std::map<std::string, float> result;
     double yawTotal = 0.0;
     int numPoints = 0;
-    for (int i = 0; i < pathOfRegions.size(); i++) {
+    for (int i = 0; i < regionList.size(); i++) {
       ROS_INFO("Getting new pose list");
-      std::string region = pathOfRegions.at(i);
-      if (pointsInRegions.find(region) != pointsInRegions.end()) {
-        std::vector<geometry_msgs::PoseStamped> poseList = pointsInRegions.find(region)->second;
+      std::string region = regionList.at(i);
+      if (regionToPointsMap.find(region) != regionToPointsMap.end()) {
+        std::vector<geometry_msgs::PoseStamped> poseList = regionToPointsMap.find(region)->second;
         ROS_INFO("Region: %s", region.c_str());
         for (int i = 0; i < poseList.size(); i++) {
-  //ROS_INFO
           geometry_msgs::PoseStamped pose = poseList.at(i);
           ROS_INFO("Position: %lf %lf %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
           ROS_INFO("Orietation: %lf %lf %lf %lf", pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
@@ -78,13 +81,15 @@ std::map<std::string, float> RegionPath::regionsToAvgOrientation(
          ROS_INFO ("ROLL: %lf, PITCH: %lf, YAW: %lf", roll, pitch, yaw);
         }
     }
-    }
+    // else
+    //   ROS_INFO("Invalid region detected: %s", region.c_str());
+  }
 }
 
-std::map<std::string, std::vector<geometry_msgs::PoseStamped>> RegionPath::getPointsInRegions(){
-  return pointsInRegions;
+std::map<std::string, std::vector<geometry_msgs::PoseStamped>> MapInfo::getRegionToPointsMap(){
+  return regionToPointsMap;
 }
 
-std::vector<std::string> RegionPath::getPathOfRegions(){
-  return pathOfRegions;
+std::vector<std::string> MapInfo::getRegionList(){
+  return regionList;
 }

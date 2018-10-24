@@ -142,7 +142,7 @@ include_directories(
 add_executable(main_node
 		src/main.cpp
 		src/FuturePoseStamped.cpp
-    src/RegionPath.cpp
+    src/MapInfo.cpp
     src/Instruction.cpp
     src/VerbPhrase.cpp
     src/Preposition.cpp
