@@ -8,7 +8,7 @@
 
 enum class Directions {NONE, STRAIGHT, LEFT, RIGHT};
 
-class VerbPhrase : Instruction {
+class VerbPhrase : public Instruction {
 
 public:
   VerbPhrase(std::string name);
@@ -22,6 +22,5 @@ public:
   void addDirection(Directions dir);
   void setStartRegion(std::string region);
   void setEndRegion(std::string region);
-
 };
 #endif

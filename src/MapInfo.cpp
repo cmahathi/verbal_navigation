@@ -11,7 +11,7 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
   buildRegionAndPointsInfo();
   buildRegionOrientationInfo();
   buildRegionsToLandmarksMap();
-  // buildInstructions();
+  buildInstructions();
 }
 
 
@@ -50,37 +50,18 @@ void MapInfo::buildRegionAndPointsInfo() {
 
 
 void MapInfo::buildRegionOrientationInfo() {
-
   // calculate representative orientation for every region
   std::map<std::string, std::vector<geometry_msgs::PoseStamped>>::iterator it;
   for ( it = regionToPointsMap.begin(); it != regionToPointsMap.end(); it++ ) {
 
-    int numPoses = poseList.size();
-    std::vector<geometry_msgs::PoseStamped> poseList = it->second;
-    Eigen::MatrixXd pointMatrix(numPoses, 3); // this is "A" matrix in the best-fit equation
-    Eigen::VectorXd zeroes = Eigen::VectorXd::Zero(numPoses, 1); // this is the "B" vector in the best-fit equation
+    std::vector<geometry_msgs::PoseStamped> posesInRegionList = it->second;
+    auto x = posesInRegionList.front().pose.position.x - posesInRegionList.back().pose.position.x;
+    auto y = posesInRegionList.front().pose.position.y - posesInRegionList.back().pose.position.y;
+    Eigen::Vector2d regionPathVector(x, y);
 
-    // populate the matrix with every point in this region
-    for (int ix = 0; ix < numPoses; ix++) {
-      geometry_msgs::Point thisPoint = poseList[ix].pose.position;
-      pointMatrix(ix, 0) = thisPoint.x;
-      pointMatrix(ix, 1) = thisPoint.y;
-      pointMatrix(ix, 2) = 1;
-    }
-
-    // calculate the best-fit line
-    Eigen::Vector3d best_fit = pointMatrix.bdcSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(zeroes);
-    ROS_INFO("Region Name: %s", it->first.c_str());
-    ROS_INFO("best fit is:");
-    ROS_INFO("x: %lf", best_fit(0));
-    ROS_INFO("y: %lf", best_fit(1));
-
-    regionToOrientationMap.emplace(std::make_pair(it->first, best_fit));
-    // ROS_INFO(best_fit);
-
+    regionToOrientationMap.emplace(std::make_pair(it->first, regionPathVector));
+    // ROS_INFO("r2o %s %lf %lf", regionToOrientationMap.find(it->first)->first.c_str(), regionPathVector(0), regionPathVector(1));
   }
-
-  ROS_INFO("all regions have been best-fitted.");
 }
 
   // std::map<std::string, std::vector<geometry_msgs::PoseStamped>> map) {
@@ -147,24 +128,32 @@ void MapInfo::buildRegionsToLandmarksMap() {
 }
 
 void MapInfo::buildInstructions() {
-  for (int ix = 0; ix < regionList.size(); ix ++) {
+  for (int ix = 0; ix < regionList.size() - 1; ix ++) {
     std::string thisRegion = regionList[ix];
-    std::string nextRegion = "";
-    if (ix != regionList.size()) {
-      nextRegion = regionList[ix + 1];
-    }
+    std::string nextRegion = regionList[ix + 1];
+
+    auto direction = shouldTurnBetween(thisRegion, nextRegion);
 
     VerbPhrase travelIns = VerbPhrase("travel");
     travelIns.setStartRegion(thisRegion);
     travelIns.setEndRegion(thisRegion);
-
-    VerbPhrase turnIns = VerbPhrase("turn");
-    turnIns.setStartRegion(thisRegion);
-    turnIns.setEndRegion(nextRegion);
+    instructionList.push_back(travelIns);
 
 
+    if(direction != Directions::STRAIGHT) {
+      VerbPhrase turnIns = VerbPhrase("turn");
+      turnIns.setStartRegion(thisRegion);
+      turnIns.setEndRegion(nextRegion);
+      turnIns.addDirection(direction);
+
+      instructionList.push_back(turnIns);
+    }
   }
 
+  for(VerbPhrase instr : instructionList) {
+    ROS_INFO(instr.toNaturalLanguage().c_str());
+  }
+  //Add arrival predicate
 }
 
 /* HELPER METHODS */
@@ -176,6 +165,26 @@ std::string MapInfo::getRegion(geometry_msgs::Pose currentLocation) {
 
   bwi_mapper::Point2f mapPoint(robot_x, robot_y);
   return translator.getLocationString(translator.getLocationIdx(mapPoint));
+}
+
+Directions MapInfo::shouldTurnBetween(std::string fromRegion, std::string toRegion) {
+  auto fromVector = regionToOrientationMap.find(fromRegion)->second;
+  auto toVector = regionToOrientationMap.find(toRegion)->second;
+
+  auto dot = fromVector.dot(toVector);
+  auto det = fromVector(0)*toVector(1) - fromVector(1)*toVector(0);
+  auto angle = std::atan2(det, dot);
+
+  ROS_INFO("Angle betwenn %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
+
+  if(angle < -M_PI/4) {
+    return Directions::RIGHT;
+  }
+  else if(angle > M_PI/4) {
+    return Directions::LEFT;
+  }
+
+  return Directions::STRAIGHT;
 }
 
 /* GETTER METHODS */

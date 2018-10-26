@@ -5,7 +5,7 @@
 #include <string>
 #include "verbal_navigation/Instruction.h"
 
-class Preposition : Instruction {
+class Preposition : public Instruction {
 
 public:
   Preposition(std::string name, std::string landmark);
