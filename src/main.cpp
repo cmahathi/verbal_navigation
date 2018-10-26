@@ -19,14 +19,7 @@
 
 const std::string projectDir = "/home/fri/TGI_FRIdays_ws/";
 
-std::string getRegion(bwi_logical_translator::BwiLogicalTranslator& translator, geometry_msgs::PoseStamped currentLocation) {
-	float robot_x = currentLocation.pose.position.x;
-	float robot_y = currentLocation.pose.position.y;
 
-	bwi_mapper::Point2f mapPoint(robot_x, robot_y);
-	return translator.getLocationString(translator.getLocationIdx(mapPoint));
-	// return translator.getRegionString(translator.getRegionIdx(mapPoint));
-}
 
 int main (int argc, char** argv) {
 
@@ -85,29 +78,20 @@ int main (int argc, char** argv) {
 
 	srv.request.tolerance = -1.0f;
 
+	// MAKE THE PLAN, which populates the response with a list of poses
 	path_client.call(srv);
+
 	ROS_INFO("Response received, size %d", srv.response.plan.poses.size());
 	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
 
+
+	// do the heavy lifting in this class
 	MapInfo MapInfo(translator, pose_list);
-
-
-	// TODO: pass srv.response into new function (compartmentalize!!)
-
-	// there's a list of doors (which are coordinates). Figure out how
-	// that list is stored, and then pick a door from the list.
-
-	// VerbPhrase test("Go", Directions::STRAIGHT);
-	// Preposition testPrep("past", "water fountain");
-	// test.addChild(testPrep);
-	// ROS_INFO("Instruction: %s\n", test.toNaturalLanguage());
-
 
 
 
 
 	while (ros::ok()) {
-		// ROS_INFO("Hellooo world");
 		ros::spinOnce();
 	}
 }
