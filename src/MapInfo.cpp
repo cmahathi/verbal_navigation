@@ -57,8 +57,8 @@ void MapInfo::buildRegionOrientationInfo() {
   for ( it = regionToPosesMap.begin(); it != regionToPosesMap.end(); it++ ) {
 
     std::vector<geometry_msgs::PoseStamped> posesInRegionList = it->second;
-    auto x = posesInRegionList.front().pose.position.x - posesInRegionList.back().pose.position.x;
-    auto y = posesInRegionList.front().pose.position.y - posesInRegionList.back().pose.position.y;
+    auto x = posesInRegionList.back().pose.position.x - posesInRegionList.front().pose.position.x;
+    auto y = posesInRegionList.back().pose.position.y - posesInRegionList.front().pose.position.y;
     Eigen::Vector2d regionPathVector(x, y);
 
     regionToOrientationMap.emplace(std::make_pair(it->first, regionPathVector));
@@ -149,9 +149,9 @@ void MapInfo::buildInstructions() {
     }
   }
 
-  //Arrival arrival = Arrival(regionList[regionList.size()-1]);
-  //arrival.addDirection(Directions::STRAIGHT);
-  //instructionList.push_back(&arrival);
+  auto arrival = std::make_shared<Arrival>(regionList[regionList.size()-1]);
+  arrival->addDirection(getFinalDirection(regionList[regionList.size()-1]));
+  instructionList.push_back(arrival);
 }
 
 
@@ -197,6 +197,35 @@ std::string MapInfo::getRegion(geometry_msgs::Pose currentLocation) {
   return translator.getLocationString(translator.getLocationIdx(mapPoint));
 }
 
+// input: A region name
+// returns the Direction enum representing the angular difference between the two regions
+Directions MapInfo::getFinalDirection(std::string finalRegion) {
+  auto poseList = regionToPosesMap.find(finalRegion)->second;
+
+  auto x1 = poseList.back().pose.position.x - poseList[0].pose.position.x;
+  auto y1 = poseList.back().pose.position.y - poseList[0].pose.position.y;
+
+  auto x2 = poseList.back().pose.position.x - poseList[0].pose.position.x;
+  auto y2 = poseList.back().pose.position.y - poseList[0].pose.position.y;
+
+  Eigen::Vector2d firstVector(x1, y1);
+  Eigen::Vector2d secondVector(x2, y2);
+
+  auto dot = firstVector.dot(secondVector);
+  auto det = firstVector(0)*secondVector(1) - firstVector(1)*secondVector(0);
+  auto angle = std::atan2(det, dot);
+
+  //ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
+
+  if(angle > MapInfo::ANGLE_THRESHOLD) {
+    return Directions::LEFT;
+  }
+  else if(angle < -MapInfo::ANGLE_THRESHOLD) {
+    return Directions::RIGHT;
+  }
+
+  return Directions::STRAIGHT;
+}
 
 // input: two region names
 // returns the Direction enum representing the angular difference between the two regions
@@ -210,11 +239,11 @@ Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRe
 
   ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
 
-  if(angle < -MapInfo::ANGLE_THRESHOLD) {
-    return Directions::RIGHT;
-  }
-  else if(angle > MapInfo::ANGLE_THRESHOLD) {
+  if(angle > MapInfo::ANGLE_THRESHOLD) {
     return Directions::LEFT;
+  }
+  else if(angle < -MapInfo::ANGLE_THRESHOLD) {
+    return Directions::RIGHT;
   }
 
   return Directions::STRAIGHT;

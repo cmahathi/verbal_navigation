@@ -42,7 +42,7 @@ class MapInfo {
   std::vector<Landmark> landmarkList;
 
   // Instruction objects used to generate natural language
-  std::vector<std::shared_ptr<Instruction>> instructionList; 
+  std::vector<std::shared_ptr<Instruction>> instructionList;
 
   // keys: region names; values: list of "Landmark" objects representing landmarks in that region
   std::map<std::string, std::vector<Landmark>> regionToLandmarksMap;
@@ -59,6 +59,7 @@ class MapInfo {
   /* HLPER METHODS */
   Landmark getClosestLandmarkTo(geometry_msgs::PoseStamped pose);
   Directions getDirectionBetween(std::string fromRegion, std::string toRegion);
+  Directions getFinalDirection(std::string finalRegion);
   std::string getRegion(geometry_msgs::Pose currentLocation);
 
 
