@@ -12,6 +12,9 @@
 #include <bwi_mapper/structures/point.h>
 #include <vector>
 
+#include <sound_play/sound_play.h>
+#include <unistd.h>
+
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/Preposition.h"
