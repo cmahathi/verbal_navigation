@@ -25,13 +25,21 @@
 const std::string projectDir = "/home/fri/TGI_FRIdays_ws/";
 
 
+void sleepok(int t, ros::NodeHandle &nh) {
+	if (nh.ok()) {
+		sleep(t);
+	}
+}
+
+
 int main (int argc, char** argv) {
 	ROS_INFO("Weldome to FRI_SPEAK");
 
 	// FuturePoseStamped initialPose;
 	// FuturePoseStamped goalPose;
-	ros::init(argc, argv, "main_node");
-	ros::NodeHandle n;
+	ros::init(argc, argv, "FRI_SPEAK");
+	ros::NodeHandle nh;
+
 
 	geometry_msgs::PoseStamped initialPose;
 	geometry_msgs::PoseStamped goalPose;
@@ -74,7 +82,7 @@ int main (int argc, char** argv) {
 
 	// call service to generate path from start to dest
 	//ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
-	ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/make_plan");
+	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("move_base/make_plan");
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
@@ -101,17 +109,15 @@ int main (int argc, char** argv) {
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO(" ");
 
-
+	// make a sound_play object, which will speak the final directions
+	sound_play::SoundClient sc;
+	sleepok(5, nh);
+	// MAKE SURE TO RUN THE sound_play node using
+	// "rosrun sound_play soundplay_node.py" before sending a sound
+ 	sc.say(finalDirections);
 
 
 	while (ros::ok()) {
 		ros::spinOnce();
-	}
-}
-
-
-void sleepok(int t, ros::NodeHandle &nh) {
-	if (nh.ok()) {
-		sleep(t);
 	}
 }
