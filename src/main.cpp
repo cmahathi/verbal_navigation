@@ -12,6 +12,9 @@
 #include <bwi_mapper/structures/point.h>
 #include <vector>
 
+#include <sound_play/sound_play.h>
+#include <unistd.h>
+
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/Preposition.h"
@@ -93,10 +96,22 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo(translator, pose_list);
-	mapInfo.generateDirections();
+	std::string finalDirections = mapInfo.generateDirections();
+	ROS_INFO(" ");
+	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+	ROS_INFO(" ");
+
+
 
 
 	while (ros::ok()) {
 		ros::spinOnce();
+	}
+}
+
+
+void sleepok(int t, ros::NodeHandle &nh) {
+	if (nh.ok()) {
+		sleep(t);
 	}
 }
