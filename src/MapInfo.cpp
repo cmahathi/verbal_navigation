@@ -137,7 +137,7 @@ void MapInfo::buildInstructions() {
     VerbPhrase travelIns = VerbPhrase("travel");
     travelIns.setStartRegion(thisRegion);
     travelIns.setEndRegion(thisRegion);
-    instructionList.push_back(travelIns);
+    instructionList.push_back(&travelIns);
 
 
     if(direction != Directions::STRAIGHT) {
@@ -146,12 +146,17 @@ void MapInfo::buildInstructions() {
       turnIns.setEndRegion(nextRegion);
       turnIns.addDirection(direction);
 
-      instructionList.push_back(turnIns);
+      instructionList.push_back(&turnIns);
     }
   }
+  
 
-  for(VerbPhrase instr : instructionList) {
-    ROS_INFO(instr.toNaturalLanguage().c_str());
+  //Arrival arrival = Arrival(regionList[regionList.size()-1]);
+  //arrival.addDirection(Directions::STRAIGHT);
+  //instructionList.push_back(&arrival);
+
+  for(int i = 0; i < instructionList.size(); i++) {
+    ROS_INFO(instructionList[i]->toNaturalLanguage().c_str());
   }
   
   //Add arrival predicate
@@ -176,7 +181,7 @@ Directions MapInfo::shouldTurnBetween(std::string fromRegion, std::string toRegi
   auto det = fromVector(0)*toVector(1) - fromVector(1)*toVector(0);
   auto angle = std::atan2(det, dot);
 
-  ROS_INFO("Angle betwenn %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
+  ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
 
   if(angle < -M_PI/4) {
     return Directions::RIGHT;

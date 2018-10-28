@@ -11,6 +11,7 @@
 #include <map>
 #include <cmath>
 #include "verbal_navigation/VerbPhrase.h"
+#include "verbal_navigation/Arrival.h"
 
 #include <Eigen/Dense>
 
@@ -26,7 +27,7 @@ class MapInfo {
   std::map<std::string, geometry_msgs::Pose> landmarkNameToPositionMap; // maps landmark names to landmark locations
   std::map<std::string, std::vector<std::string>> regionToLandmarksMap; // maps region names to vector of landmarks names within that region
 
-  std::vector<VerbPhrase> instructionList; // Instruction objects used to generate natural language
+  std::vector<Instruction*> instructionList; // Instruction objects used to generate natural language
 
   void buildRegionAndPointsInfo(); //
   void buildRegionOrientationInfo();

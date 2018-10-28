@@ -6,8 +6,6 @@
 #include "verbal_navigation/Instruction.h"
 #include "verbal_navigation/Preposition.h"
 
-enum class Directions {NONE, STRAIGHT, LEFT, RIGHT};
-
 class VerbPhrase : public Instruction {
 
 public:

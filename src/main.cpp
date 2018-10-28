@@ -54,10 +54,9 @@ int main (int argc, char** argv) {
 
 	// ros::Subscriber sub = n.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 	// ros::Subscriber sub1 = n.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
-
 	ros::param::set("~map_file", projectDir +  "src/verbal_navigation/src/3ne/3ne.yaml");
 	ros::param::set("~data_directory", projectDir + "src/verbal_navigation/src/3ne");
-	ros::param::set("move_base/orientation_mode", 1);
+	//ros::param::set("move_base/orientation_mode", 1);
 	bwi_logical_translator::BwiLogicalTranslator translator;
 	translator.initialize();
 
