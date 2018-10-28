@@ -32,6 +32,11 @@ void VerbPhrase::addDirection(Directions dir) {
   direction = dir;
 }
 
+void VerbPhrase::addPreposition(Preposition prep){
+  children.push_back(prep);
+}
+
+
 void VerbPhrase::setStartRegion(std::string region){
   startRegion = region;
 

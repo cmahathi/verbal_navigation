@@ -11,10 +11,12 @@
 #include <bwi_logical_translator/bwi_logical_translator.h>
 #include <bwi_mapper/structures/point.h>
 #include <vector>
+
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/Preposition.h"
 #include "verbal_navigation/VerbPhrase.h"
+#include "verbal_navigation/Landmark.h"
 
 
 const std::string projectDir = "/home/fri/TGI_FRIdays_ws/";
@@ -86,9 +88,7 @@ int main (int argc, char** argv) {
 
 
 	// do the heavy lifting in this class
-	MapInfo MapInfo(translator, pose_list);
-
-
+	MapInfo mapInfo(translator, pose_list);
 
 
 	while (ros::ok()) {
