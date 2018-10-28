@@ -17,5 +17,4 @@ public:
   std::string getName();
   geometry_msgs::Pose getPose();
 };
-
 #endif

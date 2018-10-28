@@ -14,13 +14,11 @@ class VerbPhrase : public Instruction {
   std::vector<Preposition> children;
   std::string startRegion;
   std::string endRegion;
-  
+
 public:
   VerbPhrase(std::string name);
 
-
   virtual std::string toNaturalLanguage();
-  void addChild(Preposition p);
   void addDirection(Directions dir);
   void setStartRegion(std::string region);
   void setEndRegion(std::string region);

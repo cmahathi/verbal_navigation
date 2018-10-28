@@ -33,6 +33,7 @@ int main (int argc, char** argv) {
 	geometry_msgs::PoseStamped initialPose;
 	geometry_msgs::PoseStamped goalPose;
 
+	// for now, hard code the start and end poses
 	initialPose.header.stamp = ros::Time::now();
 	initialPose.header.frame_id = "/level_mux_map";
 	initialPose.pose.position.x = 14.6793708801;
@@ -53,24 +54,29 @@ int main (int argc, char** argv) {
 	goalPose.pose.orientation.z = -0.65703277302;
 	goalPose.pose.orientation.w = 0.753862013354;
 
-
+	// subscribe to topics which provide start and dest poses
 	// ros::Subscriber sub = n.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 	// ros::Subscriber sub1 = n.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 
+	// set params to read map files
 	ros::param::set("~map_file", projectDir +  "src/verbal_navigation/src/3ne/3ne.yaml");
 	ros::param::set("~data_directory", projectDir + "src/verbal_navigation/src/3ne");
 	ros::param::set("move_base/orientation_mode", 1);
+
 	bwi_logical_translator::BwiLogicalTranslator translator;
 	translator.initialize();
 
-
+	// wait until start and dest poses exist
 	// while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
 
-	ROS_INFO("HAVE START AND GOAL");
+	ROS_INFO("Start and dest poses received: generating path...");
+
+	// call service to generate path from start to dest
 	//ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
 	ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/make_plan");
 	path_client.waitForExistence();
-	ROS_INFO("Path client found");
+	ROS_INFO("Path service found");
+
 
 	nav_msgs::GetPlan srv;
 	// srv.request.start = initialPose.getPose();
@@ -80,15 +86,16 @@ int main (int argc, char** argv) {
 
 	srv.request.tolerance = -1.0f;
 
-	// MAKE THE PLAN, which populates the response with a list of poses
+	// call service to generate plan, which returns a list of PoseStamped
 	path_client.call(srv);
 
-	ROS_INFO("Response received, size %d", srv.response.plan.poses.size());
+	ROS_INFO("Response received; size: %d", srv.response.plan.poses.size());
 	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
 
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo(translator, pose_list);
+	mapInfo.generateDirections();
 
 
 	while (ros::ok()) {
