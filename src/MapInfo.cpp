@@ -1,9 +1,8 @@
 #include "verbal_navigation/MapInfo.h"
 
-
-//Constructor
+// constructor
 MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path)
-  : translator(trans), poseList(path), regionList(), regionToPointsMap() {
+  : translator(trans), poseList(path) {
 
   if(poseList.empty()) {
     ROS_INFO("ERROR: Initialized with empty path");
@@ -15,44 +14,47 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
 }
 
 
-
+// turns path of poses into list of regions, and builds map of regions to poses
 void MapInfo::buildRegionAndPointsInfo() {
-  //adds the first region the path goes through
+
+  // add the robot's initial region to the regionList
   regionList.push_back(getRegion(poseList.front().pose));
   //ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
-
-  // add each point's region to the region list, and add the point to the regionToPointsMap
+  ROS_INFO("START REGIONS");
+  // add each point's region to the region list, and add the point to the regionToPosesMap
   for(size_t i = 0; i < poseList.size(); ++i) {
     auto currentLocation = poseList[i];
     //ROS_INFO("Orientation: %lf, %lf, %lf, %lf", currentLocation.pose.orientation.x,currentLocation.pose.orientation.y,currentLocation.pose.orientation.z,currentLocation.pose.orientation.w);
 
     std::string region = getRegion(currentLocation.pose);
 
-    //only adds the region to the list of regions if the previous pose was
-    //not in the region
+    // only add region to regionList if it's not same as last seen region
     if (region.compare("") != 0) {
       if( (regionList.back()).compare(region) != 0) {
         regionList.push_back(region);
-        // ROS_INFO("Added region: %s\n", region.c_str());
+        ROS_INFO("REGION: %s\n", region.c_str());
       }
-      // add point to regionToPointsMap
-      auto points = regionToPointsMap.find(region);
-      if(points == regionToPointsMap.end()) {
+      // add point to regionToPosesMap
+      auto points = regionToPosesMap.find(region);
+      if(points == regionToPosesMap.end()) {
         std::vector<geometry_msgs::PoseStamped> newList;
         newList.push_back(currentLocation);
-        regionToPointsMap.emplace(std::make_pair(region, newList));
+        regionToPosesMap.emplace(std::make_pair(region, newList));
       } else {
         points->second.push_back(currentLocation);
       }
     }
   }
+  ROS_INFO("END REGIONS");
+
 }
 
 
+// determines representative orientation for each region using first and last pose in that region
 void MapInfo::buildRegionOrientationInfo() {
   // calculate representative orientation for every region
   std::map<std::string, std::vector<geometry_msgs::PoseStamped>>::iterator it;
-  for ( it = regionToPointsMap.begin(); it != regionToPointsMap.end(); it++ ) {
+  for ( it = regionToPosesMap.begin(); it != regionToPosesMap.end(); it++ ) {
 
     std::vector<geometry_msgs::PoseStamped> posesInRegionList = it->second;
     auto x = posesInRegionList.front().pose.position.x - posesInRegionList.back().pose.position.x;
@@ -64,51 +66,24 @@ void MapInfo::buildRegionOrientationInfo() {
   }
 }
 
-  // std::map<std::string, std::vector<geometry_msgs::PoseStamped>> map) {
-  //   std::map<std::string, float> result;
-  //   double yawTotal = 0.0;
-  //   int numPoints = 0;
-  //   for (int i = 0; i < regionList.size(); i++) {
-  //     ROS_INFO("Getting new pose list");
-  //     std::string region = regionList.at(i);
-  //     if (regionToPointsMap.find(region) != regionToPointsMap.end()) {
-  //       std::vector<geometry_msgs::PoseStamped> poseList = regionToPointsMap.find(region)->second;
-  //       ROS_INFO("Region: %s", region.c_str());
-  //       for (int i = 0; i < poseList.size(); i++) {
-  //         geometry_msgs::PoseStamped pose = poseList.at(i);
-  //         ROS_INFO("Position: %lf %lf %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
-  //         ROS_INFO("Orietation: %lf %lf %lf %lf", pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w);
-  //         tf::Quaternion q(
-  //           pose.pose.orientation.x,
-  //           pose.pose.orientation.y,
-  //           pose.pose.orientation.z,
-  //           pose.pose.orientation.w
-  //         );
-  //           tf::Matrix3x3 m(q);
-  //        double roll, pitch, yaw;
-  //
-  //        m.getRPY(roll, pitch, yaw);
-  //        ROS_INFO ("ROLL: %lf, PITCH: %lf, YAW: %lf", roll, pitch, yaw);
-  //       }
-  //   }
 
-
-
+// builds a "Landmark" object for each landmark; builds a list of landmarks;
+// build a map of regions to landmarks in that region
 void MapInfo::buildRegionsToLandmarksMap() {
 
-  landmarkNameToPositionMap = translator.getObjectApproachMap();
+  // get a map of landmark names to landmark positions from the translator
+  const auto& landmarkNameToPositionMap = translator.getObjectApproachMap();
   for (auto const& pair : landmarkNameToPositionMap) {
-    std::string landmark = pair.first;
-    //ROS_INFO("object found: %s", object.c_str());
-    geometry_msgs::Pose pose = pair.second;
-    //ROS_INFO("Location: %lf %lf %lf", pose.position.x, pose.position.y, pose.position.z);
-    std::string region = getRegion(pose);
+    Landmark landmark(pair.first, pair.second);
+    landmarkList.push_back(landmark);
+
+    std::string region = getRegion(landmark.getPose());
 
     auto regionToLandmarksPair = regionToLandmarksMap.find(region);
 
-    // if it doesn't exist already
+    // if region doesn't have any landmarks yet, add this first one
     if(regionToLandmarksPair == regionToLandmarksMap.end()) {
-      std::vector<std::string> newList;
+      std::vector<Landmark> newList;
       newList.push_back(landmark);
       regionToLandmarksMap.emplace(std::make_pair(region, newList));
     } else {
@@ -116,39 +91,65 @@ void MapInfo::buildRegionsToLandmarksMap() {
       regionToLandmarksPair->second.push_back(landmark);
     }
   }
-  // CODE TO PRINT
-  // std::map<std::string, std::vector<std::string>>::iterator it;
-  // for ( it = regionToLandmarksMap.begin(); it != regionToLandmarksMap.end(); it++ ) {
-  //   ROS_INFO("Region Name: %s", it->first.c_str());
-  //   for (std::string landmark : it->second) {
-  //     ROS_INFO("  Landmark: %s", landmark.c_str());
-  //   }
-  // }
 
+  // CODE TO PRINT
+  std::map<std::string, std::vector<std::string>>::iterator it;
+  for (auto it = regionToLandmarksMap.begin(); it != regionToLandmarksMap.end(); it++ ) {
+    ROS_INFO("Region Name: %s", it->first.c_str());
+    for (auto landmark : it->second) {
+      ROS_INFO("  Landmark: %s", landmark.getName().c_str());
+    }
+  }
 }
 
+
+// builds a list of predicates representing the verbal instructions for this path
 void MapInfo::buildInstructions() {
+
+  // iterate through all the regions except the last one
   for (int ix = 0; ix < regionList.size() - 1; ix ++) {
     std::string thisRegion = regionList[ix];
     std::string nextRegion = regionList[ix + 1];
 
-    auto direction = shouldTurnBetween(thisRegion, nextRegion);
+    auto direction = getDirectionBetween(thisRegion, nextRegion);
 
     auto travelIns = std::make_shared<VerbPhrase>("travel");
     travelIns->setStartRegion(thisRegion);
     travelIns->setEndRegion(thisRegion);
     instructionList.push_back(travelIns);
 
-
+    // if we are turning left or right, then instantiate a "Turn" verb phrase
     if(direction != Directions::STRAIGHT) {
       auto turnIns = std::make_shared<VerbPhrase>("turn");
       turnIns->setStartRegion(thisRegion);
       turnIns->setEndRegion(nextRegion);
       turnIns->addDirection(direction);
 
+      // see if there's a nearby landmark to include in the turn instruction
+      auto pairIt = regionToPosesMap.find(thisRegion);
+      auto posesInThisRegion = pairIt->second;
+      geometry_msgs::PoseStamped boundry = posesInThisRegion.back();
+
+      Landmark closestLandmark = getClosestLandmarkTo(boundry);
+      double closestDistance = closestLandmark.distanceTo(boundry.pose).data;
+
+      // PRINT CODE
+      ROS_INFO("Region: %s, closest landmark to boundry: %s with distance %lf",
+                thisRegion.c_str(),
+                closestLandmark.getName().c_str(),
+                closestDistance);
+
+      // if the landmark is close enough to the turn location, use it
+      if (closestDistance < MapInfo::DISTANCE_THRESHOLD) {
+        Preposition turnPrep = Preposition("at", closestLandmark);
+        turnIns.addPreposition(turnPrep);
+      }
+
+      // add the finished turn instruction to the instruction list
       instructionList.push_back(turnIns);
     }
   }
+
   
 
   //Arrival arrival = Arrival(regionList[regionList.size()-1]);
@@ -157,14 +158,45 @@ void MapInfo::buildInstructions() {
 
   for(int i = 0; i < instructionList.size(); i++) {
     ROS_INFO("%s", instructionList[i]->toNaturalLanguage().c_str());
-  }
-  
+
   //Add arrival predicate
 }
 
+
+// public method to generate natural language directions from
+// the previously generated information
+// void MapInfo::generateDirections(){
+//   // iterate over generated instructions, building natural language directions
+//   for(VerbPhrase instr : instructionList) {
+//     std::string directionCommand = instr.toNaturalLanguage();\
+//     directions.append(directionCommand);
+//   }
+//   ROS_INFO(directions.c_str());
+// }
+
+
+
 /* HELPER METHODS */
 
-//takes in a location on the map and returns the region it is in
+// input: any point on the map
+// returns the Landmark with closest Euclidean distance to the specified point
+Landmark MapInfo::getClosestLandmarkTo(geometry_msgs::PoseStamped pose) {
+  double shortestDistance = std::numeric_limits<double>::max();
+  Landmark* closestLandmark;
+  // iterate over all landmarks
+  for(auto& landmark : landmarkList) {
+    auto dist = landmark.distanceTo(pose.pose).data;
+    if(dist < shortestDistance) {
+      closestLandmark = &landmark;
+      shortestDistance = dist;
+    }
+  }
+  return *closestLandmark;
+}
+
+
+// input: any point on the map
+// returns the specified point's enclosing region
 std::string MapInfo::getRegion(geometry_msgs::Pose currentLocation) {
   float robot_x = currentLocation.position.x;
   float robot_y = currentLocation.position.y;
@@ -173,7 +205,10 @@ std::string MapInfo::getRegion(geometry_msgs::Pose currentLocation) {
   return translator.getLocationString(translator.getLocationIdx(mapPoint));
 }
 
-Directions MapInfo::shouldTurnBetween(std::string fromRegion, std::string toRegion) {
+
+// input: two region names
+// returns the Direction enum representing the angular difference between the two regions
+Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRegion) {
   auto fromVector = regionToOrientationMap.find(fromRegion)->second;
   auto toVector = regionToOrientationMap.find(toRegion)->second;
 
@@ -183,22 +218,12 @@ Directions MapInfo::shouldTurnBetween(std::string fromRegion, std::string toRegi
 
   ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
 
-  if(angle < -M_PI/4) {
+  if(angle < -MapInfo::ANGLE_THRESHOLD) {
     return Directions::RIGHT;
   }
-  else if(angle > M_PI/4) {
+  else if(angle > MapInfo::ANGLE_THRESHOLD) {
     return Directions::LEFT;
   }
 
   return Directions::STRAIGHT;
 }
-
-/* GETTER METHODS */
-//
-// std::map<std::string, std::vector<geometry_msgs::PoseStamped>> MapInfo::getRegionToPointsMap(){
-//   return regionToPointsMap;
-// }
-//
-// std::vector<std::string> MapInfo::getRegionList(){
-//   return regionList;
-// }

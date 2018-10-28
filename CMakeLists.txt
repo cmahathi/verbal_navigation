@@ -148,6 +148,7 @@ add_executable(main_node
     src/VerbPhrase.cpp
     src/Preposition.cpp
     src/Arrival.cpp
+    src/Landmark.cpp
     )
 
 ## Rename C++ executable without prefix
