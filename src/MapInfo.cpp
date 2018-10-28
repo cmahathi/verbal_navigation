@@ -113,18 +113,17 @@ void MapInfo::buildInstructions() {
 
     auto direction = getDirectionBetween(thisRegion, nextRegion);
 
-    VerbPhrase travelIns = VerbPhrase("travel");
-    travelIns.setStartRegion(thisRegion);
-    travelIns.setEndRegion(thisRegion);
+    auto travelIns = std::make_shared<VerbPhrase>("travel");
+    travelIns->setStartRegion(thisRegion);
+    travelIns->setEndRegion(thisRegion);
     instructionList.push_back(travelIns);
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     if(direction != Directions::STRAIGHT) {
-
-      VerbPhrase turnIns = VerbPhrase("turn");
-      turnIns.setStartRegion(thisRegion);
-      turnIns.setEndRegion(nextRegion);
-      turnIns.addDirection(direction);
+      auto turnIns = std::make_shared<VerbPhrase>("turn");
+      turnIns->setStartRegion(thisRegion);
+      turnIns->setEndRegion(nextRegion);
+      turnIns->addDirection(direction);
 
       // see if there's a nearby landmark to include in the turn instruction
       auto pairIt = regionToPosesMap.find(thisRegion);
@@ -150,20 +149,30 @@ void MapInfo::buildInstructions() {
       instructionList.push_back(turnIns);
     }
   }
+
+  
+
+  //Arrival arrival = Arrival(regionList[regionList.size()-1]);
+  //arrival.addDirection(Directions::STRAIGHT);
+  //instructionList.push_back(&arrival);
+
+  for(int i = 0; i < instructionList.size(); i++) {
+    ROS_INFO("%s", instructionList[i]->toNaturalLanguage().c_str());
+
   //Add arrival predicate
 }
 
 
 // public method to generate natural language directions from
 // the previously generated information
-void MapInfo::generateDirections(){
-  // iterate over generated instructions, building natural language directions
-  for(VerbPhrase instr : instructionList) {
-    std::string directionCommand = instr.toNaturalLanguage();\
-    directions.append(directionCommand);
-  }
-  ROS_INFO(directions.c_str());
-}
+// void MapInfo::generateDirections(){
+//   // iterate over generated instructions, building natural language directions
+//   for(VerbPhrase instr : instructionList) {
+//     std::string directionCommand = instr.toNaturalLanguage();\
+//     directions.append(directionCommand);
+//   }
+//   ROS_INFO(directions.c_str());
+// }
 
 
 
@@ -207,7 +216,7 @@ Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRe
   auto det = fromVector(0)*toVector(1) - fromVector(1)*toVector(0);
   auto angle = std::atan2(det, dot);
 
-  ROS_INFO("Angle betwenn %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
+  ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
 
   if(angle < -MapInfo::ANGLE_THRESHOLD) {
     return Directions::RIGHT;

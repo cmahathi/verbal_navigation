@@ -11,6 +11,7 @@ class Preposition : public Instruction {
 public:
   Preposition(std::string name, Landmark landmark);
   Landmark landmark;
-  virtual std::string toNaturalLanguage();
+  std::string toNaturalLanguage();
+
 };
 #endif

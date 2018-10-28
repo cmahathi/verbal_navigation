@@ -6,19 +6,16 @@
 #include "verbal_navigation/Instruction.h"
 #include "verbal_navigation/Preposition.h"
 
-enum class Directions {NONE, STRAIGHT, LEFT, RIGHT};
-
 class VerbPhrase : public Instruction {
 
   Directions direction;
   std::vector<Preposition> children;
   std::string startRegion;
   std::string endRegion;
-
+  
 public:
   VerbPhrase(std::string name);
-
-  virtual std::string toNaturalLanguage();
+  std::string toNaturalLanguage();
   std::string getDirectionString();
   void addDirection(Directions dir);
   void setStartRegion(std::string region);

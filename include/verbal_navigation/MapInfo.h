@@ -14,6 +14,8 @@
 #include <Eigen/Dense>
 
 #include "verbal_navigation/VerbPhrase.h"
+#include "verbal_navigation/Arrival.h"
+#include <memory>
 #include "verbal_navigation/Preposition.h"
 #include "verbal_navigation/Landmark.h"
 
@@ -39,11 +41,11 @@ class MapInfo {
   // list of all landmarks as "Landmark" objects
   std::vector<Landmark> landmarkList;
 
+  // Instruction objects used to generate natural language
+  std::vector<std::shared_ptr<Instruction>> instructionList; 
+
   // keys: region names; values: list of "Landmark" objects representing landmarks in that region
   std::map<std::string, std::vector<Landmark>> regionToLandmarksMap;
-
-  // list of "Instruction" objects used to generate natural language
-  std::vector<VerbPhrase> instructionList;
 
   // a string representing the natural language instruction for this path.
   std::string directions;
