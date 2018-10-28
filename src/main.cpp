@@ -55,8 +55,8 @@ int main (int argc, char** argv) {
 	goalPose.pose.orientation.w = 0.753862013354;
 
 	// subscribe to topics which provide start and dest poses
-	// ros::Subscriber sub = n.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
-	// ros::Subscriber sub1 = n.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+	// ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
+	// ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 
 	ros::param::set("~map_file", projectDir +  "src/verbal_navigation/src/3ne/3ne.yaml");
 	ros::param::set("~data_directory", projectDir + "src/verbal_navigation/src/3ne");
@@ -93,10 +93,22 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo(translator, pose_list);
-	mapInfo.generateDirections();
+	std::string finalDirections = mapInfo.generateDirections();
+	ROS_INFO(" ");
+	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+	ROS_INFO(" ");
+
+
 
 
 	while (ros::ok()) {
 		ros::spinOnce();
+	}
+}
+
+
+void sleepok(int t, ros::NodeHandle &nh) {
+	if (nh.ok()) {
+		sleep(t);
 	}
 }

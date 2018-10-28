@@ -42,7 +42,7 @@ class MapInfo {
   std::vector<Landmark> landmarkList;
 
   // Instruction objects used to generate natural language
-  std::vector<std::shared_ptr<Instruction>> instructionList; 
+  std::vector<std::shared_ptr<Instruction>> instructionList;
 
   // keys: region names; values: list of "Landmark" objects representing landmarks in that region
   std::map<std::string, std::vector<Landmark>> regionToLandmarksMap;
@@ -70,6 +70,6 @@ public:
 
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path);
 
-  void generateDirections();
+  std::string generateDirections();
 };
 #endif

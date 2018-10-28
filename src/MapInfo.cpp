@@ -156,14 +156,14 @@ void MapInfo::buildInstructions() {
 
 
 // public method to generate natural language directions from
-// the previously generated information
-void MapInfo::generateDirections(){
+// the previously generated MapInfo information
+std::string MapInfo::generateDirections(){
   // iterate over generated instructions, building natural language directions
   for(auto instr : instructionList) {
     std::string directionCommand = instr->toNaturalLanguage();
     directions.append(directionCommand);
   }
-  ROS_INFO(directions.c_str());
+  return directions;
 }
 
 

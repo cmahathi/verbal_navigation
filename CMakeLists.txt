@@ -140,7 +140,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
-add_executable(main_node
+add_executable(FRI_SPEAK
 		src/main.cpp
 		src/FuturePoseStamped.cpp
     src/MapInfo.cpp
@@ -162,7 +162,7 @@ add_executable(main_node
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(main_node
+ target_link_libraries(FRI_SPEAK
    ${catkin_LIBRARIES}
  )
 
