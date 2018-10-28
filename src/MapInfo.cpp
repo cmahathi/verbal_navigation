@@ -128,27 +128,39 @@ void MapInfo::buildInstructions() {
       // see if there's a nearby landmark to include in the turn instruction
       auto pairIt = regionToPosesMap.find(thisRegion);
       auto posesInThisRegion = pairIt->second;
-      geometry_msgs::PoseStamped boundry = posesInThisRegion.back();
+      geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
-      Landmark closestLandmark = getClosestLandmarkTo(boundry);
-      double closestDistance = closestLandmark.distanceTo(boundry.pose).data;
+      Landmark closestLandmark = getClosestLandmarkTo(boundary);
+      double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;
 
       // PRINT CODE
-      ROS_INFO("Region: %s, closest landmark to boundry: %s with distance %lf",
+      ROS_INFO("Region: %s, closest landmark to boundary: %s with distance %lf",
                 thisRegion.c_str(),
                 closestLandmark.getName().c_str(),
-                closestDistance);
+                landmarkToBoundaryDistance);
 
       // if the landmark is close enough to the turn location, use it
-      if (closestDistance < MapInfo::DISTANCE_THRESHOLD) {
-        Preposition turnPrep = Preposition("at", closestLandmark);
-        turnIns->addPreposition(turnPrep);
+      if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
+        turnIns->addPreposition(Preposition("at", closestLandmark));
+      }
+      //If outside the "at" range, check if past/before
+      else {
+        auto startToLandmarkDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
+        auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
+        auto difference = startToEndDistance - startToLandmarkDistance;
+        if(std::abs(difference) < 6) {
+          if(difference > 0) {
+            turnIns->addPreposition(Preposition("past", closestLandmark));
+          } 
+          else {
+            turnIns->addPreposition(Preposition("before", closestLandmark));
+          }
+        } 
       }
       // add the finished turn instruction to the instruction list
       instructionList.push_back(turnIns);
     }
   }
-
   //Arrival arrival = Arrival(regionList[regionList.size()-1]);
   //arrival.addDirection(Directions::STRAIGHT);
   //instructionList.push_back(&arrival);
@@ -218,4 +230,12 @@ Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRe
   }
 
   return Directions::STRAIGHT;
+}
+
+std_msgs::Float64 MapInfo::distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose) {
+  auto dx = firstPose.position.x - lastPose.position.x;
+  auto dy = firstPose.position.y- lastPose.position.y;
+  std_msgs::Float64 distance;
+  distance.data = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
+  return distance;
 }

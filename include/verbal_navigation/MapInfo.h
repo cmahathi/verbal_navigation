@@ -3,6 +3,7 @@
 
 #include "ros/ros.h"
 #include <geometry_msgs/PoseStamped.h>
+#include <std_msgs/Float64.h>
 #include <bwi_logical_translator/bwi_logical_translator.h>
 #include <bwi_mapper/structures/point.h>
 #include <tf/tf.h>
@@ -71,5 +72,7 @@ public:
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path);
 
   void generateDirections();
+
+  static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
 };
 #endif
