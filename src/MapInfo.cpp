@@ -153,6 +153,7 @@ void MapInfo::buildInstructions() {
   for(VerbPhrase instr : instructionList) {
     ROS_INFO(instr.toNaturalLanguage().c_str());
   }
+  
   //Add arrival predicate
 }
 
