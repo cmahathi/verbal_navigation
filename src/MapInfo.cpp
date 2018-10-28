@@ -20,7 +20,7 @@ void MapInfo::buildRegionAndPointsInfo() {
   // add the robot's initial region to the regionList
   regionList.push_back(getRegion(poseList.front().pose));
   //ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
-
+  ROS_INFO("START REGIONS");
   // add each point's region to the region list, and add the point to the regionToPosesMap
   for(size_t i = 0; i < poseList.size(); ++i) {
     auto currentLocation = poseList[i];
@@ -32,7 +32,7 @@ void MapInfo::buildRegionAndPointsInfo() {
     if (region.compare("") != 0) {
       if( (regionList.back()).compare(region) != 0) {
         regionList.push_back(region);
-        // ROS_INFO("Added region: %s\n", region.c_str());
+        ROS_INFO("REGION: %s\n", region.c_str());
       }
       // add point to regionToPosesMap
       auto points = regionToPosesMap.find(region);
@@ -45,6 +45,8 @@ void MapInfo::buildRegionAndPointsInfo() {
       }
     }
   }
+  ROS_INFO("END REGIONS");
+
 }
 
 
@@ -164,8 +166,8 @@ void MapInfo::generateDirections(){
 }
 
 
-/* HELPER METHODS */
 
+/* HELPER METHODS */
 
 // input: any point on the map
 // returns the Landmark with closest Euclidean distance to the specified point

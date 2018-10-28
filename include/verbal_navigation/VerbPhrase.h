@@ -19,6 +19,7 @@ public:
   VerbPhrase(std::string name);
 
   virtual std::string toNaturalLanguage();
+  std::string getDirectionString();
   void addDirection(Directions dir);
   void setStartRegion(std::string region);
   void setEndRegion(std::string region);

@@ -22,8 +22,8 @@
 const std::string projectDir = "/home/fri/TGI_FRIdays_ws/";
 
 
-
 int main (int argc, char** argv) {
+	ROS_INFO("Weldome to FRI_SPEAK");
 
 	// FuturePoseStamped initialPose;
 	// FuturePoseStamped goalPose;
@@ -69,13 +69,13 @@ int main (int argc, char** argv) {
 	// wait until start and dest poses exist
 	// while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
 
-	ROS_INFO("Start and dest poses received: generating path...");
+	ROS_INFO("Start and dest poses received! Generating path...");
 
 	// call service to generate path from start to dest
 	//ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
 	ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/make_plan");
 	path_client.waitForExistence();
-	ROS_INFO("Path service found");
+	ROS_INFO("Path service found!");
 
 
 	nav_msgs::GetPlan srv;
@@ -89,7 +89,7 @@ int main (int argc, char** argv) {
 	// call service to generate plan, which returns a list of PoseStamped
 	path_client.call(srv);
 
-	ROS_INFO("Response received; size: %d", srv.response.plan.poses.size());
+	ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
 	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
 
 
