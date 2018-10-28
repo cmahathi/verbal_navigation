@@ -142,37 +142,29 @@ void MapInfo::buildInstructions() {
       // if the landmark is close enough to the turn location, use it
       if (closestDistance < MapInfo::DISTANCE_THRESHOLD) {
         Preposition turnPrep = Preposition("at", closestLandmark);
-        turnIns.addPreposition(turnPrep);
+        turnIns->addPreposition(turnPrep);
       }
-
       // add the finished turn instruction to the instruction list
       instructionList.push_back(turnIns);
     }
   }
 
-  
-
   //Arrival arrival = Arrival(regionList[regionList.size()-1]);
   //arrival.addDirection(Directions::STRAIGHT);
   //instructionList.push_back(&arrival);
-
-  for(int i = 0; i < instructionList.size(); i++) {
-    ROS_INFO("%s", instructionList[i]->toNaturalLanguage().c_str());
-
-  //Add arrival predicate
 }
 
 
 // public method to generate natural language directions from
 // the previously generated information
-// void MapInfo::generateDirections(){
-//   // iterate over generated instructions, building natural language directions
-//   for(VerbPhrase instr : instructionList) {
-//     std::string directionCommand = instr.toNaturalLanguage();\
-//     directions.append(directionCommand);
-//   }
-//   ROS_INFO(directions.c_str());
-// }
+void MapInfo::generateDirections(){
+  // iterate over generated instructions, building natural language directions
+  for(auto instr : instructionList) {
+    std::string directionCommand = instr->toNaturalLanguage();
+    directions.append(directionCommand);
+  }
+  ROS_INFO(directions.c_str());
+}
 
 
 
