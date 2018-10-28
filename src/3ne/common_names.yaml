@@ -1,0 +1,124 @@
+- name: o3_500_exit-sign-stairs
+  common_name: "exit sign"
+- name: o3_302_restrooms
+  common_name: "restrooms"
+- name: o3_516_yellow-conference-table
+  common_name: "yellow conference table"
+- name: o3_406_red-table
+  common_name: "red table"
+- name: o3_506_printer
+  common_name: "printer"
+- name: o3_400_fire-ex
+  common_name: "fire extinguisher"
+- name: o3_514_whiteboard
+  common_name: "whiteboard"
+- name: o3_436_soccer-field
+  common_name: "soccer field"
+- name: o3_200_elevators
+  common_name: "elevators"
+- name: o3_400_green-poster
+  common_name: "green poster"
+- name: o3_400_exit-sign
+  common_name: "exit sign"
+- name: o3_500_fire-ex
+  common_name: "fire extinguisher"
+- name: o3_400_exit-sign-stairs
+  common_name: "exit sign"
+- name: o3_500_exit-sign
+  common_name: "exit sign"
+- name: o3_400_blue-poster
+  common_name: "blue poster"
+- name: o3_406_whiteboard
+  common_name: "whiteboard"
+- name: o3_500_two-posters
+  common_name: "two posters"
+- name: o3_400_bench
+  common_name: "bench"
+- name: o3_410_desk
+  common_name: "desk"
+- name: o3_500_bench
+  common_name: "bench"
+- name: o3_400_blue-windows
+  common_name: "blue windows"
+- name: o3_520_refrigerator
+  common_name: "refrigerator"
+- name: o3_406_fire-ex
+  common_name: "fire extinguisher"
+- name: o3_434_two-posters
+  common_name: "two posters"
+- name: o3_514_trashcan
+  common_name: "trashcan"
+- name: l3_422
+  common_name: "Garrett Warnell's office"
+- name: l3_420
+  common_name: "Greg Durrett's office"
+- name: l3_408
+  common_name: "cubicles"
+- name: l3_424
+  common_name: "cubicles"
+- name: l3_302
+  common_name: "3rd floor lab"
+- name: l3_404
+  common_name: "Scott Niekum's office"
+- name: l3_406
+  common_name: "lobby"
+- name: l3_400
+  common_name: "hallway"
+- name: l3_402
+  common_name: "Justin Hart's office"
+- name: l3_516
+  common_name: "conference room"
+- name: l3_514
+  common_name: "common space"
+- name: l3_300
+  common_name: "hallway"
+- name: l3_512
+  common_name: "Ray Mooney's office"
+- name: l3_510
+  common_name: "Dana Ballard's office"
+- name: l3_426
+  common_name: "electrical room"
+- name: l3_518
+  common_name: "cubicles"
+- name: l3_428
+  common_name: "room 3.428"
+- name: l3_430
+  common_name: "Sharon Guni's office"
+- name: l3_418
+  common_name: "Shani Alkobi's office"
+- name: l3_434
+  common_name: "hallway"
+- name: l3_436
+  common_name: "robot soccer field"
+- name: l3_412
+  common_name: "room 4.412"
+- name: l3_410
+  common_name: "cubicles"
+- name: l3_416
+  common_name: "conference room"
+- name: l3_414
+  common_name: "BWI Lab"
+- name: l3_504
+  common_name: "cubicles"
+- name: l3_506
+  common_name: "room 3.506"
+- name: l3_500
+  common_name: "hallway"
+- name: l3_502
+  common_name: "Stacy Miller's office"
+- name: l3_200
+  common_name: "hallway"
+- name: l3_508
+  common_name: "Peter Stone's office"
+- name: l3_520
+  common_name: "kitchen"
+- name: l3_elev_west
+  common_name: "elevator"
+- name: l3_elev_east
+  common_name: "elevator"
+- name: l3_432
+  common_name: "Harel Yedidsion's office"
+- name: l3_414a
+  common_name: "BWI lab"
+- name: l3_414b
+  common_name: "BWI lab"
