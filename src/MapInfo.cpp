@@ -134,19 +134,19 @@ void MapInfo::buildInstructions() {
 
     auto direction = shouldTurnBetween(thisRegion, nextRegion);
 
-    VerbPhrase travelIns = VerbPhrase("travel");
-    travelIns.setStartRegion(thisRegion);
-    travelIns.setEndRegion(thisRegion);
-    instructionList.push_back(&travelIns);
+    auto travelIns = std::make_shared<VerbPhrase>("travel");
+    travelIns->setStartRegion(thisRegion);
+    travelIns->setEndRegion(thisRegion);
+    instructionList.push_back(travelIns);
 
 
     if(direction != Directions::STRAIGHT) {
-      VerbPhrase turnIns = VerbPhrase("turn");
-      turnIns.setStartRegion(thisRegion);
-      turnIns.setEndRegion(nextRegion);
-      turnIns.addDirection(direction);
+      auto turnIns = std::make_shared<VerbPhrase>("turn");
+      turnIns->setStartRegion(thisRegion);
+      turnIns->setEndRegion(nextRegion);
+      turnIns->addDirection(direction);
 
-      instructionList.push_back(&turnIns);
+      instructionList.push_back(turnIns);
     }
   }
   
@@ -156,7 +156,7 @@ void MapInfo::buildInstructions() {
   //instructionList.push_back(&arrival);
 
   for(int i = 0; i < instructionList.size(); i++) {
-    ROS_INFO(instructionList[i]->toNaturalLanguage().c_str());
+    ROS_INFO("%s", instructionList[i]->toNaturalLanguage().c_str());
   }
   
   //Add arrival predicate

@@ -13,7 +13,7 @@ class Arrival : public Instruction {
 	
 	public:
 	Arrival(std::string name);
-	virtual std::string toNaturalLanguage();
+	std::string toNaturalLanguage();
 	void addChild(Preposition p);
     void addDirection(Directions dir);
 	

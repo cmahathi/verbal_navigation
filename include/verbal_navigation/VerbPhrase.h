@@ -15,7 +15,7 @@ public:
   std::string startRegion;
   std::string endRegion;
 
-  virtual std::string toNaturalLanguage();
+  std::string toNaturalLanguage();
   void addChild(Preposition p);
   void addDirection(Directions dir);
   void setStartRegion(std::string region);
