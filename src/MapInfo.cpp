@@ -126,6 +126,9 @@ void MapInfo::buildInstructions() {
     auto travelIns = std::make_shared<VerbPhrase>("travel");
     travelIns->setStartRegion(thisRegionName);
     travelIns->setEndRegion(thisRegionName);
+    MapItem regionItem(thisRegion);
+    regionItem.setCommonName(labelToCommonNameMap[regionItem.getName()]);
+    travelIns->addPreposition(Preposition("through", regionItem));
     instructionList.push_back(travelIns);
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
@@ -140,32 +143,32 @@ void MapInfo::buildInstructions() {
       auto posesInThisRegion = pairIt->second;
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
-      MapItem closestMapItem = getClosestMapItemTo(boundary);
-      closestMapItem.setCommonName(labelToCommonNameMap[closestMapItem.getName()]);
-      //ROS_INFO("MapItem label: %s, common name: %s", closestMapItem.getName().c_str(), labelToCommonNameMap[closestMapItem.getName()].c_str());
-      double landmarkToBoundaryDistance = closestMapItem.distanceTo(boundary.pose).data;
+      MapItem closestLandmark = getClosestLandmarkTo(boundary);
+      closestLandmark.setCommonName(labelToCommonNameMap[closestLandmark.getName()]);
+      //ROS_INFO("MapItem label: %s, common name: %s", closestLandmark.getName().c_str(), labelToCommonNameMap[closestLandmark.getName()].c_str());
+      double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;
 
       // PRINT CODE
       ROS_INFO("Region: %s, closest landmark to boundary: %s with distance %lf",
                 thisRegion.c_str(),
-                closestMapItem.getName().c_str(),
+                closestLandmark.getName().c_str(),
                 landmarkToBoundaryDistance);
 
       // if the landmark is close enough to the turn location, use it
       if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
-        turnIns->addPreposition(Preposition("at", closestMapItem));
+        turnIns->addPreposition(Preposition("at", closestLandmark));
       }
       //If outside the "at" range, check if past/before
       else {
-        auto startToMapItemDistance = closestMapItem.distanceTo(posesInThisRegion.front().pose).data;
+        auto startToMapItemDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
         auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
         auto difference = startToEndDistance - startToMapItemDistance;
         if(std::abs(difference) < 6) {
           if(difference > 0) {
-            turnIns->addPreposition(Preposition("past", closestMapItem));
+            turnIns->addPreposition(Preposition("past", closestLandmark));
           }
           else {
-            turnIns->addPreposition(Preposition("before", closestMapItem));
+            turnIns->addPreposition(Preposition("before", closestLandmark));
           }
         }
       }
@@ -197,18 +200,18 @@ std::string MapInfo::generateDirections(){
 
 // input: any point on the map
 // returns the MapItem with closest Euclidean distance to the specified point
-MapItem MapInfo::getClosestMapItemTo(geometry_msgs::PoseStamped pose) {
+MapItem MapInfo::getClosestLandmarkTo(geometry_msgs::PoseStamped pose) {
   double shortestDistance = std::numeric_limits<double>::max();
-  MapItem* closestMapItem;
+  MapItem* closestLandmark;
   // iterate over all landmarks
   for(auto& landmark : landmarkList) {
     auto dist = landmark.distanceTo(pose.pose).data;
     if(dist < shortestDistance) {
-      closestMapItem = &landmark;
+      closestLandmark = &landmark;
       shortestDistance = dist;
     }
   }
-  return *closestMapItem;
+  return *closestLandmark;
 }
 
 

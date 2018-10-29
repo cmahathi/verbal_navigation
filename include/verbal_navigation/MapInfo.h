@@ -61,7 +61,7 @@ class MapInfo {
 
 
   /* HLPER METHODS */
-  MapItem getClosestMapItemTo(geometry_msgs::PoseStamped pose);
+  MapItem getClosestLandmarkTo(geometry_msgs::PoseStamped pose);
   Directions getDirectionBetween(std::string fromRegion, std::string toRegion);
   Directions getFinalDirection(std::string finalRegion);
   std::string getRegion(geometry_msgs::Pose currentLocation);
