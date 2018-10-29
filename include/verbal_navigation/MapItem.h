@@ -1,5 +1,5 @@
-#ifndef LANDMARK
-#define LANDMARK
+#ifndef MAP_ITEM
+#define MAP_ITEM
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>

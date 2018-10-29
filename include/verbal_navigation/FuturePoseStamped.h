@@ -19,6 +19,8 @@ public:
 	bool isAvailable();
 
 	geometry_msgs::PoseStamped getPose();
+
+	void reset();
 };
 
 #endif

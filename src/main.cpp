@@ -22,7 +22,7 @@
 #include "verbal_navigation/MapItem.h"
 
 // NOTE: this path might be wrong, check before running on different machines
-const std::string projectDir = "/home/users/fri/TGI_FRIdays_ws/";
+const std::string projectDir = "/home/user/fri/TGI_FRIdays_ws/";
 
 
 void sleepok(int t, ros::NodeHandle &nh) {
@@ -44,7 +44,7 @@ int main (int argc, char** argv) {
 	// geometry_msgs::PoseStamped initialPose;
 	// geometry_msgs::PoseStamped goalPose;
 
-//for now, hard code the start and end poses
+	//for now, hard code the start and end poses
 	// initialPose.header.stamp = ros::Time::now();
 	// initialPose.header.frame_id = "/level_mux_map";
 	// initialPose.pose.position.x = 14.6793708801;
@@ -75,49 +75,48 @@ int main (int argc, char** argv) {
 	bwi_logical_translator::BwiLogicalTranslator translator;
 	translator.initialize();
 
-	// wait until start and dest poses exist
-	while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
-
-	ROS_INFO("Start and dest poses received! Generating path...");
-
 	// call service to generate path from start to dest
 	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
 	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("move_base/make_plan");
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
-
-	nav_msgs::GetPlan srv;
-	srv.request.start = initialPose.getPose();
-	srv.request.goal = goalPose.getPose();
-	// srv.request.start = initialPose;
-	// srv.request.goal = goalPose;
-
-	srv.request.tolerance = -1.0f;
-
-	// call service to generate plan, which returns a list of PoseStamped
-	path_client.call(srv);
-
-	ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
-	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
-
-
-	// do the heavy lifting in this class
-	MapInfo mapInfo(translator, pose_list);
-	std::string finalDirections = mapInfo.generateDirections();
-	ROS_INFO(" ");
-	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
-	ROS_INFO(" ");
-
-	// make a sound_play object, which will speak the final directions
-	sound_play::SoundClient sc;
-	sleepok(5, nh);
-	// NOTE: MAKE SURE TO RUN THE sound_play node using
-	// "rosrun sound_play soundplay_node.py" before sending a sound
- 	sc.say(finalDirections);
-
-
 	while (ros::ok()) {
-		ros::spinOnce();
+	// wait until start and dest poses exist
+		while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
+
+		ROS_INFO("Start and dest poses received! Generating path...");
+
+		nav_msgs::GetPlan srv;
+		srv.request.start = initialPose.getPose();
+		srv.request.goal = goalPose.getPose();
+		// srv.request.start = initialPose;
+		// srv.request.goal = goalPose;
+
+		srv.request.tolerance = -1.0f;
+
+		// call service to generate plan, which returns a list of PoseStamped
+		path_client.call(srv);
+
+		ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
+		std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
+
+
+		// do the heavy lifting in this class
+		MapInfo mapInfo(translator, pose_list);
+		std::string finalDirections = mapInfo.generateDirections();
+		ROS_INFO("***");
+		ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+		ROS_INFO("***");
+
+		// make a sound_play object, which will speak the final directions
+		sound_play::SoundClient sc;
+		sleepok(5, nh);
+		// NOTE: MAKE SURE TO RUN THE sound_play node using
+		// "rosrun sound_play soundplay_node.py" before sending a sound
+		sc.say(finalDirections);
+
+		initialPose = goalPose;
+		goalPose.reset();
 	}
 }

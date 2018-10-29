@@ -34,8 +34,10 @@ bool FuturePoseStamped::isAvailable() {
 }
 
 geometry_msgs::PoseStamped FuturePoseStamped::getPose() {
-	if(available) {
-		return myPose;
-	}
-	return geometry_msgs::PoseStamped();
+	return myPose;
+}
+
+void FuturePoseStamped::reset() {
+	available = false;
+	myPose = geometry_msgs::PoseStamped();
 }
