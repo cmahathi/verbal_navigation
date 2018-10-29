@@ -14,7 +14,7 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
     ROS_INFO("ERROR: Initialized with empty path");
   }
 
-  readCommonNamesFile("/home/users/fri/TGI_FRIdays_ws/src/verbal_navigation/src/3ne/common_names.yaml");
+  readCommonNamesFile(boost::filesystem::current_path().string() + "/src/3ne/common_names.yaml");
   buildRegionAndPointsInfo();
   buildRegionOrientationInfo();
   buildRegionsToMapItemsMap();
@@ -288,7 +288,7 @@ std_msgs::Float64 MapInfo::distanceBetween(geometry_msgs::Pose firstPose, geomet
 }
 
 bool MapInfo::readCommonNamesFile(const std::string& filename) {
-
+  ROS_INFO(boost::filesystem::current_path().string().c_str());
   if (!boost::filesystem::exists(filename)) {
     return false;
   }

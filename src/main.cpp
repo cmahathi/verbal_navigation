@@ -5,12 +5,11 @@
 #include "nav_msgs/GetPlan.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <tf/tf.h>
-#include <tf/transform_listener.h>
 #include <bwi_planning_common/structures.h>
 #include <bwi_logical_translator/bwi_logical_translator.h>
 #include <bwi_mapper/structures/point.h>
 #include <vector>
+#include <boost/filesystem.hpp>
 
 #include <sound_play/sound_play.h>
 #include <unistd.h>
@@ -22,8 +21,7 @@
 #include "verbal_navigation/MapItem.h"
 
 // NOTE: this path might be wrong, check before running on different machines
-const std::string projectDir = "/home/user/fri/TGI_FRIdays_ws/";
-
+const std::string projectDir = boost::filesystem::current_path().string();
 
 void sleepok(int t, ros::NodeHandle &nh) {
 	if (nh.ok()) {
@@ -69,8 +67,8 @@ int main (int argc, char** argv) {
 	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 	ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 
-	ros::param::set("~map_file", projectDir +  "src/verbal_navigation/src/3ne/3ne.yaml");
-	ros::param::set("~data_directory", projectDir + "src/verbal_navigation/src/3ne");
+	ros::param::set("~map_file", projectDir +  "/src/3ne/3ne.yaml");
+	ros::param::set("~data_directory", projectDir + "/src/3ne");
 
 	bwi_logical_translator::BwiLogicalTranslator translator;
 	translator.initialize();
