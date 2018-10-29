@@ -7,14 +7,19 @@
 #include <string>
 #include <cmath>
 
-class Landmark {
+class MapItem {
   std::string name;
   geometry_msgs::Pose pose;
+  std::string common_name;
 
 public:
-  Landmark(std::string name, geometry_msgs::Pose pose) : name(name), pose(pose) { }
+  MapItem(std::string name) : name(name) { }
+  MapItem(std::string name, geometry_msgs::Pose pose) : name(name), pose(pose) { }
   std_msgs::Float64 distanceTo(geometry_msgs::Pose dest);
   std::string getName();
   geometry_msgs::Pose getPose();
+  void setCommonName(std::string common_name);
+  std::string getCommonName();
+
 };
 #endif

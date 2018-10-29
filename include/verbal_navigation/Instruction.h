@@ -10,7 +10,7 @@ class Instruction {
 
 protected:
   std::string name;
-  
+
 public:
   Instruction(std::string name);
   virtual std::string toNaturalLanguage() = 0;

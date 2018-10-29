@@ -18,7 +18,7 @@
 #include "verbal_navigation/Arrival.h"
 #include <memory>
 #include "verbal_navigation/Preposition.h"
-#include "verbal_navigation/Landmark.h"
+#include "verbal_navigation/MapItem.h"
 
 
 
@@ -39,26 +39,29 @@ class MapInfo {
   // keys: region names; values: 2D vector representing orientation or region
   std::map<std::string, Eigen::Vector2d> regionToOrientationMap;
 
-  // list of all landmarks as "Landmark" objects
-  std::vector<Landmark> landmarkList;
+  // list of all landmarks as "MapItem" objects
+  std::vector<MapItem> landmarkList;
 
   // Instruction objects used to generate natural language
   std::vector<std::shared_ptr<Instruction>> instructionList;
 
-  // keys: region names; values: list of "Landmark" objects representing landmarks in that region
-  std::map<std::string, std::vector<Landmark>> regionToLandmarksMap;
+  // keys: region names; values: list of "MapItem" objects representing landmarks in that region
+  std::map<std::string, std::vector<MapItem>> regionToMapItemsMap;
+
+  std::map<std::string, std::string> labelToCommonNameMap;
 
   // a string representing the natural language instruction for this path.
   std::string directions;
 
+  bool readCommonNamesFile(const std::string& filename);
   void buildRegionAndPointsInfo();
   void buildRegionOrientationInfo();
-  void buildRegionsToLandmarksMap();
+  void buildRegionsToMapItemsMap();
   void buildInstructions();
 
 
   /* HLPER METHODS */
-  Landmark getClosestLandmarkTo(geometry_msgs::PoseStamped pose);
+  MapItem getClosestMapItemTo(geometry_msgs::PoseStamped pose);
   Directions getDirectionBetween(std::string fromRegion, std::string toRegion);
   Directions getFinalDirection(std::string finalRegion);
   std::string getRegion(geometry_msgs::Pose currentLocation);

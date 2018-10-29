@@ -4,13 +4,13 @@
 #include <vector>
 #include <string>
 #include "verbal_navigation/Instruction.h"
-#include "verbal_navigation/Landmark.h"
+#include "verbal_navigation/MapItem.h"
 
 class Preposition : public Instruction {
 
 public:
-  Preposition(std::string name, Landmark landmark);
-  Landmark landmark;
+  Preposition(std::string name, MapItem landmark);
+  MapItem landmark;
   std::string toNaturalLanguage();
 
 };

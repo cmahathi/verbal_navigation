@@ -18,10 +18,14 @@ find_package(catkin REQUIRED COMPONENTS
 	bwi_mapper
   sound_play
 )
-
+find_package(PkgConfig REQUIRED)
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS filesystem)
+pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
+if(NOT ${YAML_CPP_VERSION} VERSION_LESS "0.5")
+  add_definitions(-DHAVE_NEW_YAMLCPP)
+endif()
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -112,7 +116,7 @@ catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES verbal_navigation
 #  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  DEPENDS Boost
 )
 
 ###########
@@ -125,6 +129,8 @@ include_directories(
  include
  ${catkin_INCLUDE_DIRS}
  /usr/include/eigen3/
+ ${YAML_CPP_INCLUDE_DIRS}
+ ${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -149,7 +155,7 @@ add_executable(FRI_SPEAK
     src/VerbPhrase.cpp
     src/Preposition.cpp
     src/Arrival.cpp
-    src/Landmark.cpp
+    src/MapItem.cpp
     )
 
 ## Rename C++ executable without prefix
@@ -165,6 +171,8 @@ add_executable(FRI_SPEAK
 ## Specify libraries to link a library or executable target against
  target_link_libraries(FRI_SPEAK
    ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES}
+   ${YAML_CPP_LIBRARIES}
  )
 
 #############

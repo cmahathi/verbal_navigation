@@ -15,8 +15,8 @@ std::string Arrival::toNaturalLanguage() {
     	case Directions::RIGHT : directionString = "on your right";
                              break;
 	}
-	
-	return name + " is " + directionString;
+
+	return "The " +  name + " is " + directionString + "!";
 }
 
 void Arrival::addChild (Preposition p) {

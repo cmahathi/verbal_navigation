@@ -1,4 +1,10 @@
 #include "verbal_navigation/MapInfo.h"
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <libgen.h>
+#include <stdexcept>
+#include <stdio.h>
+#include <yaml-cpp/yaml.h>
 
 // constructor
 MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path)
@@ -7,9 +13,11 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
   if(poseList.empty()) {
     ROS_INFO("ERROR: Initialized with empty path");
   }
+
+  readCommonNamesFile("/home/users/fri/TGI_FRIdays_ws/src/verbal_navigation/src/3ne/common_names.yaml");
   buildRegionAndPointsInfo();
   buildRegionOrientationInfo();
-  buildRegionsToLandmarksMap();
+  buildRegionsToMapItemsMap();
   buildInstructions();
 }
 
@@ -32,7 +40,7 @@ void MapInfo::buildRegionAndPointsInfo() {
     if (region.compare("") != 0) {
       if( (regionList.back()).compare(region) != 0) {
         regionList.push_back(region);
-        ROS_INFO("REGION: %s\n", region.c_str());
+        ROS_INFO("REGION: %s", region.c_str());
       }
       // add point to regionToPosesMap
       auto points = regionToPosesMap.find(region);
@@ -67,39 +75,39 @@ void MapInfo::buildRegionOrientationInfo() {
 }
 
 
-// builds a "Landmark" object for each landmark; builds a list of landmarks;
+// builds a "MapItem" object for each landmark; builds a list of landmarks;
 // build a map of regions to landmarks in that region
-void MapInfo::buildRegionsToLandmarksMap() {
+void MapInfo::buildRegionsToMapItemsMap() {
 
   // get a map of landmark names to landmark positions from the translator
   const auto& landmarkNameToPositionMap = translator.getObjectApproachMap();
   for (auto const& pair : landmarkNameToPositionMap) {
-    Landmark landmark(pair.first, pair.second);
+    MapItem landmark(pair.first, pair.second);
     landmarkList.push_back(landmark);
 
     std::string region = getRegion(landmark.getPose());
 
-    auto regionToLandmarksPair = regionToLandmarksMap.find(region);
+    auto regionToMapItemsPair = regionToMapItemsMap.find(region);
 
     // if region doesn't have any landmarks yet, add this first one
-    if(regionToLandmarksPair == regionToLandmarksMap.end()) {
-      std::vector<Landmark> newList;
+    if(regionToMapItemsPair == regionToMapItemsMap.end()) {
+      std::vector<MapItem> newList;
       newList.push_back(landmark);
-      regionToLandmarksMap.emplace(std::make_pair(region, newList));
+      regionToMapItemsMap.emplace(std::make_pair(region, newList));
     } else {
       // if the region already exists in this map, just add this landmark to the region's value
-      regionToLandmarksPair->second.push_back(landmark);
+      regionToMapItemsPair->second.push_back(landmark);
     }
   }
 
   // CODE TO PRINT
-  std::map<std::string, std::vector<std::string>>::iterator it;
-  for (auto it = regionToLandmarksMap.begin(); it != regionToLandmarksMap.end(); it++ ) {
-    ROS_INFO("Region Name: %s", it->first.c_str());
-    for (auto landmark : it->second) {
-      ROS_INFO("  Landmark: %s", landmark.getName().c_str());
-    }
-  }
+  // std::map<std::string, std::vector<std::string>>::iterator it;
+  // for (auto it = regionToMapItemsMap.begin(); it != regionToMapItemsMap.end(); it++ ) {
+  //   ROS_INFO("Region Name: %s", it->first.c_str());
+  //   for (auto landmark : it->second) {
+  //     ROS_INFO("  MapItem: %s", landmark.getName().c_str());
+  //   }
+  // }
 }
 
 
@@ -110,19 +118,21 @@ void MapInfo::buildInstructions() {
   for (int ix = 0; ix < regionList.size() - 1; ix ++) {
     std::string thisRegion = regionList[ix];
     std::string nextRegion = regionList[ix + 1];
+    std::string thisRegionName = labelToCommonNameMap[thisRegion];
+    std::string nextRegionName = labelToCommonNameMap[nextRegion];
 
     auto direction = getDirectionBetween(thisRegion, nextRegion);
 
     auto travelIns = std::make_shared<VerbPhrase>("travel");
-    travelIns->setStartRegion(thisRegion);
-    travelIns->setEndRegion(thisRegion);
+    travelIns->setStartRegion(thisRegionName);
+    travelIns->setEndRegion(thisRegionName);
     instructionList.push_back(travelIns);
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     if(direction != Directions::STRAIGHT) {
       auto turnIns = std::make_shared<VerbPhrase>("turn");
-      turnIns->setStartRegion(thisRegion);
-      turnIns->setEndRegion(nextRegion);
+      turnIns->setStartRegion(thisRegionName);
+      turnIns->setEndRegion(nextRegionName);
       turnIns->addDirection(direction);
 
       // see if there's a nearby landmark to include in the turn instruction
@@ -130,30 +140,32 @@ void MapInfo::buildInstructions() {
       auto posesInThisRegion = pairIt->second;
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
-      Landmark closestLandmark = getClosestLandmarkTo(boundary);
-      double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;
+      MapItem closestMapItem = getClosestMapItemTo(boundary);
+      closestMapItem.setCommonName(labelToCommonNameMap[closestMapItem.getName()]);
+      //ROS_INFO("MapItem label: %s, common name: %s", closestMapItem.getName().c_str(), labelToCommonNameMap[closestMapItem.getName()].c_str());
+      double landmarkToBoundaryDistance = closestMapItem.distanceTo(boundary.pose).data;
 
       // PRINT CODE
       ROS_INFO("Region: %s, closest landmark to boundary: %s with distance %lf",
                 thisRegion.c_str(),
-                closestLandmark.getName().c_str(),
+                closestMapItem.getName().c_str(),
                 landmarkToBoundaryDistance);
 
       // if the landmark is close enough to the turn location, use it
       if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
-        turnIns->addPreposition(Preposition("at", closestLandmark));
+        turnIns->addPreposition(Preposition("at", closestMapItem));
       }
       //If outside the "at" range, check if past/before
       else {
-        auto startToLandmarkDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
+        auto startToMapItemDistance = closestMapItem.distanceTo(posesInThisRegion.front().pose).data;
         auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
-        auto difference = startToEndDistance - startToLandmarkDistance;
+        auto difference = startToEndDistance - startToMapItemDistance;
         if(std::abs(difference) < 6) {
           if(difference > 0) {
-            turnIns->addPreposition(Preposition("past", closestLandmark));
+            turnIns->addPreposition(Preposition("past", closestMapItem));
           }
           else {
-            turnIns->addPreposition(Preposition("before", closestLandmark));
+            turnIns->addPreposition(Preposition("before", closestMapItem));
           }
         }
       }
@@ -162,7 +174,7 @@ void MapInfo::buildInstructions() {
     }
   }
 
-  auto arrival = std::make_shared<Arrival>(regionList[regionList.size()-1]);
+  auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
   arrival->addDirection(getFinalDirection(regionList[regionList.size()-1]));
   instructionList.push_back(arrival);
 }
@@ -184,19 +196,19 @@ std::string MapInfo::generateDirections(){
 /* HELPER METHODS */
 
 // input: any point on the map
-// returns the Landmark with closest Euclidean distance to the specified point
-Landmark MapInfo::getClosestLandmarkTo(geometry_msgs::PoseStamped pose) {
+// returns the MapItem with closest Euclidean distance to the specified point
+MapItem MapInfo::getClosestMapItemTo(geometry_msgs::PoseStamped pose) {
   double shortestDistance = std::numeric_limits<double>::max();
-  Landmark* closestLandmark;
+  MapItem* closestMapItem;
   // iterate over all landmarks
   for(auto& landmark : landmarkList) {
     auto dist = landmark.distanceTo(pose.pose).data;
     if(dist < shortestDistance) {
-      closestLandmark = &landmark;
+      closestMapItem = &landmark;
       shortestDistance = dist;
     }
   }
-  return *closestLandmark;
+  return *closestMapItem;
 }
 
 
@@ -216,7 +228,7 @@ Directions MapInfo::getFinalDirection(std::string finalRegion) {
   auto poseList = regionToPosesMap.find(finalRegion)->second;
 
   auto x1 = poseList.back().pose.position.x - poseList[0].pose.position.x;
-  auto y1 = poseList.back().pose.position.y - poseList[0].pose.position.y;
+  auto y1 = poseList[10].pose.position.y - poseList[0].pose.position.y;
 
   auto x2 = poseList.back().pose.position.x - poseList[0].pose.position.x;
   auto y2 = poseList.back().pose.position.y - poseList[0].pose.position.y;
@@ -250,7 +262,7 @@ Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRe
   auto det = fromVector(0)*toVector(1) - fromVector(1)*toVector(0);
   auto angle = std::atan2(det, dot);
 
-  ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
+  //ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
 
   if(angle > MapInfo::ANGLE_THRESHOLD) {
     return Directions::LEFT;
@@ -262,10 +274,43 @@ Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRe
   return Directions::STRAIGHT;
 }
 
+
+
 std_msgs::Float64 MapInfo::distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose) {
   auto dx = firstPose.position.x - lastPose.position.x;
   auto dy = firstPose.position.y- lastPose.position.y;
   std_msgs::Float64 distance;
   distance.data = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
   return distance;
+}
+
+bool MapInfo::readCommonNamesFile(const std::string& filename) {
+
+  if (!boost::filesystem::exists(filename)) {
+    return false;
+  }
+
+  std::ifstream fin(filename.c_str());
+
+  YAML::Node doc;
+//#ifdef HAVE_NEW_YAMLCPP
+  doc = YAML::Load(fin);
+// #else
+//   YAML::Parser parser(fin);
+//   parser.GetNextDocument(doc);
+// #endif
+
+  for (std::size_t i = 0; i < doc.size(); i++) {
+    std::string label;
+    std::string common_name;
+    //doc[i]["name"] >> label;
+    label = doc[i]["name"].as<std::string>();
+    //doc[i]["common_name"] >> common_name;
+    common_name = doc[i]["common_name"].as<std::string>();
+    labelToCommonNameMap.emplace(std::make_pair(label, common_name));
+  }
+
+  fin.close();
+
+  return true;
 }
