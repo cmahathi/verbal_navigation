@@ -53,7 +53,7 @@ int main (int argc, char** argv) {
 
 
 	FuturePoseStamped initialPose;
-	FuturePoseStamped goalPose;
+	// FuturePoseStamped goalPose;
 
 	// geometry_msgs::PoseStamped initialPose;
 	// geometry_msgs::PoseStamped goalPose;
@@ -85,7 +85,7 @@ int main (int argc, char** argv) {
 
 	//subscribe to topics which provide start and dest poses
 	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
-	ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+	// ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 
 	ros::param::set("~map_file", projectDir +  "/src/3ne/3ne.yaml");
 	ros::param::set("~data_directory", projectDir + "/src/3ne");
@@ -101,13 +101,22 @@ int main (int argc, char** argv) {
 
 	while (ros::ok()) {
 	// wait until start and dest poses exist
-		while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
+		while(!(initialPose.isAvailable() /* && goalPose.isAvailable() */) && ros::ok()) ros::spinOnce();
 
 		ROS_INFO("Start and dest poses received! Generating path...");
 
 		nav_msgs::GetPlan srv;
 		srv.request.start = initialPose.getPose();
-		srv.request.goal = goalPose.getPose();
+		geometry_msgs::PoseStamped goalPose;
+		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
+		auto goalPoints = translator.getDoor(destinationName).door_center;
+		goalPose.pose.position.x = goalPoints.x;
+		goalPose.pose.position.y = goalPoints.y;
+		goalPose.header.stamp = ros::Time::now();
+		goalPose.header.frame_id = "/level_mux_map";
+
+		srv.request.goal = goalPose;
+
 		// srv.request.start = initialPose;
 		// srv.request.goal = goalPose;
 
@@ -134,7 +143,7 @@ int main (int argc, char** argv) {
 		// "rosrun sound_play soundplay_node.py" before sending a sound
 		sc.say(finalDirections);
 
-		initialPose = goalPose;
-		goalPose.reset();
+		// initialPose = goalPose;
+		// goalPose.reset();
 	}
 }
