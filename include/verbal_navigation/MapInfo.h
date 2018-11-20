@@ -24,6 +24,9 @@
 
 class MapInfo {
 
+  // user-specified destination Name. Should be a door or landmark
+  std::string destinationCommonName;
+
   // bwi translator containing important helper methods
   bwi_logical_translator::BwiLogicalTranslator translator;
 
@@ -73,7 +76,7 @@ public:
   // 2 regions must have orientation difference >= ANGLE_THRESHOLD for a turn instruction to be created
   static constexpr double ANGLE_THRESHOLD = M_PI/4;
 
-  MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path);
+  MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest);
   std::string generateDirections();
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
 };

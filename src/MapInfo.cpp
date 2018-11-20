@@ -7,8 +7,8 @@
 #include <yaml-cpp/yaml.h>
 
 // constructor
-MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path)
-  : translator(trans), poseList(path) {
+MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest)
+  : translator(trans), poseList(path), destinationCommonName(dest) {
 
   if(poseList.empty()) {
     ROS_INFO("ERROR: Initialized with empty path");
@@ -158,7 +158,7 @@ void MapInfo::buildInstructions() {
       if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
         turnIns->addPreposition(Preposition("at", closestLandmark));
       }
-      //If outside the "at" range, check if past/before
+      // If outside the "at" range, check if past/before
       else {
         auto startToMapItemDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
         auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
@@ -177,6 +177,7 @@ void MapInfo::buildInstructions() {
     }
   }
 
+  // generate the final predicate to tell the user how to arrive at destination
   auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
   arrival->addDirection(getFinalDirection(regionList[regionList.size()-1]));
   instructionList.push_back(arrival);
@@ -230,7 +231,7 @@ std::string MapInfo::getRegion(geometry_msgs::Pose currentLocation) {
 Directions MapInfo::getFinalDirection(std::string finalRegion) {
   auto poseList = regionToPosesMap.find(finalRegion)->second;
 
-  auto x1 = poseList.back().pose.position.x - poseList[0].pose.position.x;
+  auto x1 = poseList[10].pose.position.x - poseList[0].pose.position.x;
   auto y1 = poseList[10].pose.position.y - poseList[0].pose.position.y;
 
   auto x2 = poseList.back().pose.position.x - poseList[0].pose.position.x;

@@ -31,10 +31,26 @@ void sleepok(int t, ros::NodeHandle &nh) {
 
 
 int main (int argc, char** argv) {
-	ROS_INFO("Weldome to FRI_SPEAK");
+	ROS_INFO("Welcome to FRI_SPEAK");
+
 
 	ros::init(argc, argv, "FRI_SPEAK");
-	ros::NodeHandle nh;
+	ros::NodeHandle nh("~");
+
+	// parameter destination d3_432 should be specified as ROS param
+
+	// from the ros tutorials
+	std::string destinationName = "";
+	if (nh.getParam("dest", destinationName))
+	{
+  	ROS_INFO("Got param: %s", destinationName.c_str());
+	}
+	else
+	{
+  	ROS_ERROR("Failed to get param 'dest'");
+	}
+
+
 
 	FuturePoseStamped initialPose;
 	FuturePoseStamped goalPose;
@@ -63,6 +79,10 @@ int main (int argc, char** argv) {
 	// goalPose.pose.orientation.z = -0.65703277302;
 	// goalPose.pose.orientation.w = 0.753862013354;
 
+	// get door location from user-specified door name
+
+
+
 	//subscribe to topics which provide start and dest poses
 	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 	ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
@@ -74,8 +94,8 @@ int main (int argc, char** argv) {
 	translator.initialize();
 
 	// call service to generate path from start to dest
-	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("move_base/NavfnROS/make_plan");
-	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("move_base/make_plan");
+	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
+	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/make_plan");
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
@@ -101,7 +121,7 @@ int main (int argc, char** argv) {
 
 
 		// do the heavy lifting in this class
-		MapInfo mapInfo(translator, pose_list);
+		MapInfo mapInfo(translator, pose_list, destinationName);
 		std::string finalDirections = mapInfo.generateDirections();
 		ROS_INFO("***");
 		ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
