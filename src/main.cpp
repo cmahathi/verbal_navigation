@@ -147,3 +147,12 @@ int main (int argc, char** argv) {
 		// goalPose.reset();
 	}
 }
+
+// These functions are needed in bwi_logical_translator.h
+// inline bwi_planning_common::Door getDoor(std::string door_str) const {
+// 	return doors_.at(getDoorIdx(door_str));
+// }
+//
+// inline std::map<std::string, geometry_msgs::Pose> getObjectApproachMap() const {
+// 	return object_approach_map_;
+// }
