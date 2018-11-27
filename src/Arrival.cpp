@@ -4,7 +4,8 @@ Arrival::Arrival(std::string name) : Instruction(name) { }
 
 std::string Arrival::toNaturalLanguage() {
 	std::string directionString;
-	switch (direction)
+	//TODO WOO Hard coding.
+	switch (Directions::STRAIGHT)
 	{
     	case Directions::NONE : directionString = "";
                             break;
@@ -16,7 +17,7 @@ std::string Arrival::toNaturalLanguage() {
                              break;
 	}
 
-	return "The " +  name + " is " + directionString + "!";
+	return name + " is " + directionString + "! ;)";
 }
 
 void Arrival::addChild (Preposition p) {

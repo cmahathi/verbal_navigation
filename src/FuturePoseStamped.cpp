@@ -1,6 +1,5 @@
 #include <verbal_navigation/FuturePoseStamped.h>
 
-
 FuturePoseStamped::FuturePoseStamped() : myPose(), available(false) { }
 
 void FuturePoseStamped::setFromPoseWithCovarianceStamped(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg) {

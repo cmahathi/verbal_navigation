@@ -37,23 +37,9 @@ int main (int argc, char** argv) {
 	ros::init(argc, argv, "FRI_SPEAK");
 	ros::NodeHandle nh("~");
 
-	// parameter destination d3_432 should be specified as ROS param
-
-	// from the ros tutorials
-	std::string destinationName = "";
-	if (nh.getParam("dest", destinationName))
-	{
-  	ROS_INFO("Got param: %s", destinationName.c_str());
-	}
-	else
-	{
-  	ROS_ERROR("Failed to get param 'dest'");
-	}
-
-
 
 	FuturePoseStamped initialPose;
-	// FuturePoseStamped goalPose;
+	FuturePoseStamped goalPose;
 
 	// geometry_msgs::PoseStamped initialPose;
 	// geometry_msgs::PoseStamped goalPose;
@@ -99,26 +85,39 @@ int main (int argc, char** argv) {
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
+	// parameter destination d3_432 should be specified as ROS param
+	std::string destinationName = "";
+
+	// from the ros tutorials
+	if (nh.getParam("dest", destinationName))
+	{
+		auto destination = new geometry_msgs::PoseStamped;
+		auto goalPoints = translator.getDoor(destinationName).door_center;
+		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
+		destination->pose.position.x = goalPoints.x;
+		destination->pose.position.y = goalPoints.y;
+
+		destination->header.stamp = ros::Time::now();
+		destination->header.frame_id = "/level_mux_map";
+
+		geometry_msgs::PoseStamped::ConstPtr goal(destination);
+		goalPose.setFromPoseStamped(goal);
+	}
+	else
+	{
+  		ROS_ERROR("Failed to get param 'dest'. First goal must be input manually.");
+	}
+
 	while (ros::ok()) {
 	// wait until start and dest poses exist
-		while(!(initialPose.isAvailable() /* && goalPose.isAvailable() */) && ros::ok()) ros::spinOnce();
+		while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
 
 		ROS_INFO("Start and dest poses received! Generating path...");
 
 		nav_msgs::GetPlan srv;
+
 		srv.request.start = initialPose.getPose();
-		geometry_msgs::PoseStamped goalPose;
-		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
-		auto goalPoints = translator.getDoor(destinationName).door_center;
-		goalPose.pose.position.x = goalPoints.x;
-		goalPose.pose.position.y = goalPoints.y;
-		goalPose.header.stamp = ros::Time::now();
-		goalPose.header.frame_id = "/level_mux_map";
-
-		srv.request.goal = goalPose;
-
-		// srv.request.start = initialPose;
-		// srv.request.goal = goalPose;
+		srv.request.goal = goalPose.getPose();
 
 		srv.request.tolerance = -1.0f;
 
@@ -143,8 +142,8 @@ int main (int argc, char** argv) {
 		// "rosrun sound_play soundplay_node.py" before sending a sound
 		sc.say(finalDirections);
 
-		// initialPose = goalPose;
-		// goalPose.reset();
+		initialPose = goalPose;
+		goalPose.reset();
 	}
 }
 

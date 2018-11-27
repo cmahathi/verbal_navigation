@@ -11,7 +11,7 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
   : translator(trans), poseList(path), destinationCommonName(dest) {
 
   if(poseList.empty()) {
-    ROS_INFO("ERROR: Initialized with empty path");
+    ROS_ERROR("Initialized with empty path");
   }
 
   readCommonNamesFile(boost::filesystem::current_path().string() + "/src/3ne/common_names.yaml");
@@ -120,7 +120,7 @@ void MapInfo::buildInstructions() {
     std::string nextRegion = regionList[ix + 1];
     std::string thisRegionName = labelToCommonNameMap[thisRegion];
     std::string nextRegionName = labelToCommonNameMap[nextRegion];
-
+    //filter duplicate travels
     auto direction = getDirectionBetween(thisRegion, nextRegion);
 
     auto travelIns = std::make_shared<VerbPhrase>("travel");
@@ -129,7 +129,11 @@ void MapInfo::buildInstructions() {
     MapItem regionItem(thisRegion);
     regionItem.setCommonName(labelToCommonNameMap[regionItem.getName()]);
     travelIns->addPreposition(Preposition("through", regionItem));
-    instructionList.push_back(travelIns);
+
+    //Don't add if duplicate of last instruction
+    if(instructionList.empty() || !(*instructionList.back() == *travelIns)) {
+      instructionList.push_back(travelIns);
+    }    
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     if(direction != Directions::STRAIGHT) {
@@ -144,6 +148,7 @@ void MapInfo::buildInstructions() {
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
       MapItem closestLandmark = getClosestLandmarkTo(boundary);
+      // TODO This is a really bad way of setting the common name
       closestLandmark.setCommonName(labelToCommonNameMap[closestLandmark.getName()]);
       //ROS_INFO("MapItem label: %s, common name: %s", closestLandmark.getName().c_str(), labelToCommonNameMap[closestLandmark.getName()].c_str());
       double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;
@@ -163,13 +168,19 @@ void MapInfo::buildInstructions() {
         auto startToMapItemDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
         auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
         auto difference = startToEndDistance - startToMapItemDistance;
-        if(std::abs(difference) < 6) {
+        if(std::abs(difference) < 1) {
           if(difference > 0) {
             turnIns->addPreposition(Preposition("past", closestLandmark));
           }
           else {
             turnIns->addPreposition(Preposition("before", closestLandmark));
           }
+        }
+        else {
+          ROS_ERROR(nextRegionName.c_str());
+          MapItem nextRegion(nextRegionName);
+          nextRegion.setCommonName(nextRegionName);
+          turnIns->addPreposition(Preposition("towards", nextRegion));
         }
       }
       // add the finished turn instruction to the instruction list
