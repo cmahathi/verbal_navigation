@@ -85,14 +85,18 @@ int main (int argc, char** argv) {
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
-	// parameter destination d3_432 should be specified as ROS param
+	// currently we only specify doors as goal poses.
 	std::string destinationName = "";
 
 	// from the ros tutorials
 	if (nh.getParam("dest", destinationName))
 	{
+		ROS_INFO("reading user-specified dest paramter.");
 		auto destination = new geometry_msgs::PoseStamped;
-		auto goalPoints = translator.getDoor(destinationName).door_center;
+
+
+
+		auto goalPoints = translator.getDoor(destinationName).approach_points[0];
 		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
 		destination->pose.position.x = goalPoints.x;
 		destination->pose.position.y = goalPoints.y;
@@ -105,7 +109,7 @@ int main (int argc, char** argv) {
 	}
 	else
 	{
-  		ROS_ERROR("Failed to get param 'dest'. First goal must be input manually.");
+  		ROS_ERROR("Failed to get param 'dest'. Waiting for user to specify goal pose in RViz.");
 	}
 
 	while (ros::ok()) {
@@ -135,6 +139,8 @@ int main (int argc, char** argv) {
 		ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 		ROS_INFO("***");
 
+		/*
+
 		// make a sound_play object, which will speak the final directions
 		sound_play::SoundClient sc;
 		sleepok(5, nh);
@@ -142,8 +148,13 @@ int main (int argc, char** argv) {
 		// "rosrun sound_play soundplay_node.py" before sending a sound
 		sc.say(finalDirections);
 
+		*/
+
+		// update robot's position and set up for new goal pose.
 		initialPose = goalPose;
 		goalPose.reset();
+
+
 	}
 }
 

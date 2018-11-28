@@ -11,7 +11,8 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
   : translator(trans), poseList(path), destinationCommonName(dest) {
 
   if(poseList.empty()) {
-    ROS_ERROR("Initialized with empty path");
+    ROS_ERROR("Generating plan failed: pose list is empty. Quitting.");
+    return;
   }
 
   readCommonNamesFile(boost::filesystem::current_path().string() + "/src/3ne/common_names.yaml");
@@ -24,11 +25,13 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
 
 // turns path of poses into list of regions, and builds map of regions to poses
 void MapInfo::buildRegionAndPointsInfo() {
-
-  // add the robot's initial region to the regionList
-  regionList.push_back(getRegion(poseList.front().pose));
-  //ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
   ROS_INFO("START REGIONS");
+  // add the robot's initial region to the regionList
+  std::string firstRegion = getRegion(poseList.front().pose);
+  regionList.push_back(firstRegion);
+  ROS_INFO("INITIAL REGION: %s", firstRegion.c_str());
+  //ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
+
   // add each point's region to the region list, and add the point to the regionToPosesMap
   for(size_t i = 0; i < poseList.size(); ++i) {
     auto currentLocation = poseList[i];
@@ -120,22 +123,23 @@ void MapInfo::buildInstructions() {
     std::string nextRegion = regionList[ix + 1];
     std::string thisRegionName = labelToCommonNameMap[thisRegion];
     std::string nextRegionName = labelToCommonNameMap[nextRegion];
-    //filter duplicate travels
-    auto direction = getDirectionBetween(thisRegion, nextRegion);
 
-    auto travelIns = std::make_shared<VerbPhrase>("travel");
+
+
+    auto travelIns = std::make_shared<VerbPhrase>("go");
     travelIns->setStartRegion(thisRegionName);
     travelIns->setEndRegion(thisRegionName);
     MapItem regionItem(thisRegion);
     regionItem.setCommonName(labelToCommonNameMap[regionItem.getName()]);
     travelIns->addPreposition(Preposition("through", regionItem));
 
-    //Don't add if duplicate of last instruction
+    // Don't add if duplicate of last instruction
     if(instructionList.empty() || !(*instructionList.back() == *travelIns)) {
       instructionList.push_back(travelIns);
-    }    
+    }
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
+    auto direction = getDirectionBetween(thisRegion, nextRegion);
     if(direction != Directions::STRAIGHT) {
       auto turnIns = std::make_shared<VerbPhrase>("turn");
       turnIns->setStartRegion(thisRegionName);
@@ -148,7 +152,7 @@ void MapInfo::buildInstructions() {
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
       MapItem closestLandmark = getClosestLandmarkTo(boundary);
-      // TODO This is a really bad way of setting the common name
+      // TODO: This is a really bad way of setting the common name
       closestLandmark.setCommonName(labelToCommonNameMap[closestLandmark.getName()]);
       //ROS_INFO("MapItem label: %s, common name: %s", closestLandmark.getName().c_str(), labelToCommonNameMap[closestLandmark.getName()].c_str());
       double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;
@@ -177,6 +181,7 @@ void MapInfo::buildInstructions() {
           }
         }
         else {
+          // we're not turning at, past, or before a landmark. So just turn "into the next regoin".
           ROS_ERROR(nextRegionName.c_str());
           MapItem nextRegion(nextRegionName);
           nextRegion.setCommonName(nextRegionName);
@@ -185,7 +190,7 @@ void MapInfo::buildInstructions() {
       }
       // add the finished turn instruction to the instruction list
       instructionList.push_back(turnIns);
-    }
+    } // end of the if clause for turning
   }
 
   // generate the final predicate to tell the user how to arrive at destination
