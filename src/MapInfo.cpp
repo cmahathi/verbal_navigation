@@ -195,6 +195,7 @@ void MapInfo::buildInstructions() {
 
   // generate the final predicate to tell the user how to arrive at destination
   auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
+  //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
   arrival->addDirection(getFinalDirection(regionList[regionList.size()-1]));
   instructionList.push_back(arrival);
 }

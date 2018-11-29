@@ -69,9 +69,7 @@ int main (int argc, char** argv) {
 
 
 
-	//subscribe to topics which provide start and dest poses
-	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
-	// ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+
 
 	ros::param::set("~map_file", projectDir +  "/src/3ne/3ne.yaml");
 	ros::param::set("~data_directory", projectDir + "/src/3ne");
@@ -85,18 +83,33 @@ int main (int argc, char** argv) {
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
-	// currently we only specify doors as goal poses.
-	std::string destinationName = "";
 
-	// from the ros tutorials
+	// get the landmark "start"
+	const auto& landmarkNameToPositionMap = translator.getObjectApproachMap();
+	auto startPair = landmarkNameToPositionMap.find("start");
+	if (startPair == landmarkNameToPositionMap.end()) {
+		ROS_ERROR("start position landmark not found. Waiting for user-specified start pose from RViz.");
+		ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
+	} else {
+		auto startPose = new geometry_msgs::PoseStamped;
+		startPose->pose = startPair->second;
+
+		startPose->header.stamp = ros::Time::now();
+		startPose->header.frame_id = "/level_mux_map";
+
+		geometry_msgs::PoseStamped::ConstPtr start(startPose);
+		initialPose.setFromPoseStamped(start);
+	}
+
+
+	// from the ros tutorials, get the destination door
+	std::string destinationName = "";
 	if (nh.getParam("dest", destinationName))
 	{
 		ROS_INFO("reading user-specified dest paramter.");
 		auto destination = new geometry_msgs::PoseStamped;
 
-
-
-		auto goalPoints = translator.getDoor(destinationName).approach_points[0];
+		auto goalPoints = translator.getDoor(destinationName).approach_points[1];
 		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
 		destination->pose.position.x = goalPoints.x;
 		destination->pose.position.y = goalPoints.y;
@@ -109,8 +122,14 @@ int main (int argc, char** argv) {
 	}
 	else
 	{
+		// user did not specify goal pose. Allow user to specify goal pose from RViz.
   		ROS_ERROR("Failed to get param 'dest'. Waiting for user to specify goal pose in RViz.");
+		ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+
 	}
+
+
+
 
 	while (ros::ok()) {
 	// wait until start and dest poses exist
