@@ -74,7 +74,7 @@ public:
   // A landmark must be <= DISTANCE_THRESHOLD away from a turn point for that landmark to be used in the turn instruction
   static constexpr double DISTANCE_THRESHOLD = 3;
   // 2 regions must have orientation difference >= ANGLE_THRESHOLD for a turn instruction to be created
-  static constexpr double ANGLE_THRESHOLD = M_PI/4;
+  static constexpr double ANGLE_THRESHOLD = M_PI/5;
 
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest);
   std::string generateDirections();

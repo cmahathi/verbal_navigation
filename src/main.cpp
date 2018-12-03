@@ -67,8 +67,8 @@ int main (int argc, char** argv) {
 
 	// get door location from user-specified door name
 
-
-
+	ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 
 
 	ros::param::set("~map_file", projectDir +  "/src/3ne/3ne.yaml");
@@ -89,7 +89,7 @@ int main (int argc, char** argv) {
 	auto startPair = landmarkNameToPositionMap.find("start");
 	if (startPair == landmarkNameToPositionMap.end()) {
 		ROS_ERROR("start position landmark not found. Waiting for user-specified start pose from RViz.");
-		ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
+		//ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 	} else {
 		auto startPose = new geometry_msgs::PoseStamped;
 		startPose->pose = startPair->second;
@@ -109,7 +109,7 @@ int main (int argc, char** argv) {
 		ROS_INFO("reading user-specified dest paramter.");
 		auto destination = new geometry_msgs::PoseStamped;
 
-		auto goalPoints = translator.getDoor(destinationName).approach_points[1];
+		auto goalPoints = translator.getDoor(destinationName).approach_points[0];
 		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
 		destination->pose.position.x = goalPoints.x;
 		destination->pose.position.y = goalPoints.y;
@@ -124,7 +124,7 @@ int main (int argc, char** argv) {
 	{
 		// user did not specify goal pose. Allow user to specify goal pose from RViz.
   		ROS_ERROR("Failed to get param 'dest'. Waiting for user to specify goal pose in RViz.");
-		ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+		// ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 
 	}
 
