@@ -70,9 +70,9 @@ int main (int argc, char** argv) {
 	ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
 	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 
-
-	ros::param::set("~map_file", projectDir +  "/src/3ne/3ne.yaml");
-	ros::param::set("~data_directory", projectDir + "/src/3ne");
+	// SWAP FLOOR MAPS HERE - possibly automate later
+	ros::param::set("~map_file", projectDir +  "/src/multimap/2/2.yaml");
+	ros::param::set("~data_directory", projectDir + "/src/multimap/2");
 
 	bwi_logical_translator::BwiLogicalTranslator translator;
 	translator.initialize();

@@ -158,34 +158,37 @@ void MapInfo::buildInstructions() {
       double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;
 
       // PRINT CODE
-      ROS_INFO("Region: %s, closest landmark to boundary: %s with distance %lf",
-                thisRegion.c_str(),
-                closestLandmark.getName().c_str(),
-                landmarkToBoundaryDistance);
+      // ROS_INFO("Region: %s, closest landmark to boundary: %s with distance %lf",
+      //           thisRegion.c_str(),
+      //           closestLandmark.getName().c_str(),
+      //           landmarkToBoundaryDistance);
 
-      // if the landmark is close enough to the turn location, use it
-      if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
-        turnIns->addPreposition(Preposition("at", closestLandmark));
-      }
-      // If outside the "at" range, check if past/before
-      else {
-        auto startToMapItemDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
-        auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
-        auto difference = startToEndDistance - startToMapItemDistance;
-        if(std::abs(difference) < 1) {
-          if(difference > 0) {
-            turnIns->addPreposition(Preposition("past", closestLandmark));
+      if (mapItemInRegion(thisRegion, closestLandmark)) {
+
+        // if the landmark is close enough to the turn location, use it
+        if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
+          turnIns->addPreposition(Preposition("at", closestLandmark));
+        }
+        // If outside the "at" range, check if past/before
+        else {
+          auto startToMapItemDistance = closestLandmark.distanceTo(posesInThisRegion.front().pose).data;
+          auto startToEndDistance = distanceBetween(posesInThisRegion.front().pose, boundary.pose).data;
+          auto difference = startToEndDistance - startToMapItemDistance;
+          if(std::abs(difference) < 1) {
+            if(difference > 0) {
+              turnIns->addPreposition(Preposition("past", closestLandmark));
+            }
+            else {
+              turnIns->addPreposition(Preposition("before", closestLandmark));
+            }
           }
           else {
-            turnIns->addPreposition(Preposition("before", closestLandmark));
+            // we're not turning at, past, or before a landmark. So just turn "into the next regoin".
+            ROS_ERROR(nextRegionName.c_str());
+            MapItem nextRegion(nextRegionName);
+            nextRegion.setCommonName(nextRegionName);
+            turnIns->addPreposition(Preposition("towards", nextRegion));
           }
-        }
-        else {
-          // we're not turning at, past, or before a landmark. So just turn "into the next regoin".
-          ROS_ERROR(nextRegionName.c_str());
-          MapItem nextRegion(nextRegionName);
-          nextRegion.setCommonName(nextRegionName);
-          turnIns->addPreposition(Preposition("towards", nextRegion));
         }
       }
       // add the finished turn instruction to the instruction list
@@ -303,6 +306,17 @@ std_msgs::Float64 MapInfo::distanceBetween(geometry_msgs::Pose firstPose, geomet
   std_msgs::Float64 distance;
   distance.data = std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
   return distance;
+}
+
+bool MapInfo::mapItemInRegion(std::string region, MapItem item) {
+  std::string name = item.getName();
+  auto itemList = regionToMapItemsMap[region];
+  for (MapItem i : itemList) {
+    if (name == i.getName()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool MapInfo::readCommonNamesFile(const std::string& filename) {

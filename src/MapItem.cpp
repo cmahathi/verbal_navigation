@@ -15,6 +15,8 @@ std::string MapItem::getName() {
 }
 
 std::string MapItem::getCommonName() {
+  if (common_name == "")
+    return name;
   return common_name;
 }
 
