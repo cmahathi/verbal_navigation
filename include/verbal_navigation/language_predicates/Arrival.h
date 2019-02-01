@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <string>
-#include "verbal_navigation/Instruction.h"
-#include "verbal_navigation/Preposition.h"
+#include "verbal_navigation/language_predicates/Instruction.h"
+#include "verbal_navigation/language_predicates/Preposition.h"
 
 class Arrival : public Instruction {
 

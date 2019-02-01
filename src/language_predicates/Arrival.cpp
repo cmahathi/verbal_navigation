@@ -1,4 +1,4 @@
-#include "verbal_navigation/Arrival.h"
+#include <verbal_navigation/language_predicates/Arrival.h>
 
 Arrival::Arrival(std::string name) : Instruction(name) { }
 

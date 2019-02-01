@@ -16,8 +16,7 @@
 
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/MapInfo.h"
-#include "verbal_navigation/Preposition.h"
-#include "verbal_navigation/VerbPhrase.h"
+#include "verbal_navigation/Predicates.h"
 #include "verbal_navigation/MapItem.h"
 
 // NOTE: this path might be wrong, check before running on different machines

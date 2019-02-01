@@ -151,10 +151,10 @@ add_executable(FRI_SPEAK
 		src/main.cpp
 		src/FuturePoseStamped.cpp
     src/MapInfo.cpp
-    src/Instruction.cpp
-    src/VerbPhrase.cpp
-    src/Preposition.cpp
-    src/Arrival.cpp
+    src/language_predicates/Instruction.cpp
+    src/language_predicates/VerbPhrase.cpp
+    src/language_predicates/Preposition.cpp
+    src/language_predicates/Arrival.cpp
     src/MapItem.cpp
     )
 

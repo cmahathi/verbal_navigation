@@ -1,4 +1,4 @@
-#include "verbal_navigation/Preposition.h"
+#include <verbal_navigation/language_predicates/Preposition.h>
 
 
 Preposition::Preposition(std::string name, MapItem landmark) :

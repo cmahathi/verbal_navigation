@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "verbal_navigation/Instruction.h"
+#include "verbal_navigation/language_predicates/Instruction.h"
 #include "verbal_navigation/MapItem.h"
 
 class Preposition : public Instruction {

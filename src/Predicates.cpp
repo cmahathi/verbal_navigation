@@ -66,7 +66,7 @@ class Preposition : public Instruction {
     std::string toNaturalLanguage() {
       return name + " the " + landmark;
     }
-}
+};
 
 class Arrival : public Instruction {
   Directions direction;
@@ -100,4 +100,4 @@ class Arrival : public Instruction {
       direction = dir;
     }
 
-}
+};

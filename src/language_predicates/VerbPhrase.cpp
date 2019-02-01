@@ -1,4 +1,4 @@
-#include "verbal_navigation/VerbPhrase.h"
+#include <verbal_navigation/language_predicates/VerbPhrase.h>
 
 VerbPhrase::VerbPhrase(std::string name) : Instruction(name) {
   direction = Directions::NONE;

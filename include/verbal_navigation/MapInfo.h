@@ -14,10 +14,10 @@
 #include <limits>
 #include <Eigen/Dense>
 
-#include "verbal_navigation/VerbPhrase.h"
-#include "verbal_navigation/Arrival.h"
+#include "verbal_navigation/language_predicates/VerbPhrase.h"
+#include "verbal_navigation/language_predicates/Arrival.h"
 #include <memory>
-#include "verbal_navigation/Preposition.h"
+#include "verbal_navigation/language_predicates/Preposition.h"
 #include "verbal_navigation/MapItem.h"
 
 
