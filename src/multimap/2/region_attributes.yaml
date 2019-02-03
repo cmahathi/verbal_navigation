@@ -1,0 +1,66 @@
+- name: l2_302
+  common_name: 
+- name: l2_800
+  common_name: 
+- name: l2_200b
+  common_name: 
+- name: l2_200c
+  common_name: 
+- name: l2_200d
+  common_name: 
+- name: l2_200e
+  common_name: 
+- name: l2_700
+  common_name: 
+- name: l2_200a
+  common_name: 
+- name: l2_300
+  common_name: 
+- name: l2_600
+  common_name: 
+- name:  l2_100
+  common_name: 
+- name: l2_102
+  common_name: 
+- name: l2_elev_west
+  common_name: 
+- name: l2_500
+  common_name: 
+- name: new_loc15
+  common_name: 
+- name: l2_elev_east
+  common_name: 
+- name: l2_702
+  common_name: 
+- name: l2_400
+  common_name: 
+- name: water_fountain_1
+  common_name: "water fountain"
+- name: water_fountain_2
+  common_name: "water fountain"
+- name: exit_sign1
+  common_name: "exit sign"
+- name: trashcan_5
+  common_name: "trashcan"
+- name: trashcan_4
+  common_name: "trashcan"
+- name: trashcan_3
+  common_name: "trashcan"
+- name: trashcan_2
+  common_name: "trashcan"
+- name: trashcan_1
+  common_name: "trashcan"
+- name: advising_center
+  common_name: "advising center"
+- name: cafe
+  common_name: "Qualcomm cafe"
+- name: stairs
+  common_name: "stairs"
+- name: trashcan_6
+  common_name: "trashcan"
+- name: plaque
+  common_name: "Dell Computer Science Hall sign"
+- name: bench_1
+  common_name: "wooden bench" 
+  - name: bench_2
+  common_name: "wooden bench" 

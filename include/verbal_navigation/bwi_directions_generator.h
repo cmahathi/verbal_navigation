@@ -3,9 +3,8 @@
  * \brief  Converts a set of poses (assumed to be a path on a map) into
  *         instructions in English for navigating said path.
  *
- * \author  Piyush Khandelwal (piyushk@cs.utexas.edu)
+ * \author Connor Sheehan
  *
- * Copyright (c) 2013, UT Austin
 
  All rights reserved.
 
