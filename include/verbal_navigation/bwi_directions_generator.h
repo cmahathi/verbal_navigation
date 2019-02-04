@@ -38,8 +38,13 @@
 #ifndef BWI_DIRECTIONS_GENERATOR
 #define BWI_DIRECTIONS_GENERATOR
 
+#include <string.h>
+#include <vector>
+#include <boost/filesystem.hpp>
+
 #include "ros/ros.h"
 #include "verbal_navigation/MapInfo.h"
+namespace fs=boost::filesystem;
 
 namespace bwi_directions_generator {
     
@@ -48,11 +53,8 @@ namespace bwi_directions_generator {
         
         BwiDirectionsGenerator();
 
-        // We can probably just make a method that builds and returns a MapInfo
-        // with the appropriate parameters to get our path. Because the logical_translator
-        // only accepts one map floor at a time we will have to find some way to provide
-        // directions that cross floors.
-        
+        // Currently, path must consist of poses for one level of the map only.
+        MapInfo GenerateDirectionsForPathOnMap(std::vector<geometry_msgs::PoseStamped> path, fs::path mapFile, std::string destinationName);
     };
 }
 
