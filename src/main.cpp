@@ -19,6 +19,7 @@
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/Predicates.h"
 #include "verbal_navigation/MapItem.h"
+#include "verbal_navigation/bwi_directions_generator.h"
 
 // NOTE: this path might be wrong, check before running on different machines
 
@@ -27,7 +28,6 @@ void sleepok(int t, ros::NodeHandle &nh) {
 		sleep(t);
 	}
 }
-
 
 int main (int argc, char** argv) {
 	ROS_INFO("Welcome to FRI_SPEAK");
@@ -43,27 +43,6 @@ int main (int argc, char** argv) {
 	// geometry_msgs::PoseStamped initialPose;
 	// geometry_msgs::PoseStamped goalPose;
 
-	//for now, hard code the start and end poses
-	// initialPose.header.stamp = ros::Time::now();
-	// initialPose.header.frame_id = "/level_mux_map";
-	// initialPose.pose.position.x = 14.6793708801;
-	// initialPose.pose.position.y = 110.153694153;
-	// initialPose.pose.position.z = 0.0;
-	// initialPose.pose.orientation.x = 0.0;
-	// initialPose.pose.orientation.y = 0.0;
-	// initialPose.pose.orientation.z = -0.04113175032;
-	// initialPose.pose.orientation.w = 0.999153731473;
-	//
-	// goalPose.header.stamp = ros::Time::now();
-	// goalPose.header.frame_id = "/level_mux_map";
-	// goalPose.pose.position.x = 47.8235244751;
-	// goalPose.pose.position.y = 108.96232605;
-	// goalPose.pose.position.z = 0.0;
-	// goalPose.pose.orientation.x = 0.0;
-	// goalPose.pose.orientation.y = 0.0;
-	// goalPose.pose.orientation.z = -0.65703277302;
-	// goalPose.pose.orientation.w = 0.753862013354;
-
 	// get door location from user-specified door name
 
 	ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
@@ -71,10 +50,12 @@ int main (int argc, char** argv) {
 
 	// SWAP FLOOR MAPS HERE - possibly automate later
 	std::string projectDir = ros::package::getPath("verbal_navigation");
-	ros::param::set("~map_file", projectDir +  "/src/multimap/2/2.yaml");
-	ros::param::set("~data_directory", projectDir + "/src/multimap/2");
+	boost::filesystem::path mapPath = projectDir + "/src/multimap/3ne/3ne.yaml";
+	boost::filesystem::path dataPath = projectDir + "/src/multimap/3ne";
 
 	bwi_logical_translator::BwiLogicalTranslator translator;
+	ros::param::set("~map_file", mapPath.string());
+	ros::param::set("~data_directory", dataPath.string());
 	translator.initialize();
 
 	// call service to generate path from start to dest
@@ -129,7 +110,7 @@ int main (int argc, char** argv) {
 	}
 
 
-
+	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
 
 	while (ros::ok()) {
 	// wait until start and dest poses exist
@@ -152,7 +133,7 @@ int main (int argc, char** argv) {
 
 
 		// do the heavy lifting in this class
-		MapInfo mapInfo(translator, pose_list, destinationName);
+		MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath, destinationName);
 		std::string finalDirections = mapInfo.generateDirections();
 		ROS_INFO("***");
 		ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
