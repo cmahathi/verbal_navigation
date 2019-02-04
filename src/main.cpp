@@ -2,6 +2,7 @@
 #include <string.h>
 #include "std_msgs/String.h"
 #include "ros/ros.h"
+#include "ros/package.h"
 #include "nav_msgs/GetPlan.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
@@ -20,7 +21,6 @@
 #include "verbal_navigation/MapItem.h"
 
 // NOTE: this path might be wrong, check before running on different machines
-const std::string projectDir = boost::filesystem::current_path().string();
 
 void sleepok(int t, ros::NodeHandle &nh) {
 	if (nh.ok()) {
@@ -70,6 +70,7 @@ int main (int argc, char** argv) {
 	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 
 	// SWAP FLOOR MAPS HERE - possibly automate later
+	std::string projectDir = ros::package::getPath("verbal_navigation");
 	ros::param::set("~map_file", projectDir +  "/src/multimap/2/2.yaml");
 	ros::param::set("~data_directory", projectDir + "/src/multimap/2");
 
