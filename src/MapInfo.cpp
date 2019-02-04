@@ -17,9 +17,13 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
 
   readCommonNamesFile(boost::filesystem::current_path().string() + "/src/3ne/common_names.yaml");
   buildRegionAndPointsInfo();
+  ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
+  ROS_INFO("Building Regions To Items Map...");
   buildRegionsToMapItemsMap();
+  ROS_INFO("Building Instructions...");
   buildInstructions();
+  ROS_INFO("MapInfo Done!");
 }
 
 
@@ -57,7 +61,6 @@ void MapInfo::buildRegionAndPointsInfo() {
     }
   }
   ROS_INFO("END REGIONS");
-
 }
 
 
