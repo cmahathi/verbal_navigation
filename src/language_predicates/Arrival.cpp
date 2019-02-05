@@ -5,7 +5,7 @@ Arrival::Arrival(std::string name) : Instruction(name) { }
 std::string Arrival::toNaturalLanguage() {
 	std::string directionString;
 	//TODO WOO Hard coding.
-	switch (Directions::STRAIGHT)
+	switch (direction)
 	{
     	case Directions::NONE : directionString = "";
                             break;

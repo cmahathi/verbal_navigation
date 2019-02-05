@@ -157,6 +157,7 @@ add_executable(FRI_SPEAK
     src/language_predicates/Arrival.cpp
     src/MapItem.cpp
     src/bwi_directions_generator.cpp
+    src/Region.cpp
     )
 
 ## Rename C++ executable without prefix

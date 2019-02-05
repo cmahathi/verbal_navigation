@@ -15,7 +15,7 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
     return;
   }
 
-  readCommonNamesFile(boost::filesystem::current_path().string() + "/src/3ne/common_names.yaml");
+  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/2/region_attributes.yaml");
   buildRegionAndPointsInfo();
   ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
@@ -121,7 +121,7 @@ void MapInfo::buildRegionsToMapItemsMap() {
 void MapInfo::buildInstructions() {
 
   // iterate through all the regions except the last one
-  for (int ix = 0; ix < regionList.size() - 1; ix ++) {
+  for (int ix = 0; ix < regionList.size() - 2; ix ++) {
     std::string thisRegion = regionList[ix];
     std::string nextRegion = regionList[ix + 1];
     std::string thisRegionName = labelToCommonNameMap[thisRegion];
@@ -187,7 +187,7 @@ void MapInfo::buildInstructions() {
           }
           else {
             // we're not turning at, past, or before a landmark. So just turn "into the next regoin".
-            ROS_ERROR(nextRegionName.c_str());
+            // ROS_ERROR(nextRegionName.c_str());
             MapItem nextRegion(nextRegionName);
             nextRegion.setCommonName(nextRegionName);
             turnIns->addPreposition(Preposition("towards", nextRegion));
@@ -202,7 +202,7 @@ void MapInfo::buildInstructions() {
   // generate the final predicate to tell the user how to arrive at destination
   auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
   //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
-  arrival->addDirection(getFinalDirection(regionList[regionList.size()-1]));
+  arrival->addDirection(getDirectionBetween(regionList[regionList.size()-2], (regionList[regionList.size()-1])));
   instructionList.push_back(arrival);
 }
 
@@ -322,31 +322,47 @@ bool MapInfo::mapItemInRegion(std::string region, MapItem item) {
   return false;
 }
 
-bool MapInfo::readCommonNamesFile(const std::string& filename) {
+bool MapInfo::readAttributesFile(const std::string& filename) {
   ROS_INFO(boost::filesystem::current_path().string().c_str());
   if (!boost::filesystem::exists(filename)) {
+    ROS_INFO("COMMON NAME FILE NOT FOUND\nRun from verbal_nav directory");
     return false;
   }
 
   std::ifstream fin(filename.c_str());
 
   YAML::Node doc;
-//#ifdef HAVE_NEW_YAMLCPP
   doc = YAML::Load(fin);
-// #else
-//   YAML::Parser parser(fin);
-//   parser.GetNextDocument(doc);
-// #endif
-
-  for (std::size_t i = 0; i < doc.size(); i++) {
-    std::string label;
-    std::string common_name;
-    //doc[i]["name"] >> label;
-    label = doc[i]["name"].as<std::string>();
-    //doc[i]["common_name"] >> common_name;
-    common_name = doc[i]["common_name"].as<std::string>();
+  const YAML::Node region_node = doc["regions"];
+  for (std::size_t i = 0; i < region_node.size(); i++){
+    std::string label = region_node[i]["name"].as<std::string>();
+    std::string common_name = region_node[i]["common_name"].as<std::string>();
+    bool has_door = region_node[i]["has_door"].as<bool>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
+    
+    egion reg(label);
+    reg.setCommonName(common_name);
+    reg.setDoor(has_door);
+    regions.push_back(reg);
   }
+
+  // for (std::size_t i = 0; i < doc.size(); i++) {
+  //   std::string label;
+  //   std::string common_name;
+  //   //doc[i]["name"] >> label;
+  //   label = doc[i]["name"].as<std::string>();
+  //   //doc[i]["common_name"] >> common_name;
+  //   common_name = doc[i]["common_name"].as<std::string>();
+  //   labelToCommonNameMap.emplace(std::make_pair(label, common_name));
+  //   bool has_door = doc[i]["has_door"].as<bool>();
+  //   Region reg(label);
+  //   reg.setCommonName(common_name);
+  //   reg.setDoor(has_door);
+  //   regions.push_back(reg);
+  // }
+
+
+  ROS_INFO("Region List Size: %d", regions.size());
 
   fin.close();
 

@@ -50,12 +50,14 @@ int main (int argc, char** argv) {
 
 	// SWAP FLOOR MAPS HERE - possibly automate later
 	std::string projectDir = ros::package::getPath("verbal_navigation");
-	boost::filesystem::path mapPath = projectDir + "/src/multimap/3ne/3ne.yaml";
-	boost::filesystem::path dataPath = projectDir + "/src/multimap/3ne";
+	boost::filesystem::path mapPath2 = projectDir + "/src/multimap/2/2.yaml";
+	boost::filesystem::path dataPath2 = projectDir + "/src/multimap/2";
+	boost::filesystem::path mapPath3 = projectDir + "/src/multimap/3ne/3ne.yaml";
+	boost::filesystem::path dataPath3 = projectDir + "/src/multimap/3ne";
 
 	bwi_logical_translator::BwiLogicalTranslator translator;
-	ros::param::set("~map_file", mapPath.string());
-	ros::param::set("~data_directory", dataPath.string());
+	ros::param::set("~map_file", mapPath2.string());
+	ros::param::set("~data_directory", dataPath2.string());
 	translator.initialize();
 
 	// call service to generate path from start to dest
@@ -133,7 +135,7 @@ int main (int argc, char** argv) {
 
 
 		// do the heavy lifting in this class
-		MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath, destinationName);
+		MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName);
 		std::string finalDirections = mapInfo.generateDirections();
 		ROS_INFO("***");
 		ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());

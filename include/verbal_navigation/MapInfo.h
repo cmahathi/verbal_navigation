@@ -14,11 +14,10 @@
 #include <limits>
 #include <Eigen/Dense>
 
-#include "verbal_navigation/language_predicates/VerbPhrase.h"
-#include "verbal_navigation/language_predicates/Arrival.h"
 #include <memory>
-#include "verbal_navigation/language_predicates/Preposition.h"
+#include "verbal_navigation/Predicates.h"
 #include "verbal_navigation/MapItem.h"
+#include "verbal_navigation/Region.h"
 
 
 
@@ -53,10 +52,12 @@ class MapInfo {
 
   std::map<std::string, std::string> labelToCommonNameMap;
 
+  std::vector<Region> regions;
+
   // a string representing the natural language instruction for this path.
   std::string directions;
 
-  bool readCommonNamesFile(const std::string& filename);
+  bool readAttributesFile(const std::string& filename);
   void buildRegionAndPointsInfo();
   void buildRegionOrientationInfo();
   void buildRegionsToMapItemsMap();
@@ -75,7 +76,7 @@ public:
   // A landmark must be <= DISTANCE_THRESHOLD away from a turn point for that landmark to be used in the turn instruction
   static constexpr double DISTANCE_THRESHOLD = 3;
   // 2 regions must have orientation difference >= ANGLE_THRESHOLD for a turn instruction to be created
-  static constexpr double ANGLE_THRESHOLD = M_PI/5;
+  static constexpr double ANGLE_THRESHOLD = M_PI/6;
 
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest);
   std::string generateDirections();
