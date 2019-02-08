@@ -55,20 +55,22 @@ int main (int argc, char** argv) {
 	boost::filesystem::path mapPath3 = projectDir + "/src/multimap/3ne/3ne.yaml";
 	boost::filesystem::path dataPath3 = projectDir + "/src/multimap/3ne";
 
-	bwi_logical_translator::BwiLogicalTranslator translator;
-	ros::param::set("~map_file", mapPath2.string());
-	ros::param::set("~data_directory", dataPath2.string());
-	translator.initialize();
 
 	// call service to generate path from start to dest
 	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
-	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/make_plan");
+	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
 
+
 	// get the landmark "start"
-	const auto& landmarkNameToPositionMap = translator.getObjectApproachMap();
+	bwi_logical_translator::BwiLogicalTranslator translator2;
+	ros::param::set("~map_file", mapPath2.string());
+	ros::param::set("~data_directory", dataPath2.string());
+	translator2.initialize();
+
+	const auto& landmarkNameToPositionMap = translator2.getObjectApproachMap();
 	auto startPair = landmarkNameToPositionMap.find("start");
 	if (startPair == landmarkNameToPositionMap.end()) {
 		ROS_ERROR("start position landmark not found. Waiting for user-specified start pose from RViz.");
@@ -92,7 +94,8 @@ int main (int argc, char** argv) {
 		ROS_INFO("reading user-specified dest paramter.");
 		auto destination = new geometry_msgs::PoseStamped;
 
-		auto goalPoints = translator.getDoor(destinationName).approach_points[0];
+		auto goalPoints = translator2.getDoor(destinationName).approach_points[0];
+		ROS_INFO("FOUND DOOR");
 		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
 		destination->pose.position.x = goalPoints.x;
 		destination->pose.position.y = goalPoints.y;
@@ -114,33 +117,80 @@ int main (int argc, char** argv) {
 
 	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
 
-	while (ros::ok()) {
+	//while (ros::ok()) {
 	// wait until start and dest poses exist
-		while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
+	while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
 
-		ROS_INFO("Start and dest poses received! Generating path...");
+	ROS_INFO("Start and dest poses received! Generating path...");
 
-		nav_msgs::GetPlan srv;
+	nav_msgs::GetPlan srv;
 
-		srv.request.start = initialPose.getPose();
-		srv.request.goal = goalPose.getPose();
+	srv.request.start = initialPose.getPose();
+	srv.request.goal = goalPose.getPose();
 
-		srv.request.tolerance = -1.0f;
+	srv.request.tolerance = -1.0f;
 
-		// call service to generate plan, which returns a list of PoseStamped
-		path_client.call(srv);
+	// call service to generate plan, which returns a list of PoseStamped
+	path_client.call(srv);
 
-		ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
-		std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
+	ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
+	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
 
 
-		// do the heavy lifting in this class
-		MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName);
-		std::string finalDirections = mapInfo.generateDirections();
-		ROS_INFO("***");
-		ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
-		ROS_INFO("***");
+	// do the heavy lifting in this class
+	MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName);
+	std::string finalDirections = mapInfo.generateDirections();
+	ROS_INFO("***");
+	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+	ROS_INFO("***");
 
+	bwi_logical_translator::BwiLogicalTranslator translator3;
+	ros::param::set("~map_file", mapPath3.string());
+	ros::param::set("~data_directory", dataPath3.string());
+	translator3.initialize();
+
+	const auto& landmarkNameToPositionMap3 = translator3.getObjectApproachMap();
+	auto startPair3 = landmarkNameToPositionMap3.find("start");
+	auto destPair3 = landmarkNameToPositionMap3.find("dest");
+
+	auto startPose = new geometry_msgs::PoseStamped;
+	startPose->pose = startPair3->second;
+
+	startPose->header.stamp = ros::Time::now();
+	startPose->header.frame_id = "/level_mux_map";
+
+	geometry_msgs::PoseStamped::ConstPtr start(startPose);
+	initialPose.setFromPoseStamped(start);
+
+	auto endPose = new geometry_msgs::PoseStamped;
+	endPose->pose = destPair3->second;
+
+	endPose->header.stamp = ros::Time::now();
+	endPose->header.frame_id = "/level_mux_map";
+
+	geometry_msgs::PoseStamped::ConstPtr goal(endPose);
+	goalPose.setFromPoseStamped(start);
+
+	nav_msgs::GetPlan srv3;
+
+	srv3.request.start = initialPose.getPose();
+	srv3.request.goal = goalPose.getPose();
+
+	srv3.request.tolerance = -1.0f;
+
+	// call service to generate plan, which returns a list of PoseStamped
+	path_client.call(srv3);
+
+	ROS_INFO("Path received! Size: %d", srv3.response.plan.poses.size());
+	pose_list = srv3.response.plan.poses;
+
+
+	// do the heavy lifting in this class
+	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName);
+	finalDirections = mapInfo3.generateDirections();
+	ROS_INFO("***");
+	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+	ROS_INFO("***");
 		/*
 
 		// make a sound_play object, which will speak the final directions
@@ -157,7 +207,7 @@ int main (int argc, char** argv) {
 		goalPose.reset();
 
 
-	}
+	//}
 }
 
 // These functions are needed in bwi_logical_translator.h
