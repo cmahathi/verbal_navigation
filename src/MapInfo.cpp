@@ -337,13 +337,19 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   for (std::size_t i = 0; i < region_node.size(); i++){
     std::string label = region_node[i]["name"].as<std::string>();
     std::string common_name = region_node[i]["common_name"].as<std::string>();
-    bool has_door = region_node[i]["has_door"].as<bool>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
     
-    egion reg(label);
+    bool has_door = region_node[i]["has_door"].as<bool>();
+    Region reg(label);
     reg.setCommonName(common_name);
     reg.setDoor(has_door);
     regions.push_back(reg);
+  }
+  const YAML::Node landmark_node = doc["landmarks"];
+  for (std::size_t i = 0; i < landmark_node.size(); i++){
+    std::string label = landmark_node[i]["name"].as<std::string>();
+    std::string common_name = landmark_node[i]["common_name"].as<std::string>();
+    labelToCommonNameMap.emplace(std::make_pair(label, common_name));
   }
 
   // for (std::size_t i = 0; i < doc.size(); i++) {
@@ -362,7 +368,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   // }
 
 
-  ROS_INFO("Region List Size: %d", regions.size());
+  //ROS_INFO("Region List Size: %d", regions.size());
 
   fin.close();
 
