@@ -4,6 +4,8 @@
 #include "ros/ros.h"
 #include "ros/package.h"
 #include "nav_msgs/GetPlan.h"
+#include "multi_level_map_msgs/ChangeCurrentLevel.h"
+#include <multi_level_map_utils/utils.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <bwi_planning_common/structures.h>
@@ -28,6 +30,44 @@ void sleepok(int t, ros::NodeHandle &nh) {
 		sleep(t);
 	}
 }
+
+geometry_msgs::PoseStamped::ConstPtr tryGetStartPose(std::map<std::string, geometry_msgs::Pose> landmarkNameToPositionMap, std::string startLandmark) {
+	auto startPose = new geometry_msgs::PoseStamped;
+
+	auto startPair = landmarkNameToPositionMap.find(startLandmark);
+	if (startPair == landmarkNameToPositionMap.end()) {
+		ROS_ERROR("start position landmark not found. Waiting for user-specified start pose from RViz.");
+		//ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
+	} else {
+		startPose->pose = startPair->second;
+
+		startPose->header.stamp = ros::Time::now();
+		startPose->header.frame_id = "/level_mux_map";
+	}
+	
+	return geometry_msgs::PoseStamped::ConstPtr(startPose);
+}
+
+	multi_level_map_msgs::ChangeCurrentLevel changeToFloor(std::string floor_id) {
+		multi_level_map_msgs::ChangeCurrentLevel changeLevel;
+		
+		changeLevel.request.new_level_id = floor_id;
+
+		geometry_msgs::PoseWithCovarianceStamped origin_pose;
+        origin_pose.header.frame_id = multi_level_map::frameIdFromLevelId(floor_id);
+        origin_pose.pose.pose.orientation.w = 1;    // Makes the origin quaternion valid.
+        origin_pose.pose.covariance[0] = 1.0;
+        origin_pose.pose.covariance[7] = 1.0;
+        origin_pose.pose.covariance[14] = 1.0;
+        origin_pose.pose.covariance[21] = 1.0;
+        origin_pose.pose.covariance[28] = 1.0;
+        origin_pose.pose.covariance[35] = 1.0;
+
+		changeLevel.request.initial_pose = origin_pose;
+
+		return changeLevel;
+	}
+
 
 int main (int argc, char** argv) {
 	ROS_INFO("Welcome to FRI_SPEAK");
@@ -59,10 +99,14 @@ int main (int argc, char** argv) {
 	// call service to generate path from start to dest
 	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
 	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
+	
 	path_client.waitForExistence();
 	ROS_INFO("Path service found!");
 
+	ros::ServiceClient change_level_client = nh.serviceClient <multi_level_map_msgs::ChangeCurrentLevel> ("/level_mux/change_current_level");
 
+	change_level_client.waitForExistence();
+	ROS_INFO("Able to change levels!");
 
 	// get the landmark "start"
 	bwi_logical_translator::BwiLogicalTranslator translator2;
@@ -71,21 +115,10 @@ int main (int argc, char** argv) {
 	translator2.initialize();
 
 	const auto& landmarkNameToPositionMap = translator2.getObjectApproachMap();
-	auto startPair = landmarkNameToPositionMap.find("start");
-	if (startPair == landmarkNameToPositionMap.end()) {
-		ROS_ERROR("start position landmark not found. Waiting for user-specified start pose from RViz.");
-		//ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
-	} else {
-		auto startPose = new geometry_msgs::PoseStamped;
-		startPose->pose = startPair->second;
+	auto startPose = tryGetStartPose(landmarkNameToPositionMap, "start");
 
-		startPose->header.stamp = ros::Time::now();
-		startPose->header.frame_id = "/level_mux_map";
-
-		geometry_msgs::PoseStamped::ConstPtr start(startPose);
-		initialPose.setFromPoseStamped(start);
-	}
-
+	initialPose.setFromPoseStamped(startPose);
+ 
 
 	// from the ros tutorials, get the destination door
 	std::string destinationName = "";
@@ -130,6 +163,9 @@ int main (int argc, char** argv) {
 
 	srv.request.tolerance = -1.0f;
 
+	auto changeToSecondFloor = changeToFloor("2ndFloor");
+	change_level_client.call(changeToSecondFloor);
+
 	// call service to generate plan, which returns a list of PoseStamped
 	path_client.call(srv);
 
@@ -147,64 +183,67 @@ int main (int argc, char** argv) {
 	bwi_logical_translator::BwiLogicalTranslator translator3;
 	ros::param::set("~map_file", mapPath3.string());
 	ros::param::set("~data_directory", dataPath3.string());
-	translator3.initialize();
+	// translator3.initialize();
 
-	const auto& landmarkNameToPositionMap3 = translator3.getObjectApproachMap();
-	auto startPair3 = landmarkNameToPositionMap3.find("start");
-	auto destPair3 = landmarkNameToPositionMap3.find("dest");
+	// const auto& landmarkNameToPositionMap3 = translator3.getObjectApproachMap();
+	// auto startPair3 = landmarkNameToPositionMap3.find("start");
+	// auto destPair3 = landmarkNameToPositionMap3.find("dest");
 
-	auto startPose = new geometry_msgs::PoseStamped;
-	startPose->pose = startPair3->second;
+	// auto startPose3 = new geometry_msgs::PoseStamped;
+	// startPose3->pose = startPair3->second;
 
-	startPose->header.stamp = ros::Time::now();
-	startPose->header.frame_id = "/level_mux_map";
+	// startPose3->header.stamp = ros::Time::now();
+	// startPose3->header.frame_id = "/level_mux_map";
 
-	geometry_msgs::PoseStamped::ConstPtr start(startPose);
-	initialPose.setFromPoseStamped(start);
+	// geometry_msgs::PoseStamped::ConstPtr start(startPose3);
+	// initialPose.setFromPoseStamped(start);
 
-	auto endPose = new geometry_msgs::PoseStamped;
-	endPose->pose = destPair3->second;
+	// auto endPose = new geometry_msgs::PoseStamped;
+	// endPose->pose = destPair3->second;
 
-	endPose->header.stamp = ros::Time::now();
-	endPose->header.frame_id = "/level_mux_map";
+	// endPose->header.stamp = ros::Time::now();
+	// endPose->header.frame_id = "/level_mux_map";
 
-	geometry_msgs::PoseStamped::ConstPtr goal(endPose);
-	goalPose.setFromPoseStamped(start);
+	// geometry_msgs::PoseStamped::ConstPtr goal(endPose);
+	// goalPose.setFromPoseStamped(start);
+	
+	// auto changeToThirdFloor = changeToFloor("3rdFloor");
+	// change_level_client.call(changeToThirdFloor);
 
-	nav_msgs::GetPlan srv3;
+	// nav_msgs::GetPlan srv3;
 
-	srv3.request.start = initialPose.getPose();
-	srv3.request.goal = goalPose.getPose();
+	// srv3.request.start = initialPose.getPose();
+	// srv3.request.goal = goalPose.getPose();
 
-	srv3.request.tolerance = -1.0f;
+	// srv3.request.tolerance = -1.0f;
 
-	// call service to generate plan, which returns a list of PoseStamped
-	path_client.call(srv3);
+	// // call service to generate plan, which returns a list of PoseStamped
+	// path_client.call(srv3);
 
-	ROS_INFO("Path received! Size: %d", srv3.response.plan.poses.size());
-	pose_list = srv3.response.plan.poses;
+	// ROS_INFO("Path received! Size: %d", srv3.response.plan.poses.size());
+	// pose_list = srv3.response.plan.poses;
 
 
-	// do the heavy lifting in this class
-	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName);
-	finalDirections = mapInfo3.generateDirections();
-	ROS_INFO("***");
-	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
-	ROS_INFO("***");
-		/*
+	// // do the heavy lifting in this class
+	// MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName);
+	// finalDirections = mapInfo3.generateDirections();
+	// ROS_INFO("***");
+	// ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+	// ROS_INFO("***");
+	// 	/*
 
-		// make a sound_play object, which will speak the final directions
-		sound_play::SoundClient sc;
-		sleepok(5, nh);
-		// NOTE: MAKE SURE TO RUN THE sound_play node using
-		// "rosrun sound_play soundplay_node.py" before sending a sound
-		sc.say(finalDirections);
+	// 	// make a sound_play object, which will speak the final directions
+	// 	sound_play::SoundClient sc;
+	// 	sleepok(5, nh);
+	// 	// NOTE: MAKE SURE TO RUN THE sound_play node using
+	// 	// "rosrun sound_play soundplay_node.py" before sending a sound
+	// 	sc.say(finalDirections);
 
-		*/
+	// 	*/
 
-		// update robot's position and set up for new goal pose.
-		initialPose = goalPose;
-		goalPose.reset();
+	// 	// update robot's position and set up for new goal pose.
+	// 	initialPose = goalPose;
+	// 	goalPose.reset();
 
 
 	//}
