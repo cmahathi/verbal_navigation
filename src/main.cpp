@@ -108,6 +108,9 @@ int main (int argc, char** argv) {
 	change_level_client.waitForExistence();
 	ROS_INFO("Able to change levels!");
 
+	auto changeToSecondFloor = changeToFloor("2ndFloor");
+	change_level_client.call(changeToSecondFloor);
+	
 	// get the landmark "start"
 	bwi_logical_translator::BwiLogicalTranslator translator2;
 	ros::param::set("~map_file", mapPath2.string());
@@ -118,7 +121,6 @@ int main (int argc, char** argv) {
 	auto startPose = tryGetStartPose(landmarkNameToPositionMap, "start");
 
 	initialPose.setFromPoseStamped(startPose);
- 
 
 	// from the ros tutorials, get the destination door
 	std::string destinationName = "";
@@ -162,9 +164,6 @@ int main (int argc, char** argv) {
 	srv.request.goal = goalPose.getPose();
 
 	srv.request.tolerance = -1.0f;
-
-	auto changeToSecondFloor = changeToFloor("2ndFloor");
-	change_level_client.call(changeToSecondFloor);
 
 	// call service to generate plan, which returns a list of PoseStamped
 	path_client.call(srv);
