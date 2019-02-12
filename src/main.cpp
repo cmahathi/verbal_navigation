@@ -47,12 +47,14 @@ geometry_msgs::PoseStamped::ConstPtr tryGetStartPose(std::map<std::string, geome
 }
 
 void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id) {
+	ROS_INFO("Changing floor to %s", floor_id.c_str());
 	multi_level_map_msgs::ChangeCurrentLevel changeLevel;
 	
 	changeLevel.request.new_level_id = floor_id;
 
 	geometry_msgs::PoseWithCovarianceStamped origin_pose;
 	origin_pose.header.frame_id = multi_level_map::frameIdFromLevelId(floor_id);
+	ROS_INFO("Frame: %s", origin_pose.header.frame_id.c_str());
 	origin_pose.pose.pose.orientation.w = 1;    // Makes the origin quaternion valid.
 	origin_pose.pose.covariance[0] = 1.0;
 	origin_pose.pose.covariance[7] = 1.0;
@@ -68,7 +70,7 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 
 
 int main (int argc, char** argv) {
-	ROS_INFO("Welcome to FRI_SPEAK");
+	ROS_INFO("Welcome to the Verbal Navigation Porject");
 
 
 	ros::init(argc, argv, "FRI_SPEAK");
@@ -93,13 +95,67 @@ int main (int argc, char** argv) {
 	boost::filesystem::path mapPath3 = projectDir + "/src/multimap/3ne/3ne.yaml";
 	boost::filesystem::path dataPath3 = projectDir + "/src/multimap/3ne";
 
+	std::vector<geometry_msgs::PoseStamped> pose_list;
+	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
+	std::string destinationName = "";
+	std::string finalDirections;
 
 	// call service to generate path from start to dest
 	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
 	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
 	
 	path_client.waitForExistence();
-	ROS_INFO("Path service found!");
+	// ROS_INFO("Path service found!");
+
+	// bwi_logical_translator::BwiLogicalTranslator translator3;
+	// ros::param::set("~map_file", mapPath3.string());
+	// ros::param::set("~data_directory", dataPath3.string());
+	// translator3.initialize();
+
+	// const auto& landmarkNameToPositionMap3 = translator3.getObjectApproachMap();
+	// auto startPair3 = landmarkNameToPositionMap3.find("start");
+	// auto destPair3 = landmarkNameToPositionMap3.find("dest");
+
+	// auto startPose3 = new geometry_msgs::PoseStamped;
+	// startPose3->pose = startPair3->second;
+
+	// startPose3->header.stamp = ros::Time::now();
+	// startPose3->header.frame_id = "/level_mux_map";
+
+	// geometry_msgs::PoseStamped::ConstPtr start3(startPose3);
+	// initialPose.setFromPoseStamped(start3);
+
+	// auto endPose = new geometry_msgs::PoseStamped;
+	// endPose->pose = destPair3->second;
+
+	// endPose->header.stamp = ros::Time::now();
+	// endPose->header.frame_id = "/level_mux_map";
+
+	// geometry_msgs::PoseStamped::ConstPtr goal3(endPose);
+	// goalPose.setFromPoseStamped(goal3);
+	
+
+
+	// nav_msgs::GetPlan srv3;
+
+	// srv3.request.start = initialPose.getPose();
+	// srv3.request.goal = goalPose.getPose();
+
+	// srv3.request.tolerance = -1.0f;
+
+	// // call service to generate plan, which returns a list of PoseStamped
+	// path_client.call(srv3);
+
+	// ROS_INFO("Path received! Size: %d", srv3.response.plan.poses.size());
+	// pose_list = srv3.response.plan.poses;
+
+
+	// // do the heavy lifting in this class
+	// MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName, "3ne");
+	// finalDirections = mapInfo3.generateDirections();
+	// ROS_INFO("***");
+	// ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
+	// ROS_INFO("***");
 
 	ros::ServiceClient change_level_client = nh.serviceClient <multi_level_map_msgs::ChangeCurrentLevel> ("/level_mux/change_current_level");
 
@@ -107,7 +163,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("Able to change levels!");
 
 	changeToFloor(change_level_client, "2ndFloor");
-
+	sleep(1);
 	// get the landmark "start"
 	bwi_logical_translator::BwiLogicalTranslator translator2;
 	ros::param::set("~map_file", mapPath2.string());
@@ -120,14 +176,14 @@ int main (int argc, char** argv) {
 	initialPose.setFromPoseStamped(startPose);
 
 	// from the ros tutorials, get the destination door
-	std::string destinationName = "";
+	
 	if (nh.getParam("dest", destinationName))
 	{
-		ROS_INFO("reading user-specified dest paramter.");
+		// ROS_INFO("reading user-specified dest paramter.");
 		auto destination = new geometry_msgs::PoseStamped;
 
 		auto goalPoints = translator2.getDoor(destinationName).approach_points[0];
-		ROS_INFO("FOUND DOOR");
+		// ROS_INFO("FOUND DOOR");
 		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
 		destination->pose.position.x = goalPoints.x;
 		destination->pose.position.y = goalPoints.y;
@@ -147,13 +203,13 @@ int main (int argc, char** argv) {
 	}
 
 
-	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
+	
 
 	//while (ros::ok()) {
 	// wait until start and dest poses exist
 	while(!(initialPose.isAvailable() && goalPose.isAvailable()) && ros::ok()) ros::spinOnce();
 
-	ROS_INFO("Start and dest poses received! Generating path...");
+	// ROS_INFO("Start and dest poses received! Generating path...");
 
 	nav_msgs::GetPlan srv;
 
@@ -165,19 +221,21 @@ int main (int argc, char** argv) {
 	// call service to generate plan, which returns a list of PoseStamped
 	path_client.call(srv);
 
-	ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
-	std::vector<geometry_msgs::PoseStamped> pose_list = srv.response.plan.poses;
+	//ROS_INFO("Path received! Size: %d", srv.response.plan.poses.size());
+	pose_list = srv.response.plan.poses;
 
 
 	// do the heavy lifting in this class
-	MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName);
-	std::string finalDirections = mapInfo.generateDirections();
+	MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName, "2");
+	finalDirections = mapInfo.generateDirections();
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
 
 	changeToFloor(change_level_client, "3rdFloor");
+	sleep(1);
 
+	
 	bwi_logical_translator::BwiLogicalTranslator translator3;
 	ros::param::set("~map_file", mapPath3.string());
 	ros::param::set("~data_directory", dataPath3.string());
@@ -193,8 +251,8 @@ int main (int argc, char** argv) {
 	startPose3->header.stamp = ros::Time::now();
 	startPose3->header.frame_id = "/level_mux_map";
 
-	geometry_msgs::PoseStamped::ConstPtr start(startPose3);
-	initialPose.setFromPoseStamped(start);
+	geometry_msgs::PoseStamped::ConstPtr start3(startPose3);
+	initialPose.setFromPoseStamped(start3);
 
 	auto endPose = new geometry_msgs::PoseStamped;
 	endPose->pose = destPair3->second;
@@ -202,8 +260,8 @@ int main (int argc, char** argv) {
 	endPose->header.stamp = ros::Time::now();
 	endPose->header.frame_id = "/level_mux_map";
 
-	geometry_msgs::PoseStamped::ConstPtr goal(endPose);
-	goalPose.setFromPoseStamped(start);
+	geometry_msgs::PoseStamped::ConstPtr goal3(endPose);
+	goalPose.setFromPoseStamped(goal3);
 	
 
 
@@ -222,11 +280,14 @@ int main (int argc, char** argv) {
 
 
 	// do the heavy lifting in this class
-	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName);
+	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName, "3ne");
 	finalDirections = mapInfo3.generateDirections();
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
+
+	
+
 		/*
 
 		// make a sound_play object, which will speak the final directions

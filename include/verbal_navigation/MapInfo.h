@@ -78,8 +78,9 @@ public:
   // 2 regions must have orientation difference >= ANGLE_THRESHOLD for a turn instruction to be created
   static constexpr double ANGLE_THRESHOLD = M_PI/6;
 
-  MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest);
+  MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor);
   std::string generateDirections();
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
+  std::vector<Region> getRegionPath();
 };
 #endif

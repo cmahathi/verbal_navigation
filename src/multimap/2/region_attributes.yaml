@@ -1,55 +1,55 @@
 ---
 regions:
   - name: l2_302
-    has_door: "false"
+    type: 0
     common_name: "room 2.302"
   - name: l2_800
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_200b
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_200c
-    has_door: "false"
+    type: 2
     common_name: "open area"
   - name: l2_200d
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_200e
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_700
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_200a
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_300
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_600
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name:  l2_100
-    has_door: "false"
+    type: 2
     common_name: "atrium"
   - name: l2_102
-    has_door: "false"
+    type: 0
     common_name: "qualcomm cafe"
   - name: l2_elev_west
-    has_door: "false"
+    type: 3
     common_name: "elevator"
   - name: l2_500
-    has_door: "false"
+    type: 1
     common_name: "hallway"
   - name: l2_elev_east
-    has_door: "false"
+    type: 3
     common_name: "elevator"
   - name: l2_702
-    has_door: "false"
+    type: 0
     common_name: "advising center"
   - name: l2_400
-    has_door: "false"
+    type: 1
     common_name: "hallway"
 landmarks:
   - name: water_fountain_1

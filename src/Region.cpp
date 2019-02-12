@@ -15,3 +15,35 @@ void Region::setName (std::string n) {
 void Region::setCommonName (std::string cn) {
     common_name = cn;
 }
+
+void Region::setLength (double l) {
+    length = l;
+}
+
+void Region::setFloor (int f) {
+    floor = f;
+}
+
+void Region::setType (int t) {
+    type = t;
+}
+
+bool Region::getDoor () {
+    return has_door;
+}
+
+std::string Region::getName () {
+    return name;
+}
+
+std::string Region::getCommonName () {
+    return common_name;
+}
+
+double Region::getLength () {
+    return length;
+}
+
+int Region::getType () {
+    return type;
+}

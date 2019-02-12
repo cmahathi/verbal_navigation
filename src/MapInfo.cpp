@@ -7,7 +7,7 @@
 #include <yaml-cpp/yaml.h>
 
 // constructor
-MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest)
+MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor)
   : translator(trans), poseList(path), destinationCommonName(dest) {
 
   if(poseList.empty()) {
@@ -15,7 +15,7 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
     return;
   }
 
-  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/2/region_attributes.yaml");
+  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor + "/region_attributes.yaml");
   buildRegionAndPointsInfo();
   ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
@@ -29,11 +29,11 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
 
 // turns path of poses into list of regions, and builds map of regions to poses
 void MapInfo::buildRegionAndPointsInfo() {
-  ROS_INFO("START REGIONS");
+  // ROS_INFO("START REGIONS");
   // add the robot's initial region to the regionList
   std::string firstRegion = getRegion(poseList.front().pose);
   regionList.push_back(firstRegion);
-  ROS_INFO("INITIAL REGION: %s", firstRegion.c_str());
+  // ROS_INFO("INITIAL REGION: %s", firstRegion.c_str());
   //ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
 
   // add each point's region to the region list, and add the point to the regionToPosesMap
@@ -47,7 +47,7 @@ void MapInfo::buildRegionAndPointsInfo() {
     if (region.compare("") != 0) {
       if( (regionList.back()).compare(region) != 0) {
         regionList.push_back(region);
-        ROS_INFO("REGION: %s", region.c_str());
+        // ROS_INFO("REGION: %s", region.c_str());
       }
       // add point to regionToPosesMap
       auto points = regionToPosesMap.find(region);
@@ -60,7 +60,7 @@ void MapInfo::buildRegionAndPointsInfo() {
       }
     }
   }
-  ROS_INFO("END REGIONS");
+  // ROS_INFO("END REGIONS");
 }
 
 
@@ -121,13 +121,13 @@ void MapInfo::buildRegionsToMapItemsMap() {
 void MapInfo::buildInstructions() {
 
   // iterate through all the regions except the last one
+  // ROS_INFO("Num Regions: %d", regionList.size());
   for (int ix = 0; ix < regionList.size() - 2; ix ++) {
     std::string thisRegion = regionList[ix];
+    // ROS_INFO("Region: %s", thisRegion.c_str());
     std::string nextRegion = regionList[ix + 1];
     std::string thisRegionName = labelToCommonNameMap[thisRegion];
     std::string nextRegionName = labelToCommonNameMap[nextRegion];
-
-
 
     auto travelIns = std::make_shared<VerbPhrase>("go");
     travelIns->setStartRegion(thisRegionName);
@@ -140,7 +140,7 @@ void MapInfo::buildInstructions() {
     if(instructionList.empty() || !(*instructionList.back() == *travelIns)) {
       instructionList.push_back(travelIns);
     }
-
+    
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     auto direction = getDirectionBetween(thisRegion, nextRegion);
     if(direction != Directions::STRAIGHT) {
@@ -198,6 +198,8 @@ void MapInfo::buildInstructions() {
       instructionList.push_back(turnIns);
     } // end of the if clause for turning
   }
+  // ROS_INFO("Region: %s", regionList[regionList.size()-2].c_str());
+  // ROS_INFO("Region: %s", regionList[regionList.size()-1].c_str());
 
   // generate the final predicate to tell the user how to arrive at destination
   auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
@@ -339,10 +341,10 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     std::string common_name = region_node[i]["common_name"].as<std::string>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
     
-    bool has_door = region_node[i]["has_door"].as<bool>();
+    int region_type = region_node[i]["type"].as<int>();
     Region reg(label);
     reg.setCommonName(common_name);
-    reg.setDoor(has_door);
+    reg.setType(region_type);
     regions.push_back(reg);
   }
   const YAML::Node landmark_node = doc["landmarks"];
@@ -351,6 +353,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     std::string common_name = landmark_node[i]["common_name"].as<std::string>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
   }
+
 
   // for (std::size_t i = 0; i < doc.size(); i++) {
   //   std::string label;
@@ -368,9 +371,13 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   // }
 
 
-  //ROS_INFO("Region List Size: %d", regions.size());
+  ROS_INFO("Region List Size: %d", regions.size());
 
   fin.close();
 
   return true;
+}
+
+std::vector<Region> MapInfo::getRegionPath() {
+  return regions;
 }
