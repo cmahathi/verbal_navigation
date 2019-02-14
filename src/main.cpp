@@ -286,6 +286,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
 
+	std::vector<Region> regionPath;
 	
 
 		/*
