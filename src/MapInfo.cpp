@@ -7,7 +7,7 @@
 #include <yaml-cpp/yaml.h>
 
 // constructor
-MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor)
+MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor_id)
   : translator(trans), poseList(path), destinationCommonName(dest) {
 
   if(poseList.empty()) {
@@ -15,7 +15,7 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
     return;
   }
 
-  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor + "/region_attributes.yaml");
+  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor_id + "/region_attributes.yaml");
   buildRegionAndPointsInfo();
   ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
