@@ -15,7 +15,9 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
     return;
   }
 
+  // I think that, rather than doing this for all regions before we load our path, we should load the attributes only for the regions in our RegionPath object after buildRegionsAndPointsInfo is called.
   readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor_id + "/region_attributes.yaml");
+  regions.floor_id = floor_id;
   buildRegionAndPointsInfo();
   ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
@@ -30,34 +32,31 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
 // turns path of poses into list of regions, and builds map of regions to poses
 void MapInfo::buildRegionAndPointsInfo() {
   // ROS_INFO("START REGIONS");
-  // add the robot's initial region to the regionList
-  std::string firstRegion = getRegion(poseList.front().pose);
-  regionList.push_back(firstRegion);
-  // ROS_INFO("INITIAL REGION: %s", firstRegion.c_str());
+  // add the robot's initial region to the RegionPath
+  Region firstRegion(getRegion(poseList.front().pose));
+  regions.path.push_back(firstRegion);
+  // ROS_INFO("INITIAL REGION: %s", firstRegion.getName().c_str());
   //ROS_INFO("Added region: %s\n", getRegion(translator, poseList.front()).c_str());
 
-  // add each point's region to the region list, and add the point to the regionToPosesMap
+  // add each point's region to the region list, and add that point to the Region
   for(size_t i = 0; i < poseList.size(); ++i) {
     auto currentLocation = poseList[i];
-    //ROS_INFO("Orientation: %lf, %lf, %lf, %lf", currentLocation.pose.orientation.x,currentLocation.pose.orientation.y,currentLocation.pose.orientation.z,currentLocation.pose.orientation.w);
+    // ROS_INFO("Orientation: %lf, %lf, %lf, %lf", currentLocation.pose.orientation.x,currentLocation.pose.orientation.y,currentLocation.pose.orientation.z,currentLocation.pose.orientation.w);
 
-    std::string region = getRegion(currentLocation.pose);
+    std::string currentRegionName = getRegion(currentLocation.pose);
 
-    // only add region to regionList if it's not same as last seen region
-    if (region.compare("") != 0) {
-      if( (regionList.back()).compare(region) != 0) {
-        regionList.push_back(region);
-        // ROS_INFO("REGION: %s", region.c_str());
+    // only add region to RegionPath if it's not same as last seen region
+    if (!currentRegionName.empty()) {
+      // If we are in a new region, add it to the RegionPath
+      if( (regions.path.back().getName()).compare(currentRegionName) != 0) {
+        regions.path.push_back(Region(currentRegionName));
+        // ROS_INFO("REGION: %s", currentRegionName.c_str());
+        // Add code to check for a door between this new region and the last. This can be done by iterating through the doors and trying to find one with an approach point in each region,
+        // similar to here: https://github.com/utexas-bwi/bwi_common/blob/5f015b1265a5f558cbd8997381d6416cfbc46437/bwi_logical_translator/src/nodes/bwi_logical_navigator.cpp#L575
       }
-      // add point to regionToPosesMap
-      auto points = regionToPosesMap.find(region);
-      if(points == regionToPosesMap.end()) {
-        std::vector<geometry_msgs::PoseStamped> newList;
-        newList.push_back(currentLocation);
-        regionToPosesMap.emplace(std::make_pair(region, newList));
-      } else {
-        points->second.push_back(currentLocation);
-      }
+      auto& currentRegion = regions.path.back();
+      //currentRegion.setLength(currentRegion.getLength() + distanceBetween(currentLocation, currentRegion.getPath().back()));
+      currentRegion.appendPoseToPath(currentLocation);
     }
   }
   // ROS_INFO("END REGIONS");
@@ -67,15 +66,14 @@ void MapInfo::buildRegionAndPointsInfo() {
 // determines representative orientation for each region using first and last pose in that region
 void MapInfo::buildRegionOrientationInfo() {
   // calculate representative orientation for every region
-  std::map<std::string, std::vector<geometry_msgs::PoseStamped>>::iterator it;
-  for ( it = regionToPosesMap.begin(); it != regionToPosesMap.end(); it++ ) {
+  for (auto& region : regions.path) {
 
-    std::vector<geometry_msgs::PoseStamped> posesInRegionList = it->second;
-    auto x = posesInRegionList.back().pose.position.x - posesInRegionList.front().pose.position.x;
-    auto y = posesInRegionList.back().pose.position.y - posesInRegionList.front().pose.position.y;
+    std::vector<geometry_msgs::PoseStamped> posesInRegionPath = region.getPath();
+    auto x = posesInRegionPath.back().pose.position.x - posesInRegionPath.front().pose.position.x;
+    auto y = posesInRegionPath.back().pose.position.y - posesInRegionPath.front().pose.position.y;
     Eigen::Vector2d regionPathVector(x, y);
 
-    regionToOrientationMap.emplace(std::make_pair(it->first, regionPathVector));
+    regionToOrientationMap.emplace(std::make_pair(region.getName(), regionPathVector));
     // ROS_INFO("r2o %s %lf %lf", regionToOrientationMap.find(it->first)->first.c_str(), regionPathVector(0), regionPathVector(1));
   }
 }
@@ -121,18 +119,19 @@ void MapInfo::buildRegionsToMapItemsMap() {
 void MapInfo::buildInstructions() {
 
   // iterate through all the regions except the last one
-  // ROS_INFO("Num Regions: %d", regionList.size());
-  for (int ix = 0; ix < regionList.size() - 2; ix ++) {
-    std::string thisRegion = regionList[ix];
+  // ROS_INFO("Num Regions: %d", regions.path.size());
+  for (int ix = 0; ix < regions.path.size() - 2; ix ++) {
+    auto thisRegion = regions.path[ix];
     // ROS_INFO("Region: %s", thisRegion.c_str());
-    std::string nextRegion = regionList[ix + 1];
-    std::string thisRegionName = labelToCommonNameMap[thisRegion];
-    std::string nextRegionName = labelToCommonNameMap[nextRegion];
+    auto nextRegion = regions.path[ix + 1];
+    //TODO can this be thisRegion.getCommonName()?
+    auto thisRegionName = labelToCommonNameMap[thisRegion.getName()];
+    auto nextRegionName = labelToCommonNameMap[nextRegion.getName()];
 
     auto travelIns = std::make_shared<VerbPhrase>("go");
     travelIns->setStartRegion(thisRegionName);
     travelIns->setEndRegion(thisRegionName);
-    MapItem regionItem(thisRegion);
+    MapItem regionItem(thisRegion.getName());
     regionItem.setCommonName(labelToCommonNameMap[regionItem.getName()]);
     travelIns->addPreposition(Preposition("through", regionItem));
 
@@ -150,8 +149,7 @@ void MapInfo::buildInstructions() {
       turnIns->addDirection(direction);
 
       // see if there's a nearby landmark to include in the turn instruction
-      auto pairIt = regionToPosesMap.find(thisRegion);
-      auto posesInThisRegion = pairIt->second;
+      auto posesInThisRegion = thisRegion.getPath();
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
       MapItem closestLandmark = getClosestLandmarkTo(boundary);
@@ -162,11 +160,11 @@ void MapInfo::buildInstructions() {
 
       // PRINT CODE
       // ROS_INFO("Region: %s, closest landmark to boundary: %s with distance %lf",
-      //           thisRegion.c_str(),
+      //           thisRegion.getName().c_str(),
       //           closestLandmark.getName().c_str(),
       //           landmarkToBoundaryDistance);
 
-      if (mapItemInRegion(thisRegion, closestLandmark)) {
+      if (mapItemInRegion(thisRegion.getName(), closestLandmark)) {
 
         // if the landmark is close enough to the turn location, use it
         if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
@@ -198,11 +196,12 @@ void MapInfo::buildInstructions() {
       instructionList.push_back(turnIns);
     } // end of the if clause for turning
   }
+  auto regionList = regions.path;
   // ROS_INFO("Region: %s", regionList[regionList.size()-2].c_str());
   // ROS_INFO("Region: %s", regionList[regionList.size()-1].c_str());
 
   // generate the final predicate to tell the user how to arrive at destination
-  auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
+  auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1].getName()]);
   //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
   arrival->addDirection(getDirectionBetween(regionList[regionList.size()-2], (regionList[regionList.size()-1])));
   instructionList.push_back(arrival);
@@ -253,8 +252,8 @@ std::string MapInfo::getRegion(geometry_msgs::Pose currentLocation) {
 
 // input: A region name
 // returns the Direction enum representing the angular difference between the two regions
-Directions MapInfo::getFinalDirection(std::string finalRegion) {
-  auto poseList = regionToPosesMap.find(finalRegion)->second;
+Directions MapInfo::getFinalDirection(Region finalRegion) {
+  auto poseList = finalRegion.getPath();;
 
   auto x1 = poseList[10].pose.position.x - poseList[0].pose.position.x;
   auto y1 = poseList[10].pose.position.y - poseList[0].pose.position.y;
@@ -283,15 +282,15 @@ Directions MapInfo::getFinalDirection(std::string finalRegion) {
 
 // input: two region names
 // returns the Direction enum representing the angular difference between the two regions
-Directions MapInfo::getDirectionBetween(std::string fromRegion, std::string toRegion) {
-  auto fromVector = regionToOrientationMap.find(fromRegion)->second;
-  auto toVector = regionToOrientationMap.find(toRegion)->second;
+Directions MapInfo::getDirectionBetween(Region fromRegion, Region toRegion) {
+  auto fromVector = regionToOrientationMap.find(fromRegion.getName())->second;
+  auto toVector = regionToOrientationMap.find(toRegion.getName())->second;
 
   auto dot = fromVector.dot(toVector);
   auto det = fromVector(0)*toVector(1) - fromVector(1)*toVector(0);
   auto angle = std::atan2(det, dot);
 
-  //ROS_INFO("Angle between %s and %s: %lf", fromRegion.c_str(), toRegion.c_str(), angle);
+  //ROS_INFO("Angle between %s and %s: %lf", fromRegion.getName().c_str(), toRegion..getName().c_str(), angle);
 
   if(angle > MapInfo::ANGLE_THRESHOLD) {
     return Directions::LEFT;
@@ -326,6 +325,7 @@ bool MapInfo::mapItemInRegion(std::string region, MapItem item) {
 
 bool MapInfo::readAttributesFile(const std::string& filename) {
   ROS_INFO(boost::filesystem::current_path().string().c_str());
+
   if (!boost::filesystem::exists(filename)) {
     ROS_INFO("COMMON NAME FILE NOT FOUND\nRun from verbal_nav directory");
     return false;
@@ -340,12 +340,13 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     std::string label = region_node[i]["name"].as<std::string>();
     std::string common_name = region_node[i]["common_name"].as<std::string>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
-    
-    int region_type = region_node[i]["type"].as<int>();
-    Region reg(label);
-    reg.setCommonName(common_name);
-    reg.setType(region_type);
-    regions.push_back(reg);
+  
+    // Had to comment this out because it's incompatible with the RegionPath refactor. Instead of making new regions this should just set the properties for the regions already in regions.path
+    // int region_type = region_node[i]["type"].as<int>();
+    // Region reg(label);
+    // reg.setCommonName(common_name);
+    // reg.setType(region_type);
+    // regions.path.push_back(reg);
   }
   const YAML::Node landmark_node = doc["landmarks"];
   for (std::size_t i = 0; i < landmark_node.size(); i++){
@@ -371,13 +372,13 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   // }
 
 
-  ROS_INFO("Region List Size: %d", regions.size());
+  ROS_INFO("Region List Size: %d", regions.path.size());
 
   fin.close();
 
   return true;
 }
 
-std::vector<Region> MapInfo::getRegionPath() {
+RegionPath MapInfo::getRegionPath() {
   return regions;
 }

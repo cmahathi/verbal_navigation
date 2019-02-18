@@ -17,7 +17,7 @@
 #include <memory>
 #include "verbal_navigation/Predicates.h"
 #include "verbal_navigation/MapItem.h"
-#include "verbal_navigation/Region.h"
+#include "verbal_navigation/RegionPath.h"
 
 
 
@@ -32,7 +32,7 @@ class MapInfo {
   // ordered list of poses returned by the translator from start to dest
   std::vector<geometry_msgs::PoseStamped> poseList;
 
-  // ordered list of regions that the path traverses
+  // ordered list of the names of regions that the path traverses
   std::vector<std::string> regionList;
 
   // keys: region names; values: list of points in that region
@@ -49,15 +49,16 @@ class MapInfo {
 
   // keys: region names; values: list of "MapItem" objects representing landmarks in that region
   std::map<std::string, std::vector<MapItem>> regionToMapItemsMap;
-
   std::map<std::string, std::string> labelToCommonNameMap;
 
-  std::vector<Region> regions;
+  // Contains the ordered path of regions and the floor those regions are on
+  RegionPath regions;
 
   // a string representing the natural language instruction for this path.
   std::string directions;
 
   bool readAttributesFile(const std::string& filename);
+  void populateRegionAttributes();
   void buildRegionAndPointsInfo();
   void buildRegionOrientationInfo();
   void buildRegionsToMapItemsMap();
@@ -67,8 +68,8 @@ class MapInfo {
   /* HLPER METHODS */
   bool mapItemInRegion(std::string region, MapItem item);
   MapItem getClosestLandmarkTo(geometry_msgs::PoseStamped pose);
-  Directions getDirectionBetween(std::string fromRegion, std::string toRegion);
-  Directions getFinalDirection(std::string finalRegion);
+  Directions getDirectionBetween(Region fromRegion, Region toRegion);
+  Directions getFinalDirection(Region finalRegion);
   std::string getRegion(geometry_msgs::Pose currentLocation);
 
 
@@ -81,6 +82,6 @@ public:
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor);
   std::string generateDirections();
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
-  std::vector<Region> getRegionPath();
+  RegionPath getRegionPath();
 };
 #endif

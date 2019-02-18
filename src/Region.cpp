@@ -1,9 +1,7 @@
 #include <verbal_navigation/Region.h>
 
-Region::Region (std::string n) : name(n) { 
-    has_door = false;
-    common_name = name;
-}
+Region::Region (std::string n) : name(n), has_door(false), common_name(n) { }
+
 void Region::setDoor (bool door) {
     has_door = door;
 }
@@ -20,13 +18,18 @@ void Region::setLength (double l) {
     length = l;
 }
 
-void Region::setFloor (int f) {
-    floor = f;
-}
-
 void Region::setType (int t) {
     type = t;
 }
+
+void Region::appendPoseToPath(geometry_msgs::PoseStamped pose) {
+    path.push_back(pose);
+}
+
+std::vector<geometry_msgs::PoseStamped> Region::getPath() {
+    return path;
+}
+
 
 bool Region::getDoor () {
     return has_door;
