@@ -4,12 +4,12 @@
 #include "ros/ros.h"
 #include "ros/package.h"
 #include "nav_msgs/GetPlan.h"
-#include "multi_level_map_msgs/ChangeCurrentLevel.h"
 #include <multi_level_map_utils/utils.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <bwi_planning_common/structures.h>
 #include <bwi_logical_translator/bwi_logical_translator.h>
+#include <bwi_msgs/ResolveChangeFloor.h>
 #include <bwi_mapper/structures/point.h>
 #include <vector>
 #include <boost/filesystem.hpp>
@@ -48,10 +48,20 @@ geometry_msgs::PoseStamped::ConstPtr tryGetStartPose(std::map<std::string, geome
 
 void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id) {
 	ROS_INFO("Changing floor to %s", floor_id.c_str());
-	multi_level_map_msgs::ChangeCurrentLevel changeLevel;
-	
-	changeLevel.request.new_level_id = floor_id;
 
+	bwi_msgs::ResolveChangeFloor changeLevel;
+
+	std::string error_message;
+	std::string new_room = "l";
+	new_room += floor_id.at(0) + "_elev_east";
+
+	std::string facing_door = "d";
+	facing_door += floor_id.at(0) + "_elev_east";
+	
+	changeLevel.request.new_room = new_room;
+	changeLevel.request.facing_door = facing_door;
+
+	bool success;
 	geometry_msgs::PoseWithCovarianceStamped origin_pose;
 	origin_pose.header.frame_id = multi_level_map::frameIdFromLevelId(floor_id);
 	ROS_INFO("Frame: %s", origin_pose.header.frame_id.c_str());
@@ -63,9 +73,9 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 	origin_pose.pose.covariance[28] = 1.0;
 	origin_pose.pose.covariance[35] = 1.0;
 
-	changeLevel.request.initial_pose = origin_pose;
-
 	change_floor_client.call(changeLevel);
+
+	while(!ChangeCurrentLevel.response.success
 }
 
 
@@ -156,8 +166,8 @@ int main (int argc, char** argv) {
 	// ROS_INFO("***");
 	// ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	// ROS_INFO("***");
-
-	ros::ServiceClient change_level_client = nh.serviceClient <multi_level_map_msgs::ChangeCurrentLevel> ("/level_mux/change_current_level");
+          
+	ros::ServiceClient change_level_client = nh.serviceClient<bwi_msgs::ResolveChangeFloor>("/resolve_change_floor");
 
 	change_level_client.waitForExistence();
 	ROS_INFO("Able to change levels!");
@@ -232,6 +242,10 @@ int main (int argc, char** argv) {
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
 
+
+	// if(!error_message.isEmpty()) {
+	// 	ROS_ERROR(error_message.c_str());
+	// }
 	changeToFloor(change_level_client, "3rdFloor");
 	sleep(1);
 
