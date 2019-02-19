@@ -145,7 +145,7 @@ void MapInfo::buildInstructions() {
     if(instructionList.empty() || !(*instructionList.back() == *travelIns)) {
       instructionList.push_back(travelIns);
     }
-    
+
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     auto direction = getDirectionBetween(thisRegion, nextRegion);
     if(direction != Directions::STRAIGHT) {
@@ -208,7 +208,7 @@ void MapInfo::buildInstructions() {
 
   // generate the final predicate to tell the user how to arrive at destination
   auto arrival = std::make_shared<Arrival>(labelToCommonNameMap[regionList[regionList.size()-1]]);
-  //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
+  //auto arrival = std::make_shared<Arrival>(destinationCommonName);
   arrival->addDirection(getDirectionBetween(regionList[regionList.size()-2], (regionList[regionList.size()-1])));
   instructionList.push_back(arrival);
 }
@@ -345,7 +345,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     std::string label = region_node[i]["name"].as<std::string>();
     std::string common_name = region_node[i]["common_name"].as<std::string>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
-    
+
     int region_type = region_node[i]["type"].as<int>();
     int neighbors = region_node[i]["neighbors"].as<int>();
     Region reg(label);
@@ -353,8 +353,8 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     reg.setType(region_type);
     reg.setFloor(floor);
     reg.setNumNeighbors(neighbors);
-  
-    regions.push_back(reg);
+
+    allRegions.push_back(reg);
   }
   const YAML::Node landmark_node = doc["landmarks"];
   for (std::size_t i = 0; i < landmark_node.size(); i++){
@@ -380,7 +380,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   // }
 
 
-  ROS_INFO("Region List Size: %d", regions.size());
+  ROS_INFO("Region List Size: %d", allRegions.size());
 
   fin.close();
 
@@ -388,6 +388,19 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
 }
 
 std::vector<Region> MapInfo::getRegionPath() {
+  std::vector<Region> regions;
+  for (int i = 0; i < regionList.size(); i++) {
+    int j = 0;
+    bool found = false;
+    while (j < allRegions.size() && !found) {
+      if (regionList[i].compare(allRegions[j].getName()) == 0) {
+        regions.push_back(allRegions[j]);
+        found = true;
+      }
+      j++;
+    }
+  }
+
   return regions;
 }
 

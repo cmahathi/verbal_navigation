@@ -54,7 +54,7 @@ class MapInfo {
 
   std::map<std::string, std::string> labelToCommonNameMap;
 
-  std::vector<Region> regions;
+  std::vector<Region> allRegions;
 
   // a string representing the natural language instruction for this path.
   std::string directions;
