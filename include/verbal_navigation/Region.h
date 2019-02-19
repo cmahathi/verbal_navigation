@@ -19,6 +19,8 @@ protected:
   double length;
   int floor;
   int type;
+  int numNeighbors;
+  double traversibility;
 
 public:
   Region (std::string name);
@@ -28,12 +30,15 @@ public:
   void setLength (double l);
   void setFloor (int f);
   void setType (int t);
+  void setNumNeighbors(int n);
 
   bool getDoor ();
   std::string getName ();
   std::string getCommonName ();
   double getLength ();
   int getType ();
+  int getFloor();
+  int getNumNeighbors();
   
 };
 #endif

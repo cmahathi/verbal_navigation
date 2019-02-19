@@ -28,6 +28,10 @@ void Region::setType (int t) {
     type = t;
 }
 
+void Region::setNumNeighbors (int n) {
+    numNeighbors = n;
+}
+
 bool Region::getDoor () {
     return has_door;
 }
@@ -46,4 +50,12 @@ double Region::getLength () {
 
 int Region::getType () {
     return type;
+}
+
+int Region::getFloor () {
+    return floor;
+}
+
+int Region::getNumNeighbors () {
+    return numNeighbors;
 }

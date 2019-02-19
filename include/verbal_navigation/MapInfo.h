@@ -23,6 +23,8 @@
 
 class MapInfo {
 
+  int floor;
+
   // user-specified destination Name. Should be a door or landmark
   std::string destinationCommonName;
 
@@ -82,5 +84,6 @@ public:
   std::string generateDirections();
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
   std::vector<Region> getRegionPath();
+  std::map<std::string, std::vector<geometry_msgs::PoseStamped>> getRegionToPosesMap();
 };
 #endif

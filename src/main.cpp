@@ -22,6 +22,8 @@
 #include "verbal_navigation/Predicates.h"
 #include "verbal_navigation/MapItem.h"
 #include "verbal_navigation/bwi_directions_generator.h"
+#include "verbal_navigation/Optimizer.h"
+
 
 void sleepok(int t, ros::NodeHandle &nh) {
 	if (nh.ok()) {
@@ -287,6 +289,19 @@ int main (int argc, char** argv) {
 	ROS_INFO("***");
 
 	std::vector<Region> regionPath;
+	std::vector<Region> regionPath2 = mapInfo.getRegionPath();
+	//ROS_INFO("2nd floor region path size: %d", regionPath2.size());
+	std::vector<Region> regionPath3 = mapInfo3.getRegionPath();
+	//ROS_INFO("3nd floor region path size: %d", regionPath3.size());
+
+
+	regionPath = regionPath2;
+	regionPath.insert (regionPath.end(), regionPath3.begin(), regionPath3.end());
+
+	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
+	//ROS_INFO("Total region path size: %d", regionPath.size());
+
+
 	
 
 		/*

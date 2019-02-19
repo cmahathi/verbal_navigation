@@ -1,56 +1,73 @@
 ---
 regions:
   - name: l2_302
-    type: 0
     common_name: "room 2.302"
+    type: 0
+    neighbors: 3
   - name: l2_800
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 1
   - name: l2_200b
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 4
   - name: l2_200c
-    type: 2
     common_name: "open area"
-  - name: l2_200d
-    type: 1
-    common_name: "hallway"
-  - name: l2_200e
-    type: 1
-    common_name: "hallway"
-  - name: l2_700
-    type: 1
-    common_name: "hallway"
-  - name: l2_200a
-    type: 1
-    common_name: "hallway"
-  - name: l2_300
-    type: 1
-    common_name: "hallway"
-  - name: l2_600
-    type: 1
-    common_name: "hallway"
-  - name:  l2_100
     type: 2
+    neighbors: 4
+  - name: l2_200d
+    common_name: "hallway"
+    type: 1
+    neighbors: 3
+  - name: l2_200e
+    common_name: "hallway"
+    type: 1
+    neighbors: 2
+  - name: l2_700
+    common_name: "hallway"
+    type: 1
+    neighbors: 2
+  - name: l2_200a
+    common_name: "hallway"
+    type: 1
+    neighbors: 4
+  - name: l2_300
+    common_name: "hallway"
+    type: 1
+    neighbors: 2
+  - name: l2_600
+    common_name: "hallway"
+    type: 1
+    neighbors: 4
+  - name:  l2_100
     common_name: "atrium"
+    type: 2
+    neighbors: 6
   - name: l2_102
-    type: 0
     common_name: "qualcomm cafe"
-  - name: l2_elev_west
-    type: 3
-    common_name: "elevator"
-  - name: l2_500
-    type: 1
-    common_name: "hallway"
-  - name: l2_elev_east
-    type: 3
-    common_name: "elevator"
-  - name: l2_702
     type: 0
-    common_name: "advising center"
-  - name: l2_400
-    type: 1
+    neighbors: 1
+  - name: l2_elev_west
+    common_name: "elevator"
+    type: 3
+    neighbors: 1
+  - name: l2_500
     common_name: "hallway"
+    type: 1
+    neighbors: 1
+  - name: l2_elev_east
+    common_name: "elevator"
+    type: 3
+    neighbors: 1
+  - name: l2_702
+    common_name: "advising center"
+    type: 0
+    neighbors: 3
+  - name: l2_400
+    common_name: "hallway"
+    type: 1
+    neighbors: 2
 landmarks:
   - name: water_fountain_1
     common_name: "water fountain"

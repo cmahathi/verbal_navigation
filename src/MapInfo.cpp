@@ -7,15 +7,20 @@
 #include <yaml-cpp/yaml.h>
 
 // constructor
-MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor)
+MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string sfloor)
   : translator(trans), poseList(path), destinationCommonName(dest) {
+
+  if (sfloor[0] == '2')
+    floor = 2;
+  else
+    floor = 3;
 
   if(poseList.empty()) {
     ROS_ERROR("Generating plan failed: pose list is empty. Quitting.");
     return;
   }
 
-  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor + "/region_attributes.yaml");
+  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + sfloor + "/region_attributes.yaml");
   buildRegionAndPointsInfo();
   ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
@@ -342,9 +347,13 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
     
     int region_type = region_node[i]["type"].as<int>();
+    int neighbors = region_node[i]["neighbors"].as<int>();
     Region reg(label);
     reg.setCommonName(common_name);
     reg.setType(region_type);
+    reg.setFloor(floor);
+    reg.setNumNeighbors(neighbors);
+  
     regions.push_back(reg);
   }
   const YAML::Node landmark_node = doc["landmarks"];
@@ -380,4 +389,8 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
 
 std::vector<Region> MapInfo::getRegionPath() {
   return regions;
+}
+
+std::map<std::string, std::vector<geometry_msgs::PoseStamped>> MapInfo::getRegionToPosesMap() {
+  return regionToPosesMap;
 }
