@@ -380,7 +380,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   // }
 
 
-  ROS_INFO("Region List Size: %d", allRegions.size());
+  //ROS_INFO("Region List Size: %d", allRegions.size());
 
   fin.close();
 

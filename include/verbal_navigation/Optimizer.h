@@ -1,4 +1,5 @@
 #include "verbal_navigation/MapInfo.h"
+#include "verbal_navigation/DomainInfo.h"
 
 class Optimizer {
 
@@ -6,11 +7,18 @@ class Optimizer {
         std::vector<Region> regionPath;
         MapInfo floor2;
         MapInfo floor3;
+        DomainInfo domains;
+        static constexpr double ROBOT_VELOCITY = 0.5;
+        static constexpr double HUMAN_VELOCITY = 1.4;
 
         void preprocess();
         double getLengthOfRegion(Region r, MapInfo mapinfo);
         double distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
-
+        bool isDoorBetweenRegions(Region a, Region b, MapInfo mapinfo);
+        double calculateTraversibility (Region r);
+        void printPathInfo();
+        void calculateRobotTimes();
+        void calculateBaseHumanTimes();
 
     public:
         Optimizer(std::vector<Region> path, MapInfo f2, MapInfo f3);

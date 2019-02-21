@@ -159,6 +159,7 @@ add_executable(FRI_SPEAK
     src/bwi_directions_generator.cpp
     src/Region.cpp
     src/Optimizer.cpp
+    src/DomainInfo.cpp
     )
 
 ## Rename C++ executable without prefix

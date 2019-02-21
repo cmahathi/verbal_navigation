@@ -1,6 +1,6 @@
 #include <verbal_navigation/Region.h>
 
-Region::Region (std::string n) : name(n) { 
+Region::Region (std::string n) : name(n) {
     has_door = false;
     common_name = name;
 }
@@ -25,11 +25,24 @@ void Region::setFloor (int f) {
 }
 
 void Region::setType (int t) {
-    type = t;
+    switch (t) {
+        case 0: type = RegionType::ROOM;
+                break;
+        case 1: type = RegionType::HALLWAY;
+                break;
+        case 2: type = RegionType::OPEN_SPACE;
+                break;
+        case 3: type = RegionType::ELEVATOR;
+                break;
+    }
 }
 
 void Region::setNumNeighbors (int n) {
-    numNeighbors = n;
+    num_neighbors = n;
+}
+
+void Region::setTraversibility(double n){
+    traversibility = n;
 }
 
 bool Region::getDoor () {
@@ -48,7 +61,7 @@ double Region::getLength () {
     return length;
 }
 
-int Region::getType () {
+RegionType Region::getType () {
     return type;
 }
 
@@ -56,6 +69,10 @@ int Region::getFloor () {
     return floor;
 }
 
+double Region::getTraversibility(){
+    return traversibility;
+}
+
 int Region::getNumNeighbors () {
-    return numNeighbors;
+    return num_neighbors;
 }
