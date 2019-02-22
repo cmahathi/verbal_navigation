@@ -10,6 +10,12 @@
 MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor_id)
   : translator(trans), poseList(path), destinationCommonName(dest) {
 
+    // TODO parse the first char as an int instead?
+  if (floor_id[0] == '2')
+    floor = 2;
+  else
+    floor = 3;
+
   if(poseList.empty()) {
     ROS_ERROR("Generating plan failed: pose list is empty. Quitting.");
     return;
@@ -51,8 +57,7 @@ void MapInfo::buildRegionAndPointsInfo() {
       if( (regions.path.back().getName()).compare(currentRegionName) != 0) {
         regions.path.push_back(Region(currentRegionName));
         // ROS_INFO("REGION: %s", currentRegionName.c_str());
-        // Add code to check for a door between this new region and the last. This can be done by iterating through the doors and trying to find one with an approach point in each region,
-        // similar to here: https://github.com/utexas-bwi/bwi_common/blob/5f015b1265a5f558cbd8997381d6416cfbc46437/bwi_logical_translator/src/nodes/bwi_logical_navigator.cpp#L575
+        // Add code to check for a door between this new region and the last. This method currently exists in optimizer but we should make it a helper for MapInfo and call it here.
       }
       auto& currentRegion = regions.path.back();
       //currentRegion.setLength(currentRegion.getLength() + distanceBetween(currentLocation, currentRegion.getPath().back()));
@@ -139,7 +144,7 @@ void MapInfo::buildInstructions() {
     if(instructionList.empty() || !(*instructionList.back() == *travelIns)) {
       instructionList.push_back(travelIns);
     }
-    
+
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     auto direction = getDirectionBetween(thisRegion, nextRegion);
     if(direction != Directions::STRAIGHT) {
@@ -340,13 +345,16 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
     std::string label = region_node[i]["name"].as<std::string>();
     std::string common_name = region_node[i]["common_name"].as<std::string>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
-  
-    // Had to comment this out because it's incompatible with the RegionPath refactor. Instead of making new regions this should just set the properties for the regions already in regions.path
-    // int region_type = region_node[i]["type"].as<int>();
-    // Region reg(label);
-    // reg.setCommonName(common_name);
-    // reg.setType(region_type);
-    // regions.path.push_back(reg);
+
+    int region_type = region_node[i]["type"].as<int>();
+    int neighbors = region_node[i]["neighbors"].as<int>();
+    Region reg(label);
+    reg.setCommonName(common_name);
+    reg.setType(region_type);
+    reg.setFloor(floor);
+    reg.setNumNeighbors(neighbors);
+
+    allRegions.push_back(reg);
   }
   const YAML::Node landmark_node = doc["landmarks"];
   for (std::size_t i = 0; i < landmark_node.size(); i++){
@@ -373,6 +381,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
 
 
   ROS_INFO("Region List Size: %d", regions.path.size());
+  //ROS_INFO("Region List Size: %d", allRegions.size());
 
   fin.close();
 
@@ -381,4 +390,8 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
 
 RegionPath MapInfo::getRegionPath() {
   return regions;
+}
+
+std::map<std::string, std::vector<geometry_msgs::PoseStamped>> MapInfo::getRegionToPosesMap() {
+  return regionToPosesMap;
 }

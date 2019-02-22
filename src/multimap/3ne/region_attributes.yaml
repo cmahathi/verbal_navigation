@@ -1,116 +1,153 @@
 ---
 regions:
   - name: l3_422
-    type: 0
     common_name: "Garrett Warnell's office"
+    type: 0
+    neighbors: 1
   - name: l3_420
-    type: 0
     common_name: "Greg Durrett's office"
+    type: 0
+    neighbors: 1
   - name: l3_408
-    type: 2
     common_name: "cubicles"
+    type: 2
+    neighbors: 1
   - name: l3_424
-    type: 2
     common_name: "cubicles"
+    type: 2
+    neighbors: 1
   - name: l3_302
-    type: 2
     common_name: "3rd floor lab"
+    type: 2
+    neighbors: 2
   - name: l3_404
-    type: 0
     common_name: "Scott Niekum's office"
+    type: 0
+    neighbors: 1
   - name: l3_406
-    type: 2
     common_name: "lobby"
+    type: 2
+    neighbors: 2
   - name: l3_400
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 21
   - name: l3_402
-    type: 0
     common_name: "Justin Hart's office"
+    type: 0
+    neighbors: 1
   - name: l3_516
-    type: 0
     common_name: "conference room"
+    type: 0
+    neighbors: 2
   - name: l3_514
-    type: 2
     common_name: "common space"
+    type: 2
+    neighbors: 2
   - name: l3_300
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 2
   - name: l3_512
-    type: 0
     common_name: "Ray Mooney's office"
+    type: 0
+    neighbors: 1
   - name: l3_510
-    type: 0
     common_name: "Dana Ballard's office"
+    type: 0
+    neighbors: 1
   - name: l3_426
-    type: 0
     common_name: "electrical room"
+    type: 0
+    neighbors: 1
   - name: l3_518
-    type: 2
     common_name: "cubicles"
+    type: 2
+    neighbors: 1
   - name: l3_428
-    type: 0
     common_name: "room 3.428"
+    type: 0
+    neighbors: 1
   - name: l3_430
-    type: 0
     common_name: "Sharon Guni's office"
+    type: 0
+    neighbors: 1
   - name: l3_418
-    type: 0
     common_name: "Shani Alkobi's office"
+    type: 0
+    neighbors: 1
   - name: l3_434
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 3
   - name: l3_436
-    type: 0
     common_name: "robot soccer field"
+    type: 0
+    neighbors: 2
   - name: l3_412
-    type: 0
     common_name: "room 4.412"
+    type: 0
+    neighbors: 1
   - name: l3_410
-    type: 2
     common_name: "cubicles"
+    type: 2
+    neighbors: 1
   - name: l3_416
-    type: 0
     common_name: "conference room"
+    type: 0
+    neighbors: 1
   - name: l3_414
-    type: 0
     common_name: "BWI Lab"
+    type: 0
+    neighbors: 2
   - name: l3_504
-    type: 2
     common_name: "cubicles"
+    type: 2
+    neighbors: 1
   - name: l3_506
-    type: 0
     common_name: "room 3.506"
+    type: 0
+    neighbors: 1
   - name: l3_500
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 19
   - name: l3_502
-    type: 0
     common_name: "Stacy Miller's office"
+    type: 0
+    neighbors: 1
   - name: l3_200
-    type: 1
     common_name: "hallway"
+    type: 1
+    neighbors: 4
   - name: l3_508
-    type: 0
     common_name: "Peter Stone's office"
+    type: 0
+    neighbors: 1
   - name: l3_520
-    type: 0
     common_name: "kitchen"
+    type: 0
+    neighbors: 1
   - name: l3_elev_west
-    type: 3
     common_name: "elevator"
+    type: 3
+    neighbors: 1
   - name: l3_elev_east
-    type: 3
     common_name: "elevator"
+    type: 3
+    neighbors: 1
   - name: l3_432
-    type: 0
     common_name: "Harel Yedidsion's office"
+    type: 0
+    neighbors: 1
   - name: l3_414a
-    type: 0
     common_name: "BWI lab"
+    type: 0
+    neighbors: 3
   - name: l3_414b
-    type: 0
     common_name: "BWI lab"
+    type: 0
+    neighbors: 3
 landmarks:
   - name: o3_500_exit-sign-stairs
     common_name: "exit sign"

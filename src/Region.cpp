@@ -18,8 +18,29 @@ void Region::setLength (double l) {
     length = l;
 }
 
+void Region::setFloor(int f) {
+    floor = f;
+}
+
 void Region::setType (int t) {
-    type = t;
+    switch (t) {
+        case 0: type = RegionType::ROOM;
+                break;
+        case 1: type = RegionType::HALLWAY;
+                break;
+        case 2: type = RegionType::OPEN_SPACE;
+                break;
+        case 3: type = RegionType::ELEVATOR;
+                break;
+    }
+}
+
+void Region::setNumNeighbors (int n) {
+    num_neighbors = n;
+}
+
+void Region::setTraversibility(double n){
+    traversibility = n;
 }
 
 void Region::appendPoseToPath(geometry_msgs::PoseStamped pose) {
@@ -28,6 +49,10 @@ void Region::appendPoseToPath(geometry_msgs::PoseStamped pose) {
 
 std::vector<geometry_msgs::PoseStamped> Region::getPath() {
     return path;
+}
+
+int Region::getFloor() {
+    return floor;
 }
 
 
@@ -47,6 +72,14 @@ double Region::getLength () {
     return length;
 }
 
-int Region::getType () {
+RegionType Region::getType () {
     return type;
+}
+
+double Region::getTraversibility(){
+    return traversibility;
+}
+
+int Region::getNumNeighbors () {
+    return num_neighbors;
 }
