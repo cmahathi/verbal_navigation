@@ -1,3 +1,6 @@
+#ifndef DOMAIN_INFO
+#define DOMAIN_INFO
+
 #include "verbal_navigation/Region.h"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
@@ -19,3 +22,5 @@ class DomainInfo {
         std::vector<std::string> getRobotList ();
         std::string getRobotByRegion (std::string region);
 };
+
+#endif
