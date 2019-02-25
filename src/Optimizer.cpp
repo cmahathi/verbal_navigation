@@ -15,11 +15,10 @@ void Optimizer::optimize () {
 
 void Optimizer::preprocess () {
     // for (int i = 0; i < segmentedPath.size(); i++) {
-    //   ROS_INFO("%d: %s", i, segmentedPath[i].getName().c_str());
+    //   ROS_INFO("%d: %s %f", i, segmentedPath[i].getName().c_str(), segmentedPath[i].getLength());
     // }
     for (int i = 0; i < segmentedPath.size(); i++) {
         if (segmentedPath[i].getFloor() == 2) {
-            segmentedPath[i].setLength(getLengthOfRegion(segmentedPath[i], floor2));
             if (i > 0 && segmentedPath[i-1].getFloor() == 2) {
                 segmentedPath[i].setDoor(isDoorBetweenRegions(segmentedPath[i-1], segmentedPath[i], floor2));
             }
@@ -28,7 +27,6 @@ void Optimizer::preprocess () {
             }
         }
         else {
-            segmentedPath[i].setLength(getLengthOfRegion(segmentedPath[i], floor3));
             if (i > 0 && segmentedPath[i-1].getFloor() == 3) {
                 segmentedPath[i].setDoor(isDoorBetweenRegions(segmentedPath[i-1], segmentedPath[i], floor3));
             }
@@ -97,19 +95,6 @@ bool Optimizer::isDoorBetweenRegions(Region a, Region b, MapInfo mapinfo) {
         }
     }
     return false;
-}
-
-// TODO this can be calculated in the mapInfo class as it builds the region objects. We should move it there.
-double Optimizer::getLengthOfRegion(Region r, MapInfo mapinfo) {
-    std::string region_name = r.getName();
-    auto regionToPoseMap = mapinfo.getRegionToPosesMap();
-
-    auto poses = regionToPoseMap[region_name];
-    double total = 0.0;
-    for (int i = 0; i < poses.size()-1; i++) {
-        total += distanceBetween(poses[i].pose, poses[i+1].pose);
-    }
-    return total;
 }
 
 double Optimizer::distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose) {

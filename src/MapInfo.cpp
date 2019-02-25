@@ -22,9 +22,9 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
   }
 
   // I think that, rather than doing this for all regions before we load our path, we should load the attributes only for the regions in our RegionPath object after buildRegionsAndPointsInfo is called.
-  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor_id + "/region_attributes.yaml");
   regions.floor_id = floor_id;
   buildRegionAndPointsInfo();
+  readAttributesFile(boost::filesystem::current_path().string() + "/src/multimap/" + floor_id + "/region_attributes.yaml");
   ROS_INFO("Building Region Orientation Info...");
   buildRegionOrientationInfo();
   ROS_INFO("Building Regions To Items Map...");
@@ -60,7 +60,9 @@ void MapInfo::buildRegionAndPointsInfo() {
         // Add code to check for a door between this new region and the last. This method currently exists in optimizer but we should make it a helper for MapInfo and call it here.
       }
       auto& currentRegion = regions.path.back();
-      //currentRegion.setLength(currentRegion.getLength() + distanceBetween(currentLocation, currentRegion.getPath().back()));
+      if(currentRegion.getPath().size() > 1) {
+        currentRegion.setLength(currentRegion.getLength() + distanceBetween(currentLocation.pose, currentRegion.getPath().back().pose).data);
+      }
       currentRegion.appendPoseToPath(currentLocation);
     }
   }
