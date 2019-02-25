@@ -343,21 +343,26 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   YAML::Node doc;
   doc = YAML::Load(fin);
   const YAML::Node region_node = doc["regions"];
+  
+  // Populate all the regions in our path with annotation data
   for (std::size_t i = 0; i < region_node.size(); i++){
     std::string label = region_node[i]["name"].as<std::string>();
     std::string common_name = region_node[i]["common_name"].as<std::string>();
     labelToCommonNameMap.emplace(std::make_pair(label, common_name));
 
-    int region_type = region_node[i]["type"].as<int>();
-    int neighbors = region_node[i]["neighbors"].as<int>();
-    Region reg(label);
-    reg.setCommonName(common_name);
-    reg.setType(region_type);
-    reg.setFloor(floor);
-    reg.setNumNeighbors(neighbors);
+    Region* region = regions.getRegion(label); 
+    
+    if(region != NULL) {
+      int region_type = region_node[i]["type"].as<int>();
+      int neighbors = region_node[i]["neighbors"].as<int>();
 
-    allRegions.push_back(reg);
+      region->setCommonName(common_name);
+      region->setType(region_type);
+      region->setFloor(floor);
+      region->setNumNeighbors(neighbors);
+    }
   }
+
   const YAML::Node landmark_node = doc["landmarks"];
   for (std::size_t i = 0; i < landmark_node.size(); i++){
     std::string label = landmark_node[i]["name"].as<std::string>();
@@ -383,7 +388,6 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
 
 
   ROS_INFO("Region List Size: %d", regions.path.size());
-  //ROS_INFO("Region List Size: %d", allRegions.size());
 
   fin.close();
 
