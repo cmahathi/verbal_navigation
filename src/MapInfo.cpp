@@ -134,9 +134,9 @@ void MapInfo::buildInstructions() {
     auto thisRegion = regions.path[ix];
     // ROS_INFO("Region: %s", thisRegion.c_str());
     auto nextRegion = regions.path[ix + 1];
-    //TODO can this be thisRegion.getCommonName()?
-    auto thisRegionName = labelToCommonNameMap[thisRegion.getName()];
-    auto nextRegionName = labelToCommonNameMap[nextRegion.getName()];
+    //TODO can this be thisRegion.getCommonName()
+    auto thisRegionName = thisRegion.getCommonName();
+    auto nextRegionName = nextRegion.getCommonName();
 
     auto travelIns = std::make_shared<VerbPhrase>("go");
     travelIns->setStartRegion(thisRegionName);
@@ -163,7 +163,7 @@ void MapInfo::buildInstructions() {
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
       MapItem closestLandmark = getClosestLandmarkTo(boundary);
-      // TODO: This is a really bad way of setting the common name
+      // TODO: Can we build the landmark MapItems as we parse the YAML file?
       closestLandmark.setCommonName(labelToCommonNameMap[closestLandmark.getName()]);
       //ROS_INFO("MapItem label: %s, common name: %s", closestLandmark.getName().c_str(), labelToCommonNameMap[closestLandmark.getName()].c_str());
       double landmarkToBoundaryDistance = closestLandmark.distanceTo(boundary.pose).data;

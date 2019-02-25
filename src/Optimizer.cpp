@@ -18,22 +18,6 @@ void Optimizer::preprocess () {
     //   ROS_INFO("%d: %s %f", i, segmentedPath[i].getName().c_str(), segmentedPath[i].getLength());
     // }
     for (int i = 0; i < segmentedPath.size(); i++) {
-        // if (segmentedPath[i].getFloor() == 2) {
-        //     if (i > 0 && segmentedPath[i-1].getFloor() == 2) {
-        //         segmentedPath[i].setDoor(floor2.isDoorBetweenRegions(segmentedPath[i-1], segmentedPath[i]));
-        //     }
-        //     else {
-        //         segmentedPath[i].setDoor(false);
-        //     }
-        // }
-        // else {
-        //     if (i > 0 && segmentedPath[i-1].getFloor() == 3) {
-        //         segmentedPath[i].setDoor(floor3.isDoorBetweenRegions(segmentedPath[i-1], segmentedPath[i]));
-        //     }
-        //     else {
-        //         segmentedPath[i].setDoor(false);
-        //     }
-        // }
         segmentedPath[i].setTraversibility(calculateTraversibility(segmentedPath[i]));
     }
     ROS_INFO("Calculating robot times");
