@@ -13,7 +13,6 @@ class Optimizer {
 
         void preprocess();
         double getLengthOfRegion(Region r, MapInfo mapinfo);
-        double distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
         double calculateTraversibility (Region r);
         void printPathInfo();
         void calculateRobotTimes();

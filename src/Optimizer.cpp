@@ -84,9 +84,3 @@ double Optimizer::calculateTraversibility (Region r) {
         traversibility += 5;
     return traversibility;
 }
-
-double Optimizer::distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose) {
-    auto dx = firstPose.position.x - lastPose.position.x;
-    auto dy = firstPose.position.y- lastPose.position.y;
-    return std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
-}
