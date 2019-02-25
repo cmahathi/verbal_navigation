@@ -333,5 +333,5 @@ int main (int argc, char** argv) {
 // }
 //
 // inline std::vector<bwi_planning_common::Door> getDoorList() const {
-//  	return object_approach_map_;
+//  	return doors_;
 //  }
