@@ -58,6 +58,9 @@ class MapInfo {
 
   // a string representing the natural language instruction for this path.
   std::string directions;
+  
+  // bwi translator containing important helper methods
+  bwi_logical_translator::BwiLogicalTranslator translator;
 
   bool readAttributesFile(const std::string& filename);
   void populateRegionAttributes();
@@ -84,10 +87,9 @@ public:
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor);
   std::string generateDirections();
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
+  bool isDoorBetweenRegions(Region a, Region b);
   RegionPath getRegionPath();
   
   std::map<std::string, std::vector<geometry_msgs::PoseStamped>> getRegionToPosesMap();
-  // bwi translator containing important helper methods
-  bwi_logical_translator::BwiLogicalTranslator translator;
 };
 #endif

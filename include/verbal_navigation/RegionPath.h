@@ -13,7 +13,7 @@ public:
 	// Domains go here
 
 	bool hasRegion(const std::string& regionName) {
-		return getRegion(regionName) != NULL);
+		return getRegion(regionName) != NULL;
 	}
 
 	Region* getRegion(const std::string& regionName) {

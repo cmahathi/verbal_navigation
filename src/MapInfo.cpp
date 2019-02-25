@@ -55,10 +55,13 @@ void MapInfo::buildRegionAndPointsInfo() {
     if (!currentRegionName.empty()) {
       // If we are in a new region, add it to the RegionPath
       if( (regions.path.back().getName()).compare(currentRegionName) != 0) {
-        regions.path.push_back(Region(currentRegionName));
-        // ROS_INFO("REGION: %s", currentRegionName.c_str());
-        // Add code to check for a door between this new region and the last. This method currently exists in optimizer but we should make it a helper for MapInfo and call it here.
-      }
+        auto currentRegion = Region(currentRegionName);
+        if(isDoorBetweenRegions(currentRegion, regions.path.back())) {
+          currentRegion.setDoor(true);
+        }
+        regions.path.push_back(currentRegion);
+        // ROS_INFO("REGION: %s", currentRegionName.c_str());        
+       }
       auto& currentRegion = regions.path.back();
       if(currentRegion.getPath().size() > 1) {
         currentRegion.setLength(currentRegion.getLength() + distanceBetween(currentLocation.pose, currentRegion.getPath().back().pose).data);
@@ -309,6 +312,19 @@ Directions MapInfo::getDirectionBetween(Region fromRegion, Region toRegion) {
   return Directions::STRAIGHT;
 }
 
+// This method might belong in the actual translator itself (using regnion names as args), if we can get permission to move it there.
+bool MapInfo::isDoorBetweenRegions(Region a, Region b) {
+    std::vector<bwi_planning_common::Door> doors = translator.getDoorList();
+    std::string nameA = a.getName();
+    std::string nameB = b.getName();
+    for (int i = 0; i < doors.size(); i++) {
+        if ((doors[i].approach_names[0] == nameA && doors[i].approach_names[1] == nameB) || (doors[i].approach_names[1] == nameA && doors[i].approach_names[0] == nameB)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 
 std_msgs::Float64 MapInfo::distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose) {
@@ -343,7 +359,7 @@ bool MapInfo::readAttributesFile(const std::string& filename) {
   YAML::Node doc;
   doc = YAML::Load(fin);
   const YAML::Node region_node = doc["regions"];
-  
+
   // Populate all the regions in our path with annotation data
   for (std::size_t i = 0; i < region_node.size(); i++){
     std::string label = region_node[i]["name"].as<std::string>();
