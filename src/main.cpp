@@ -22,6 +22,8 @@
 #include "verbal_navigation/Predicates.h"
 #include "verbal_navigation/MapItem.h"
 #include "verbal_navigation/bwi_directions_generator.h"
+#include "verbal_navigation/Optimizer.h"
+
 
 void sleepok(int t, ros::NodeHandle &nh) {
 	if (nh.ok()) {
@@ -42,14 +44,14 @@ geometry_msgs::PoseStamped::ConstPtr tryGetStartPose(std::map<std::string, geome
 		startPose->header.stamp = ros::Time::now();
 		startPose->header.frame_id = "/level_mux_map";
 	}
-	
+
 	return geometry_msgs::PoseStamped::ConstPtr(startPose);
 }
 
 void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id) {
 	ROS_INFO("Changing floor to %s", floor_id.c_str());
 	multi_level_map_msgs::ChangeCurrentLevel changeLevel;
-	
+
 	changeLevel.request.new_level_id = floor_id;
 
 	geometry_msgs::PoseWithCovarianceStamped origin_pose;
@@ -70,7 +72,7 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 
 
 int main (int argc, char** argv) {
-	ROS_INFO("Welcome to the Verbal Navigation Porject");
+	ROS_INFO("Welcome to the Verbal Navgiation Project");
 
 
 	ros::init(argc, argv, "FRI_SPEAK");
@@ -103,7 +105,7 @@ int main (int argc, char** argv) {
 	// call service to generate path from start to dest
 	// ros::ServiceClient path_client = n.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
 	ros::ServiceClient path_client = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
-	
+
 	path_client.waitForExistence();
 	// ROS_INFO("Path service found!");
 
@@ -133,7 +135,7 @@ int main (int argc, char** argv) {
 
 	// geometry_msgs::PoseStamped::ConstPtr goal3(endPose);
 	// goalPose.setFromPoseStamped(goal3);
-	
+
 
 
 	// nav_msgs::GetPlan srv3;
@@ -176,7 +178,7 @@ int main (int argc, char** argv) {
 	initialPose.setFromPoseStamped(startPose);
 
 	// from the ros tutorials, get the destination door
-	
+
 	if (nh.getParam("dest", destinationName))
 	{
 		// ROS_INFO("reading user-specified dest paramter.");
@@ -203,7 +205,7 @@ int main (int argc, char** argv) {
 	}
 
 
-	
+
 
 	//while (ros::ok()) {
 	// wait until start and dest poses exist
@@ -235,7 +237,7 @@ int main (int argc, char** argv) {
 	changeToFloor(change_level_client, "3rdFloor");
 	sleep(1);
 
-	
+
 	bwi_logical_translator::BwiLogicalTranslator translator3;
 	ros::param::set("~map_file", mapPath3.string());
 	ros::param::set("~data_directory", dataPath3.string());
@@ -262,7 +264,7 @@ int main (int argc, char** argv) {
 
 	geometry_msgs::PoseStamped::ConstPtr goal3(endPose);
 	goalPose.setFromPoseStamped(goal3);
-	
+
 
 
 	nav_msgs::GetPlan srv3;
@@ -286,8 +288,21 @@ int main (int argc, char** argv) {
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
 
-	std::vector<Region> regionPath;
-	
+	RegionPath regionPath;
+	RegionPath regionPath2 = mapInfo.getRegionPath();
+	//ROS_INFO("2nd floor region path size: %d", regionPath2.size());
+	RegionPath regionPath3 = mapInfo3.getRegionPath();
+	//ROS_INFO("3nd floor region path size: %d", regionPath3.size());
+
+
+	regionPath = regionPath2;
+	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
+
+	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
+	//ROS_INFO("Total region path size: %d", regionPath.size());
+
+
+
 
 		/*
 
@@ -316,3 +331,7 @@ int main (int argc, char** argv) {
 // inline std::map<std::string, geometry_msgs::Pose> getObjectApproachMap() const {
 // 	return object_approach_map_;
 // }
+//
+// inline std::vector<bwi_planning_common::Door> getDoorList() const {
+//  	return doors_;
+//  }

@@ -23,11 +23,10 @@
 
 class MapInfo {
 
+  int floor;
+
   // user-specified destination Name. Should be a door or landmark
   std::string destinationCommonName;
-
-  // bwi translator containing important helper methods
-  bwi_logical_translator::BwiLogicalTranslator translator;
 
   // ordered list of poses returned by the translator from start to dest
   std::vector<geometry_msgs::PoseStamped> poseList;
@@ -54,8 +53,14 @@ class MapInfo {
   // Contains the ordered path of regions and the floor those regions are on
   RegionPath regions;
 
+  // Contains all regions on the map and their properties
+  std::vector<Region> allRegions;
+
   // a string representing the natural language instruction for this path.
   std::string directions;
+  
+  // bwi translator containing important helper methods
+  bwi_logical_translator::BwiLogicalTranslator translator;
 
   bool readAttributesFile(const std::string& filename);
   void populateRegionAttributes();
@@ -82,6 +87,9 @@ public:
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor);
   std::string generateDirections();
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
+  bool isDoorBetweenRegions(Region a, Region b);
   RegionPath getRegionPath();
+  
+  std::map<std::string, std::vector<geometry_msgs::PoseStamped>> getRegionToPosesMap();
 };
 #endif
