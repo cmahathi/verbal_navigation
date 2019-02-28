@@ -21,6 +21,7 @@ class DomainInfo {
         std::vector<std::string> getDomainByRobot (std::string robot);
         std::vector<std::string> getRobotList ();
         std::string getRobotByRegion (std::string region);
+        bool isRegionTransition (std::string region1, std::string region2);
 };
 
 #endif

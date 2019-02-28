@@ -16,7 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
 	bwi_planning_common
 	bwi_logical_translator
 	bwi_mapper
-  sound_play
+    sound_play
+    rospy
 )
 find_package(PkgConfig REQUIRED)
 ## System dependencies are found with CMake's conventions

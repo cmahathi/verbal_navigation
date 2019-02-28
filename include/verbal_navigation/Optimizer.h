@@ -10,6 +10,11 @@ class Optimizer {
         DomainInfo domains;
         static constexpr double ROBOT_VELOCITY = 0.5;
         static constexpr double HUMAN_VELOCITY = 1.4;
+        static constexpr double SPEECH_TIME = 5.0;
+        double currentMinTime;
+        std::vector<char> currentPath;
+        std::vector<char> currentMinPath;
+        bool debug;
 
         void preprocess();
         double getLengthOfRegion(Region r, MapInfo mapinfo);
@@ -17,6 +22,16 @@ class Optimizer {
         void printPathInfo();
         void calculateRobotTimes();
         void calculateBaseHumanTimes();
+        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition, std::string spaces);
+        void updatePath(char action);
+        void backtrackPath();
+        double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action);
+        void updateMin(double accumulatedTime);
+        bool domainTransition(int regionCount);
+        std::string pathToString (std::vector<char> path);
+
+
+
 
     public:
         Optimizer(RegionPath& regionPath, MapInfo f2, MapInfo f3);

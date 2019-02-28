@@ -26,6 +26,7 @@ protected:
   int num_neighbors;
   double traversibility;
   std::vector<geometry_msgs::PoseStamped> path;
+  std::string action;
 
 public:
   double robot_time;
@@ -33,7 +34,7 @@ public:
   double human_time;
 
   Region (std::string name);
-  
+
   void setDoor (bool door);
   void setName (std::string n);
   void setCommonName (std::string cn);
@@ -52,7 +53,7 @@ public:
   double getLength ();
   RegionType getType ();
   int getNumNeighbors();
-  double getTraversibility();  
+  double getTraversibility();
   int getFloor();
 };
 #endif

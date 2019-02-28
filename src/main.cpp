@@ -299,6 +299,8 @@ int main (int argc, char** argv) {
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
 	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
+	optimizer.optimize();
+	ROS_INFO("Successfully optimized without dying");
 	//ROS_INFO("Total region path size: %d", regionPath.size());
 
 
