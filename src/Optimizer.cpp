@@ -2,7 +2,7 @@
 
 // TODO it seems weird that this is all hard coded for floors 2 and 3. We always have at most 2 floors in our path: an upper floor and a lower floor.
 // (No one needs to use a third floor as a transition floor unless they go from one basement to another, an edge case we don't care to cover right now)
-Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmentedPath(regionPath.path), floor2(f2), floor3(f3) {
+Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmentedPath(regionPath.path), floor2(f2), floor3(f3), domains(), currentMinTime(0), currentPath(), currentMinPath(), debug(false) {
     ROS_INFO("Calculating optimal combination...");
     preprocess();
     ROS_INFO("Preprocessing finished");
@@ -11,31 +11,31 @@ Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmente
 
 void Optimizer::optimize () {
     debug = true;
-    currentMinTime = 100000.0;
+    currentMinTime = std::numeric_limits<double>::max();
     if(debug) {
         ROS_INFO("Regions in path: %d", segmentedPath.size());
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
-    calculateRegionTime(0.0, 0, 0, 'L', false, " ");
+    calculateRegionTime(0.0, 0, 0, 'L', false);
     ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
 
     if (debug) {
         ROS_INFO("\n\n\n");
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
-    calculateRegionTime(0.0, 0, 0, 'I', false, " ");
+    calculateRegionTime(0.0, 0, 0, 'I', false);
     ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
-
 }
 
-void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition, std::string spaces) {
+void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition) {
     updatePath(action);
+    accumulatedTime = calculateAccumulatedTime(accumulatedTime, numInstructedRegions, regionCounter, action);
+
     if (debug) {
-        ROS_INFO("%s%c", spaces.c_str(), action);
+        ROS_INFO("Region %d: %c", regionCounter, action);
+        ROS_INFO("AccumulatedTime: %lf, minTime %lf", accumulatedTime, currentMinTime);
     }
 
-    accumulatedTime = calculateAccumulatedTime(accumulatedTime, numInstructedRegions, regionCounter, action);
-    //ROS_INFO("AccumulatedTime: %lf, minTime %lf", accumulatedTime, currentMinTime);
     if (accumulatedTime > currentMinTime){
         backtrackPath();
         return;
@@ -43,30 +43,28 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
     if (regionCounter == segmentedPath.size()) {
         updateMin(accumulatedTime);
         backtrackPath();
-
         return;
     }
     regionCounter++;
-    if (domainTransition(regionCounter) || transition) {
-        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'T', false, spaces + "  ");
-        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', true, spaces + "  ");
+    if (transition || domainTransition(regionCounter)) {
+        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'T', false);
+        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', true);
     }
     else {
         if (action == 'I') {
-            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', transition, spaces + "  ");
+            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', transition);
         }
         else if (action == 'T') {
-            calculateRegionTime(accumulatedTime, 0, regionCounter, 'I', false, spaces + "  ");
-            calculateRegionTime(accumulatedTime, 0, regionCounter, 'L', false, spaces + "  ");
+            calculateRegionTime(accumulatedTime, 0, regionCounter, 'I', false);
+            calculateRegionTime(accumulatedTime, 0, regionCounter, 'L', false);
         }
         else {
-            // action = 'L'
-            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', transition, spaces + "  ");
-            calculateRegionTime(accumulatedTime, 0, regionCounter, 'L', transition, spaces + "  ");
+            // action == 'L'
+            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', transition);
+            calculateRegionTime(accumulatedTime, 0, regionCounter, 'L', transition);
         }
     }
     backtrackPath();
-
 }
 
 void Optimizer::updatePath(char action) {
@@ -78,6 +76,9 @@ void Optimizer::backtrackPath() {
 }
 
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action) {
+    if(segmentedPath[regionCounter].base_human_time > 10000.0 || segmentedPath[regionCounter].robot_time > 10000.0) {
+        ROS_ERROR("TIME IS CRAZY: %d, BHT:%f RT:%f", regionCounter, segmentedPath[regionCounter].base_human_time, segmentedPath[regionCounter].robot_time);
+    }
     if (action == 'I' || action == 'T') {
         double acc = accumulatedTime + segmentedPath[regionCounter].base_human_time * (double)(numInstructedRegions+1);
         if (numInstructedRegions == 0) {
@@ -97,16 +98,13 @@ void Optimizer::updateMin(double accumulatedTime) {
 }
 
 bool Optimizer::domainTransition(int regionCount) {
-    if (regionCount >= segmentedPath.size() - 2)
+    if (regionCount >= segmentedPath.size() - 1)
         return false;
-    return domains.isRegionTransition(segmentedPath[regionCount].getName(), segmentedPath[regionCount+1].getName());
+    return domains.isDomainTransition(segmentedPath.at(regionCount).getName(), segmentedPath.at(regionCount+1).getName());
 }
 
 
 void Optimizer::preprocess () {
-    // for (int i = 0; i < segmentedPath.size(); i++) {
-    //   ROS_INFO("%d: %s %f", i, segmentedPath[i].getName().c_str(), segmentedPath[i].getLength());
-    // }
     for (int i = 0; i < segmentedPath.size(); i++) {
         segmentedPath[i].setTraversibility(calculateTraversibility(segmentedPath[i]));
     }
@@ -115,6 +113,9 @@ void Optimizer::preprocess () {
     // ROS_INFO("Calculating human times");
     calculateBaseHumanTimes();
     // printPathInfo();
+    // for (auto& region : segmentedPath) {
+    //     ROS_ERROR("Region:%s BHT:%f RT: %f TV:%f, L:%f", region.getName().c_str(), region.base_human_time, region.robot_time, region.getTraversibility(), region.getLength());
+    // }
 }
 
 void Optimizer::calculateRobotTimes() {

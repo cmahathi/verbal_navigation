@@ -1,16 +1,17 @@
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/DomainInfo.h"
+#include <limits>
 
 class Optimizer {
 
     private:
+        static constexpr double ROBOT_VELOCITY = 0.5;
+        static constexpr double HUMAN_VELOCITY = 1.4;
+        static constexpr double SPEECH_TIME = 5.0;
         std::vector<Region>& segmentedPath;
         MapInfo floor2;
         MapInfo floor3;
         DomainInfo domains;
-        static constexpr double ROBOT_VELOCITY = 0.5;
-        static constexpr double HUMAN_VELOCITY = 1.4;
-        static constexpr double SPEECH_TIME = 5.0;
         double currentMinTime;
         std::vector<char> currentPath;
         std::vector<char> currentMinPath;
@@ -22,7 +23,7 @@ class Optimizer {
         void printPathInfo();
         void calculateRobotTimes();
         void calculateBaseHumanTimes();
-        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition, std::string spaces);
+        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition);
         void updatePath(char action);
         void backtrackPath();
         double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action);

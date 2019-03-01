@@ -1,6 +1,7 @@
 #ifndef REGION
 #define REGION
 
+#include <ros/ros.h>
 #include <vector>
 #include <string>
 

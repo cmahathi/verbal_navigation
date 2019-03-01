@@ -1,6 +1,8 @@
 #include <verbal_navigation/Region.h>
 
-Region::Region (std::string n) : name(n), has_door(false), common_name(n) { }
+Region::Region (std::string n) : name(n), has_door(false), common_name(n),
+                        robot_time(0), human_time(0), base_human_time(0), 
+                        length(0), floor(0), num_neighbors(0), traversibility(0) { }
 
 void Region::setDoor (bool door) {
     has_door = door;
