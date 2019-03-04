@@ -10,7 +10,7 @@ Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmente
 }
 
 void Optimizer::optimize () {
-    debug = true;
+    debug = false;
     currentMinTime = std::numeric_limits<double>::max();
     if(debug) {
         ROS_INFO("Regions in path: %d", segmentedPath.size());
@@ -36,11 +36,11 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
         ROS_INFO("AccumulatedTime: %lf, minTime %lf", accumulatedTime, currentMinTime);
     }
 
-    if (accumulatedTime > currentMinTime){
+    if (accumulatedTime > currentMinTime) {
         backtrackPath();
         return;
     }
-    if (regionCounter == segmentedPath.size()) {
+    if (regionCounter == segmentedPath.size() - 1) {
         updateMin(accumulatedTime);
         backtrackPath();
         return;
@@ -76,19 +76,15 @@ void Optimizer::backtrackPath() {
 }
 
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action) {
-    if(segmentedPath[regionCounter].base_human_time > 10000.0 || segmentedPath[regionCounter].robot_time > 10000.0) {
-        ROS_ERROR("TIME IS CRAZY: %d, BHT:%f RT:%f", regionCounter, segmentedPath[regionCounter].base_human_time, segmentedPath[regionCounter].robot_time);
-    }
     if (action == 'I' || action == 'T') {
-        double acc = accumulatedTime + segmentedPath[regionCounter].base_human_time * (double)(numInstructedRegions+1);
+        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (double)(numInstructedRegions+1);
         if (numInstructedRegions == 0) {
             acc += SPEECH_TIME;
         }
-        //ROS_INFO("Accumulated Time (in calculation) from T or F: %lf",acc);
         return acc;
     }
     else {
-        return accumulatedTime + segmentedPath[regionCounter].robot_time;
+        return accumulatedTime + segmentedPath.at(regionCounter).robot_time;
     }
 }
 
@@ -106,41 +102,38 @@ bool Optimizer::domainTransition(int regionCount) {
 
 void Optimizer::preprocess () {
     for (int i = 0; i < segmentedPath.size(); i++) {
-        segmentedPath[i].setTraversibility(calculateTraversibility(segmentedPath[i]));
+        segmentedPath.at(i).setTraversibility(calculateTraversibility(segmentedPath.at(i)));
     }
-    // ROS_INFO("Calculating robot times");
+    ROS_INFO("Calculating robot times");
     calculateRobotTimes();
-    // ROS_INFO("Calculating human times");
+    ROS_INFO("Calculating human times");
     calculateBaseHumanTimes();
     // printPathInfo();
-    // for (auto& region : segmentedPath) {
-    //     ROS_ERROR("Region:%s BHT:%f RT: %f TV:%f, L:%f", region.getName().c_str(), region.base_human_time, region.robot_time, region.getTraversibility(), region.getLength());
-    // }
 }
 
 void Optimizer::calculateRobotTimes() {
-    for (int i = 0; i < segmentedPath.size(); i++) {
-        segmentedPath[i].robot_time = segmentedPath[i].getLength() / ROBOT_VELOCITY * segmentedPath[i].getTraversibility();
+    for (auto& region : segmentedPath) {
+        region.robot_time = region.getLength() / ROBOT_VELOCITY * region.getTraversibility();
     }
 }
 
 void Optimizer::calculateBaseHumanTimes() {
-    for (int i = 0; i < segmentedPath.size(); i++) {
-        segmentedPath[i].base_human_time = segmentedPath[i].getLength() / HUMAN_VELOCITY * segmentedPath[i].getNumNeighbors();
+    for (auto& region : segmentedPath) {
+        region.base_human_time = region.getLength() / HUMAN_VELOCITY * region.getNumNeighbors();
     }
 }
 
 void Optimizer::printPathInfo() {
-    // ROS_INFO("Printing Path info... Size: %d", segmentedPath.size());
-    // for (int i = 0; i < segmentedPath.size(); i++) {
-    //     // ROS_INFO("Region: %s\n\tLength: %f\n\tType: %s\n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n",
-    //     //         segmentedPath[i].getName().c_str(), segmentedPath[i].getLength(), segmentedPath[i].getType(), segmentedPath[i].getDoor(),
-    //     //         segmentedPath[i].getTraversibility(), segmentedPath[i].getNumNeighbors());
-    //     //ROS_INFO("Region: %s\n\tLength: %f\n\tType: \n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n\tRobot Time: %f\n\tHuman Time (base): %f",
-    //             segmentedPath[i].getName().c_str(), segmentedPath[i].getLength(), segmentedPath[i].getDoor(),
-    //             segmentedPath[i].getTraversibility(), segmentedPath[i].getNumNeighbors(), segmentedPath[i].robot_time,
-    //             segmentedPath[i].base_human_time);
-    // }
+    ROS_INFO("Printing Path info... Size: %d", segmentedPath.size());
+    for (int i = 0; i < segmentedPath.size(); i++) {
+        // ROS_INFO("Region: %s\n\tLength: %f\n\tType: %s\n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n",
+        //         segmentedPath[i].getName().c_str(), segmentedPath[i].getLength(), segmentedPath[i].getType(), segmentedPath[i].getDoor(),
+        //         segmentedPath[i].getTraversibility(), segmentedPath[i].getNumNeighbors());
+        // ROS_INFO("Region: %s\n\tLength: %f\n\tType: \n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n\tRobot Time: %f\n\tHuman Time (base): %f",
+                segmentedPath[i].getName().c_str(), segmentedPath[i].getLength(), segmentedPath[i].getDoor(),
+                segmentedPath[i].getTraversibility(), segmentedPath[i].getNumNeighbors(), segmentedPath[i].robot_time,
+                segmentedPath[i].base_human_time);
+    }
 }
 
 double Optimizer::calculateTraversibility (Region r) {
@@ -162,7 +155,6 @@ double Optimizer::calculateTraversibility (Region r) {
 
 std::string Optimizer::pathToString (std::vector<char> path) {
     std::string result = "";
-    //ROS_INFO("IN PATH TO STRING METHOD");
     for (int i = 0; i < path.size(); i++) {
         result.push_back(path[i]);
     }
