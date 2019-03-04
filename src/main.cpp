@@ -23,6 +23,7 @@
 #include "verbal_navigation/MapItem.h"
 #include "verbal_navigation/bwi_directions_generator.h"
 #include "verbal_navigation/Optimizer.h"
+#include "verbal_navigation/Sequencer.h"
 
 
 void sleepok(int t, ros::NodeHandle &nh) {
@@ -299,8 +300,11 @@ int main (int argc, char** argv) {
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
 	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
-	optimizer.optimize();
+	auto optimalSequence = optimizer.getOptimalGuidanceSequence();
 	ROS_INFO("Successfully optimized without dying");
+
+
+	Sequencer sequencer(optimalSequence, regionPath.path);
 	//ROS_INFO("Total region path size: %d", regionPath.size());
 
 

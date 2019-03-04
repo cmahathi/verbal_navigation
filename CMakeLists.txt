@@ -161,6 +161,7 @@ add_executable(FRI_SPEAK
     src/Region.cpp
     src/Optimizer.cpp
     src/DomainInfo.cpp
+    src/Sequencer.cpp
     )
 
 ## Rename C++ executable without prefix

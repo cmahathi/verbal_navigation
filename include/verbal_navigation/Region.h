@@ -1,5 +1,5 @@
-#ifndef REGION
-#define REGION
+#ifndef REGION_H
+#define REGION_H
 
 #include <ros/ros.h>
 #include <vector>
@@ -27,7 +27,6 @@ protected:
   int num_neighbors;
   double traversibility;
   std::vector<geometry_msgs::PoseStamped> path;
-  std::string action;
 
 public:
   double robot_time;

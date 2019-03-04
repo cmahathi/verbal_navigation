@@ -14,8 +14,9 @@ class Optimizer {
         MapInfo floor3;
         DomainInfo domains;
         double currentMinTime;
-        std::vector<char> currentPath;
-        std::vector<char> currentMinPath;
+        std::vector<GuidanceActions> currentPath;
+        std::vector<GuidanceActions> currentMinPath;
+        bool optimized;
         bool debug;
 
         void preprocess();
@@ -25,12 +26,12 @@ class Optimizer {
         void calculateRobotTimes();
         void calculateBaseHumanTimes();
         void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActions action, bool transition);
-        void updatePath(char action);
+        void updatePath(GuidanceActions action);
         void backtrackPath();
-        double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action);
+        double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActions action);
         void updateMin(double accumulatedTime);
         bool domainTransition(int regionCount);
-        std::string pathToString (std::vector<char> path);
+        std::string pathToString (std::vector<GuidanceActions> path);
 
 
 
@@ -38,4 +39,6 @@ class Optimizer {
     public:
         Optimizer(RegionPath& regionPath, MapInfo f2, MapInfo f3);
         void optimize();
+
+        std::vector<GuidanceActions> getOptimalGuidanceSequence();
 };

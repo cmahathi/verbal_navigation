@@ -2,7 +2,7 @@
 
 // TODO it seems weird that this is all hard coded for floors 2 and 3. We always have at most 2 floors in our path: an upper floor and a lower floor.
 // (No one needs to use a third floor as a transition floor unless they go from one basement to another, an edge case we don't care to cover right now)
-Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmentedPath(regionPath.path), floor2(f2), floor3(f3), domains(), currentMinTime(0), currentPath(), currentMinPath(), debug(false) {
+Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmentedPath(regionPath.path), floor2(f2), floor3(f3), domains(), currentMinTime(0), currentPath(), currentMinPath(), debug(false), optimized(false) {
     ROS_INFO("Calculating optimal combination...");
     preprocess();
     ROS_INFO("Preprocessing finished");
@@ -73,7 +73,7 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
     backtrackPath();
 }
 
-void Optimizer::updatePath(char action) {
+void Optimizer::updatePath(GuidanceActions action) {
     currentPath.push_back(action);
 }
 
@@ -81,7 +81,7 @@ void Optimizer::backtrackPath() {
     currentPath.pop_back();
 }
 
-double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action) {
+double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActions action) {
     if (action == GuidanceActions::INSTRUCT || action == GuidanceActions::TRANSITION) {
         double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (double)(numInstructedRegions+1);
         if (numInstructedRegions == 0) {
@@ -159,10 +159,18 @@ double Optimizer::calculateTraversibility (Region r) {
     return traversibility;
 }
 
-std::string Optimizer::pathToString (std::vector<char> path) {
+std::string Optimizer::pathToString (std::vector<GuidanceActions> path) {
     std::string result = "";
     for (int i = 0; i < path.size(); i++) {
         result.push_back(path[i]);
     }
     return result;
+}
+
+std::vector<GuidanceActions> Optimizer::getOptimalGuidanceSequence() {
+    if(!optimized) {
+        optimize();
+    }
+
+    return currentMinPath;
 }
