@@ -28,6 +28,14 @@ void Optimizer::optimize () {
 }
 
 void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition) {
+    // Base case: we have calcualated the time for every region in the path
+    if (regionCounter == segmentedPath.size()) {
+        // Result: we have found a new minimum time combination
+        updateMin(accumulatedTime);
+        return;
+    }
+
+    // Try appending this action to our current path permutation
     updatePath(action);
     accumulatedTime = calculateAccumulatedTime(accumulatedTime, numInstructedRegions, regionCounter, action);
 
@@ -36,16 +44,14 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
         ROS_INFO("AccumulatedTime: %lf, minTime %lf", accumulatedTime, currentMinTime);
     }
 
+    // If this makes the path take longer than our current minumum, abandon this branch
     if (accumulatedTime > currentMinTime) {
         backtrackPath();
         return;
     }
-    if (regionCounter == segmentedPath.size() - 1) {
-        updateMin(accumulatedTime);
-        backtrackPath();
-        return;
-    }
+
     regionCounter++;
+    // Try the remaining possible follow-up actions to this action for the next region
     if (transition || domainTransition(regionCounter)) {
         calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'T', false);
         calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', true);
@@ -129,7 +135,7 @@ void Optimizer::printPathInfo() {
         // ROS_INFO("Region: %s\n\tLength: %f\n\tType: %s\n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n",
         //         segmentedPath[i].getName().c_str(), segmentedPath[i].getLength(), segmentedPath[i].getType(), segmentedPath[i].getDoor(),
         //         segmentedPath[i].getTraversibility(), segmentedPath[i].getNumNeighbors());
-        // ROS_INFO("Region: %s\n\tLength: %f\n\tType: \n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n\tRobot Time: %f\n\tHuman Time (base): %f",
+        ROS_INFO("Region: %s\n\tLength: %f\n\tType: \n\tDoor: %d\n\tTraversibility: %f\n\tNeighbors: %d\n\tRobot Time: %f\n\tHuman Time (base): %f",
                 segmentedPath[i].getName().c_str(), segmentedPath[i].getLength(), segmentedPath[i].getDoor(),
                 segmentedPath[i].getTraversibility(), segmentedPath[i].getNumNeighbors(), segmentedPath[i].robot_time,
                 segmentedPath[i].base_human_time);
