@@ -16,18 +16,18 @@ void Optimizer::optimize () {
         ROS_INFO("Regions in path: %d", segmentedPath.size());
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
-    calculateRegionTime(0.0, 0, 0, 'L', false);
+    calculateRegionTime(0.0, 0, 0, Actions::LEAD, false);
     ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
 
     if (debug) {
         ROS_INFO("\n\n\n");
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
-    calculateRegionTime(0.0, 0, 0, 'I', false);
+    calculateRegionTime(0.0, 0, 0, Actions::INSTRUCT, false);
     ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
 }
 
-void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action, bool transition) {
+void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, Actions action, bool transition) {
     // Base case: we have calcualated the time for every region in the path
     if (regionCounter == segmentedPath.size()) {
         // Result: we have found a new minimum time combination
@@ -53,21 +53,21 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
     regionCounter++;
     // Try the remaining possible follow-up actions to this action for the next region
     if (transition || domainTransition(regionCounter)) {
-        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'T', false);
-        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', true);
+        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, Actions::TRANSITION, false);
+        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, Actions::INSTRUCT, true);
     }
     else {
-        if (action == 'I') {
-            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', transition);
+        if (action == Actions::INSTRUCT) {
+            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, Actions::INSTRUCT, transition);
         }
-        else if (action == 'T') {
-            calculateRegionTime(accumulatedTime, 0, regionCounter, 'I', false);
-            calculateRegionTime(accumulatedTime, 0, regionCounter, 'L', false);
+        else if (action == Actions::TRANSITION) {
+            calculateRegionTime(accumulatedTime, 0, regionCounter, Actions::INSTRUCT, false);
+            calculateRegionTime(accumulatedTime, 0, regionCounter, Actions::LEAD, false);
         }
         else {
-            // action == 'L'
-            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, 'I', transition);
-            calculateRegionTime(accumulatedTime, 0, regionCounter, 'L', transition);
+            // action == Actions::LEAD
+            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, Actions::INSTRUCT, transition);
+            calculateRegionTime(accumulatedTime, 0, regionCounter, Actions::LEAD, transition);
         }
     }
     backtrackPath();
@@ -82,7 +82,7 @@ void Optimizer::backtrackPath() {
 }
 
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action) {
-    if (action == 'I' || action == 'T') {
+    if (action == Actions::INSTRUCT || action == Actions::TRANSITION) {
         double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (double)(numInstructedRegions+1);
         if (numInstructedRegions == 0) {
             acc += SPEECH_TIME;
