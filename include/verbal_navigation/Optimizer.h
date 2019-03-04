@@ -1,6 +1,6 @@
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/DomainInfo.h"
-#include "verbal_navigation/Action.h"
+#include "verbal_navigation/GuidanceAction.h"
 #include <limits>
 
 class Optimizer {
@@ -24,7 +24,7 @@ class Optimizer {
         void printPathInfo();
         void calculateRobotTimes();
         void calculateBaseHumanTimes();
-        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, Actions action, bool transition);
+        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActions action, bool transition);
         void updatePath(char action);
         void backtrackPath();
         double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, char action);
