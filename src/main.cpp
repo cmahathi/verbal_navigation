@@ -290,14 +290,6 @@ int main (int argc, char** argv) {
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
 
-	//ros::ServiceClient change_level_client = nh.serviceClient <multi_level_map_msgs::ChangeCurrentLevel> ("/level_mux/change_current_level");
-	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
-	speech_client.waitForExistence();
-	ROS_INFO("Speech Client Found!");
-	verbal_navigation::Wavenet wavService;
-	wavService.request.text = finalDirections;
-	speech_client.call(wavService);
-
 	RegionPath regionPath;
 	RegionPath regionPath2 = mapInfo.getRegionPath();
 	//ROS_INFO("2nd floor region path size: %d", regionPath2.size());
@@ -312,23 +304,16 @@ int main (int argc, char** argv) {
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();
 	ROS_INFO("Successfully optimized without dying");
 
+	// MAKE SURE SERVICE IS RUNNING: rosrun verbal_navigation Wavenet_Node.py
+	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+	speech_client.waitForExistence();
+	ROS_INFO("Speech Client Found!");
+	verbal_navigation::Wavenet wavService;
+	wavService.request.text = "Hell world";
+	//speech_client.call(wavService);
 
 	Sequencer sequencer(optimalSequence, regionPath.path);
 	//ROS_INFO("Total region path size: %d", regionPath.size());
-
-
-
-
-		/*
-
-		// make a sound_play object, which will speak the final directions
-		sound_play::SoundClient sc;
-		sleepok(5, nh);
-		// NOTE: MAKE SURE TO RUN THE sound_play node using
-		// "rosrun sound_play soundplay_node.py" before sending a sound
-		sc.say(finalDirections);
-
-		*/
 
 	// update robot's position and set up for new goal pose.
 	// initialPose = goalPose;
