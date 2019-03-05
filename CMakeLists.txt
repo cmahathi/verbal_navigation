@@ -16,8 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
 	bwi_planning_common
 	bwi_logical_translator
 	bwi_mapper
-    sound_play
-    rospy
+  sound_play
+  rospy
+  message_generation
 )
 find_package(PkgConfig REQUIRED)
 ## System dependencies are found with CMake's conventions
@@ -65,11 +66,10 @@ endif()
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  Wavenet.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -79,10 +79,10 @@ endif()
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

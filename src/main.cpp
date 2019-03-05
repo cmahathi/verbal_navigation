@@ -13,6 +13,7 @@
 #include <bwi_mapper/structures/point.h>
 #include <vector>
 #include <boost/filesystem.hpp>
+#include "verbal_navigation/Wavenet.h"
 
 #include <sound_play/sound_play.h>
 #include <unistd.h>
@@ -288,6 +289,14 @@ int main (int argc, char** argv) {
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
+
+	//ros::ServiceClient change_level_client = nh.serviceClient <multi_level_map_msgs::ChangeCurrentLevel> ("/level_mux/change_current_level");
+	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+	speech_client.waitForExistence();
+	ROS_INFO("Speech Client Found!");
+	verbal_navigation::Wavenet wavService;
+	wavService.request.text = finalDirections;
+	speech_client.call(wavService);
 
 	RegionPath regionPath;
 	RegionPath regionPath2 = mapInfo.getRegionPath();

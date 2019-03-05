@@ -17,7 +17,7 @@ void Optimizer::optimize () {
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
     calculateRegionTime(0.0, 0, 0, GuidanceActions::LEAD, false);
-    ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
+    //ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
 
     if (debug) {
         ROS_INFO("\n\n\n");
