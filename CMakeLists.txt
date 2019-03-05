@@ -148,7 +148,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
-add_executable(FRI_SPEAK
+add_executable(BWI_Guide
 		src/main.cpp
 		src/FuturePoseStamped.cpp
     src/MapInfo.cpp
@@ -175,7 +175,7 @@ add_executable(FRI_SPEAK
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(FRI_SPEAK
+ target_link_libraries(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}

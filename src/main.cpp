@@ -77,7 +77,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("Welcome to the Verbal Navgiation Project");
 
 
-	ros::init(argc, argv, "FRI_SPEAK");
+	ros::init(argc, argv, "BWI_Guide");
 	ros::NodeHandle nh("~");
 
 
@@ -201,8 +201,22 @@ int main (int argc, char** argv) {
 	else
 	{
 		// user did not specify goal pose. Allow user to specify goal pose from RViz.
-  		ROS_ERROR("Failed to get param 'dest'. Waiting for user to specify goal pose in RViz.");
+  		//ROS_ERROR("Failed to get param 'dest'. Waiting for user to specify goal pose in RViz.");
 		// ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
+		std::string destinationDoor = "d2_elev_east";
+		auto destination = new geometry_msgs::PoseStamped;
+
+		auto goalPoints = translator2.getDoor(destinationDoor).approach_points[0];
+		// ROS_INFO("FOUND DOOR");
+		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
+		destination->pose.position.x = goalPoints.x;
+		destination->pose.position.y = goalPoints.y;
+
+		destination->header.stamp = ros::Time::now();
+		destination->header.frame_id = "/level_mux_map";
+
+		geometry_msgs::PoseStamped::ConstPtr goal(destination);
+		goalPose.setFromPoseStamped(goal);
 
 	}
 
