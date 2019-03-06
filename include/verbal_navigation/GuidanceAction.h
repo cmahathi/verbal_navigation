@@ -8,9 +8,9 @@ enum GuidanceActions { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T'};
 class GuidanceAction {
     Region region;
 
-public:
-    GuidanceAction(Region region);
-    virtual void perform() = 0;
+    public:
+        GuidanceAction(Region region);
+        virtual void perform() = 0;
 };
 
 #endif

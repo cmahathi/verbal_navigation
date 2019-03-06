@@ -299,7 +299,7 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName, "3ne");
-	finalDirections = mapInfo3.generateDirections();
+	finalDirections.append(mapInfo3.generateDirections());
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
@@ -311,6 +311,8 @@ int main (int argc, char** argv) {
 	//ROS_INFO("3nd floor region path size: %d", regionPath3.size());
 
 
+
+
 	regionPath = regionPath2;
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
@@ -318,15 +320,15 @@ int main (int argc, char** argv) {
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();
 	ROS_INFO("Successfully optimized without dying");
 
-	// MAKE SURE SERVICE IS RUNNING: rosrun verbal_navigation Wavenet_Node.py
+	Sequencer sequencer(optimalSequence, regionPath.path);
+
+		// MAKE SURE SERVICE IS RUNNING: rosrun verbal_navigation Wavenet_Node.py
 	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
 	speech_client.waitForExistence();
 	ROS_INFO("Speech Client Found!");
 	verbal_navigation::Wavenet wavService;
-	wavService.request.text = "Hell world";
-	//speech_client.call(wavService);
-
-	Sequencer sequencer(optimalSequence, regionPath.path);
+	wavService.request.text = finalDirections;
+	speech_client.call(wavService);
 	//ROS_INFO("Total region path size: %d", regionPath.size());
 
 	// update robot's position and set up for new goal pose.
