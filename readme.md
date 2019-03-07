@@ -17,3 +17,8 @@ Configure credentials (in terminal where wavenet will run):
 Run node:
 
 `rosrun verbal_navigation Wavenet_Node.py`
+
+### Mapping Script
+Run from directory verbal_navigation/src/multimap/[floor]
+
+`rosrun bwi_planning_common logical_marker _map_file:=2.yaml _data_directory:=.`
