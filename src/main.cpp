@@ -203,7 +203,7 @@ int main (int argc, char** argv) {
 		// user did not specify goal pose. Allow user to specify goal pose from RViz.
   		//ROS_ERROR("Failed to get param 'dest'. Waiting for user to specify goal pose in RViz.");
 		// ros::Subscriber sub1 = nh.subscribe("/move_base_interruptable_simple/goal", 100, &FuturePoseStamped::setFromPoseStamped, &goalPose);
-		std::string destinationDoor = "d2_elev_east";
+		std::string destinationDoor = "d2_elev_west";
 		auto destination = new geometry_msgs::PoseStamped;
 
 		auto goalPoints = translator2.getDoor(destinationDoor).approach_points[0];
@@ -245,7 +245,7 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName, "2");
-	finalDirections = mapInfo.generateDirections();
+	finalDirections = mapInfo.buildInstructions(mapInfo.getRegionPath().path, false, true, 3);
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
@@ -299,7 +299,7 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName, "3ne");
-	finalDirections.append(mapInfo3.generateDirections());
+	finalDirections.append(mapInfo3.buildInstructions(mapInfo3.getRegionPath().path, false, false, 0));
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
@@ -310,9 +310,6 @@ int main (int argc, char** argv) {
 	RegionPath regionPath3 = mapInfo3.getRegionPath();
 	//ROS_INFO("3nd floor region path size: %d", regionPath3.size());
 
-
-
-
 	regionPath = regionPath2;
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
@@ -322,13 +319,18 @@ int main (int argc, char** argv) {
 
 	Sequencer sequencer(optimalSequence, regionPath.path);
 
-		// MAKE SURE SERVICE IS RUNNING: rosrun verbal_navigation Wavenet_Node.py
+	// std::vector<Region> test(regionPath2.path.begin(), regionPath2.path.end()-1);
+	// std::string testInstr = mapInfo.buildInstructions(test, true, false, 3);
+	// ROS_INFO("*********************Test Instructions***************");
+	// ROS_INFO("%s", testInstr.c_str());
+
+	// MAKE SURE SERVICE IS RUNNING: rosrun verbal_navigation Wavenet_Node.py
 	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
 	speech_client.waitForExistence();
 	ROS_INFO("Speech Client Found!");
 	verbal_navigation::Wavenet wavService;
 	wavService.request.text = finalDirections;
-	speech_client.call(wavService);
+	//speech_client.call(wavService);
 	//ROS_INFO("Total region path size: %d", regionPath.size());
 
 	// update robot's position and set up for new goal pose.

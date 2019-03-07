@@ -9,13 +9,16 @@
 class Arrival : public Instruction {
 
 	Directions direction;
+	bool isRobotTransition;
+	bool isElevator;
+	int floorNum;
 	std::vector<Preposition> children;
 
 	public:
-	Arrival(std::string name);
-	std::string toNaturalLanguage();
-	void addChild(Preposition p);
-    void addDirection(Directions dir);
+		Arrival(std::string name, bool rt, bool e, int f);
+		std::string toNaturalLanguage();
+		void addChild(Preposition p);
+		void addDirection(Directions dir);
 
 };
 

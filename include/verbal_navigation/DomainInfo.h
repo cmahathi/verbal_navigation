@@ -15,6 +15,7 @@ class DomainInfo {
         std::map<std::string, std::string> regionToRobotMap;
         const std::string filename = "/src/multimap/RobotDomains.yaml";
         void read_domain_info();
+        
     public:
         DomainInfo ();
         int getNumRobots();

@@ -1,6 +1,6 @@
 #include <verbal_navigation/language_predicates/Arrival.h>
 
-Arrival::Arrival(std::string name) : Instruction(name) { }
+Arrival::Arrival(std::string name, bool rt, bool e, int f)  : Instruction(name), isRobotTransition(rt), isElevator(e), floorNum(f) { }
 
 std::string Arrival::toNaturalLanguage() {
 	std::string directionString;
@@ -17,6 +17,12 @@ std::string Arrival::toNaturalLanguage() {
                              break;
 	}
 
+	if (isRobotTransition) {
+		return "The next robot will be waiting in the " + name + " " + directionString + ".";
+	}
+	if (isElevator) {
+		return "Take the elevator " + directionString + " to floor " + std::to_string(floorNum) + "."; 
+	}
 	return name + " will be " + directionString + "!";
 }
 

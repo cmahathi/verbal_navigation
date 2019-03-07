@@ -9,7 +9,7 @@ regions:
     type: 1
     neighbors: 1
   - name: l2_200b
-    common_name: "hallway"
+    common_name: "hallway with the wall of colorful cubes"
     type: 1
     neighbors: 4
   - name: l2_200c
@@ -99,4 +99,6 @@ landmarks:
     common_name: "wooden bench" 
   - name: bench_2
     common_name: "wooden bench" 
+  - name: wall_map
+    common_name: "wall map"
 ...
