@@ -15,7 +15,7 @@ class Arrival : public Instruction {
 	std::vector<Preposition> children;
 
 	public:
-		Arrival(std::string name, bool rt, bool e, int f);
+		Arrival(std::string name, bool robotTransition, bool elevator, int floor);
 		std::string toNaturalLanguage();
 		void addChild(Preposition p);
 		void addDirection(Directions dir);
