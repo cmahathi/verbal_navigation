@@ -4,8 +4,11 @@
 #include <ros/ros.h>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <geometry_msgs/PoseStamped.h>
+
+#include "verbal_navigation/Predicates.h"
 
 enum class RegionType {ROOM, HALLWAY, OPEN_SPACE, ELEVATOR};
 
@@ -27,6 +30,7 @@ protected:
   int num_neighbors;
   double traversibility;
   std::vector<geometry_msgs::PoseStamped> path;
+  std::shared_ptr<Instruction> instruction;
 
 public:
   double robot_time;
@@ -43,6 +47,7 @@ public:
   void setNumNeighbors(int n);
   void setTraversibility(double n);
   void setFloor(int f);
+  void setInstruction(std::shared_ptr<Instruction> i);
 
   void appendPoseToPath(geometry_msgs::PoseStamped pose);
 
@@ -55,5 +60,6 @@ public:
   int getNumNeighbors();
   double getTraversibility();
   int getFloor();
+  std::shared_ptr<Instruction> getInstruction();
 };
 #endif

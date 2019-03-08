@@ -54,7 +54,7 @@ namespace bwi_directions_generator {
         BwiDirectionsGenerator();
 
         // Currently, path must consist of poses for one level of the map only.
-        MapInfo GenerateDirectionsForPathOnMap(std::vector<geometry_msgs::PoseStamped> path, fs::path mapFile, std::string destinationName, std::string floor_id);
+        MapInfo GenerateDirectionsForPathOnMap(std::vector<geometry_msgs::PoseStamped>& path, fs::path mapFile, std::string destinationName, std::string floor_id);
     };
 }
 

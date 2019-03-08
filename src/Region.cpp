@@ -2,7 +2,7 @@
 
 Region::Region (std::string n) : name(n), has_door(false), common_name(n),
                         robot_time(0), human_time(0), base_human_time(0), 
-                        length(0), floor(0), num_neighbors(0), traversibility(0) { }
+                        length(0), floor(0), num_neighbors(0), traversibility(0), instruction(nullptr) { }
 
 void Region::setDoor (bool door) {
     has_door = door;
@@ -22,6 +22,10 @@ void Region::setLength (double l) {
 
 void Region::setFloor(int f) {
     floor = f;
+}
+
+void Region::setInstruction(std::shared_ptr<Instruction> i) {
+    instruction = i;
 }
 
 void Region::setType (int t) {
@@ -84,4 +88,8 @@ double Region::getTraversibility(){
 
 int Region::getNumNeighbors () {
     return num_neighbors;
+}
+
+std::shared_ptr<Instruction> Region::getInstruction() {
+    return instruction;
 }

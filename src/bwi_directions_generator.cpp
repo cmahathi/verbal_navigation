@@ -5,7 +5,7 @@ namespace bwi_directions_generator {
     BwiDirectionsGenerator::BwiDirectionsGenerator() {
     }
 
-    MapInfo BwiDirectionsGenerator::GenerateDirectionsForPathOnMap(std::vector<geometry_msgs::PoseStamped> path, fs::path mapFile, std::string destinationName, std::string floor_id) {
+    MapInfo BwiDirectionsGenerator::GenerateDirectionsForPathOnMap(std::vector<geometry_msgs::PoseStamped>& path, fs::path mapFile, std::string destinationName, std::string floor_id) {
         bwi_logical_translator::BwiLogicalTranslator translator;
         ros::param::set("~map_file", mapFile.string());
 	    boost::filesystem::path dataPath = mapFile.remove_filename();

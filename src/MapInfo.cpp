@@ -126,7 +126,7 @@ void MapInfo::buildRegionsToMapItemsMap() {
 
 
 // builds a list of predicates representing the verbal instructions for this path
-std::string MapInfo::buildInstructions(std::vector<Region> regions, bool robotTransition, bool elevator, int nextFloor) {
+std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotTransition, bool elevator, int nextFloor = 0) {
 
   // iterate through all the regions except the last one
   // ROS_INFO("Num Regions: %d", regions.path.size());
@@ -137,9 +137,9 @@ std::string MapInfo::buildInstructions(std::vector<Region> regions, bool robotTr
   // }
 
   for (int ix = 0; ix < regions.size() - 2; ix ++) {
-    auto thisRegion = regions[ix];
+    auto& thisRegion = regions[ix];
     //ROS_INFO("Region: %s", thisRegion.getName().c_str());
-    auto nextRegion = regions[ix + 1];
+    auto& nextRegion = regions[ix + 1];
     //TODO can this be thisRegion.getCommonName()
     auto thisRegionName = thisRegion.getCommonName();
     auto nextRegionName = nextRegion.getCommonName();
@@ -151,6 +151,7 @@ std::string MapInfo::buildInstructions(std::vector<Region> regions, bool robotTr
     regionItem.setCommonName(labelToCommonNameMap[regionItem.getName()]);
     travelIns->addPreposition(Preposition("through", regionItem));
 
+    thisRegion.setInstruction(travelIns);
     //ROS_INFO("Instruction generated: %s", travelIns->toNaturalLanguage().c_str());
     // Don't add if duplicate of last instruction
     if(instructionList.empty() || (instructionList.back()->toNaturalLanguage().compare(travelIns->toNaturalLanguage()) != 0))  {
@@ -210,21 +211,22 @@ std::string MapInfo::buildInstructions(std::vector<Region> regions, bool robotTr
           }
         }
       }
+      thisRegion.setInstruction(turnIns);
       // add the finished turn instruction to the instruction list
       instructionList.push_back(turnIns);
+
       //ROS_INFO("Instruction generated: %s", turnIns->toNaturalLanguage().c_str());
     } // end of the if clause for turning
   }
-  auto regionList = regions;
-  // ROS_INFO("Region: %s", regionList[regionList.size()-2].c_str());
-  // ROS_INFO("Region: %s", regionList[regionList.size()-1].c_str());
 
   // generate the final predicate to tell the user how to arrive at destination
-  std::string regionName = labelToCommonNameMap[regionList[regionList.size()-1].getName()];
+  std::string regionName = labelToCommonNameMap[regions.at(regions.size()-1).getName()];
   auto arrival = std::make_shared<Arrival>(regionName, robotTransition, elevator, nextFloor);
   //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
-  arrival->addDirection(getDirectionBetween(regionList[regionList.size()-2], (regionList[regionList.size()-1])));
+  arrival->addDirection(getDirectionBetween(regions.at(regions.size()-2), (regions.at(regions.size()-1))));
+  regions.back().setInstruction(arrival);
   instructionList.push_back(arrival);
+
 
   return generateDirections(instructionList);
 }
@@ -232,7 +234,7 @@ std::string MapInfo::buildInstructions(std::vector<Region> regions, bool robotTr
 
 // public method to generate natural language directions from
 // the previously generated MapInfo information
-std::string MapInfo::generateDirections(std::vector<std::shared_ptr<Instruction>> instructionList) {
+std::string MapInfo::generateDirections(std::vector<std::shared_ptr<Instruction>>& instructionList) {
   // iterate over generated instructions, building natural language directions
   for(auto instr : instructionList) {
     std::string directionCommand = instr->toNaturalLanguage();

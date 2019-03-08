@@ -245,7 +245,8 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName, "2");
-	finalDirections = mapInfo.buildInstructions(mapInfo.getRegionPath().path, false, true, 3);
+	auto path2 =mapInfo.getRegionPath().path;
+	finalDirections = mapInfo.buildInstructions(path2, false, true, 3);
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
@@ -299,7 +300,8 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName, "3ne");
-	finalDirections.append(mapInfo3.buildInstructions(mapInfo3.getRegionPath().path, false, false, 0));
+	auto path3 = mapInfo3.getRegionPath().path;
+	finalDirections.append(mapInfo3.buildInstructions(path3, false, false, 0));
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
