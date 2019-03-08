@@ -17,7 +17,7 @@ std::string Arrival::toNaturalLanguage() {
                              break;
 	}
 
-	string message = "";
+	std::string message = "";
 	if (isElevator) {
 		message += "Take the elevator " + directionString + " to floor " + std::to_string(floorNum) + "."; 
 	}
@@ -25,7 +25,7 @@ std::string Arrival::toNaturalLanguage() {
 		message += "The next robot will be waiting in the " + name + " " + directionString + ".";
 	}
 	if(message.empty()) {
-		message = name + " will be " + directionString + "!"
+		message = name + " will be " + directionString + "!";
 	}
 	return message;
 }
