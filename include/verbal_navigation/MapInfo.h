@@ -86,6 +86,7 @@ public:
   std::string buildInstructions(std::vector<Region>& regions, bool robotTransition, bool elevator, int nextFloor);
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor);
   std::string generateDirections(std::vector<std::shared_ptr<Instruction>>& instructionList);
+  std::string generateDirections(std::vector<Region>& regionList);
   static std_msgs::Float64 distanceBetween(geometry_msgs::Pose firstPose, geometry_msgs::Pose lastPose);
   bool isDoorBetweenRegions(Region a, Region b);
   RegionPath getRegionPath();
