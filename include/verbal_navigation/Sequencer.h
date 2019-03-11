@@ -1,18 +1,17 @@
 #ifndef SEQUENCER_H
 #define SEQUENCER_H
 
-#include "verbal_navigation/GuidanceAction.h"
+#include "verbal_navigation/Actions.h"
 #include <queue>
 #include <memory>
 
 class Sequencer {
-    std::vector<GuidanceActions> actionSequence;
-    std::vector<Region> regionSequence;
-
     std::queue<std::shared_ptr<GuidanceAction>> guidanceActionSequence;
+    void generateGuidanceActionSequence(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence);
 
 public:
-    Sequencer(std::vector<GuidanceActions>& actionSequence, std::vector<Region>& regionSequence);
+    Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence);
+    std::queue<std::shared_ptr<GuidanceAction>> getGuidanceActionSequence();
 };
 
 #endif

@@ -156,6 +156,9 @@ add_executable(BWI_Guide
     src/language_predicates/VerbPhrase.cpp
     src/language_predicates/Preposition.cpp
     src/language_predicates/Arrival.cpp
+    src/guidance_actions/Lead.cpp
+    src/guidance_actions/Instruct.cpp
+    src/guidance_actions/Transition.cpp
     src/MapItem.cpp
     src/bwi_directions_generator.cpp
     src/Region.cpp

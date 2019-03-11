@@ -29,7 +29,6 @@ MapInfo::MapInfo(bwi_logical_translator::BwiLogicalTranslator& trans, std::vecto
   buildRegionOrientationInfo();
   ROS_INFO("Building Regions To Items Map...");
   buildRegionsToMapItemsMap();
-  ROS_INFO("Building Instructions...");
   //buildInstructions();
   ROS_INFO("MapInfo Done!");
 }
@@ -134,8 +133,9 @@ std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotT
   // for (int i = 0; i < regions.size(); i++) {
   //   ROS_INFO("Region: %s", regions[i].getCommonName().c_str());
   // }
+  ROS_INFO("Building Instructions...");
 
-  for (int ix = 0; ix < regions.size() - 2; ix ++) {
+  for (int ix = 0; ix < regions.size() - 1; ix ++) {
     auto& thisRegion = regions[ix];
     
     auto& nextRegion = regions[ix + 1];
@@ -223,6 +223,7 @@ std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotT
 std::string MapInfo::generateDirections(std::vector<Region>& regionList) {
   // iterate over generated instructions, building natural language directions and ignoring duplicate instructions.
   std::string lastInstruction = "";
+  int i = 0;
   for(auto& region : regionList) {
     std::string naturalInstruction = region.getInstruction()->toNaturalLanguage();
     if(lastInstruction != naturalInstruction) {

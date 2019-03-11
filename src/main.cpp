@@ -321,6 +321,13 @@ int main (int argc, char** argv) {
 
 	Sequencer sequencer(optimalSequence, regionPath.path);
 
+	auto actionQueue = sequencer.getGuidanceActionSequence();
+
+	//TODO FIX queue not traversig properly.
+	for(auto currentAction = actionQueue.front(); !actionQueue.empty(); actionQueue.pop()) {
+		currentAction->perform();
+	}
+
 	// std::vector<Region> test(regionPath2.path.begin(), regionPath2.path.end()-1);
 	// std::string testInstr = mapInfo.buildInstructions(test, true, false, 3);
 	// ROS_INFO("*********************Test Instructions***************");

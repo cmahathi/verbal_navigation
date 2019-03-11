@@ -1,6 +1,6 @@
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/DomainInfo.h"
-#include "verbal_navigation/GuidanceAction.h"
+#include "verbal_navigation/Actions.h"
 #include <limits>
 
 class Optimizer {
@@ -14,8 +14,8 @@ class Optimizer {
         MapInfo floor3;
         DomainInfo domains;
         double currentMinTime;
-        std::vector<GuidanceActions> currentPath;
-        std::vector<GuidanceActions> currentMinPath;
+        std::vector<GuidanceActionTypes> currentPath;
+        std::vector<GuidanceActionTypes> currentMinPath;
         bool optimized;
         bool debug;
 
@@ -25,13 +25,13 @@ class Optimizer {
         void printPathInfo();
         void calculateRobotTimes();
         void calculateBaseHumanTimes();
-        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActions action, bool transition);
-        void updatePath(GuidanceActions action);
+        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action, bool transition);
+        void updatePath(GuidanceActionTypes action);
         void backtrackPath();
-        double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActions action);
+        double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action);
         void updateMin(double accumulatedTime);
         bool domainTransition(int regionCount);
-        std::string pathToString (std::vector<GuidanceActions> path);
+        std::string pathToString (std::vector<GuidanceActionTypes> path);
 
 
 
@@ -40,5 +40,5 @@ class Optimizer {
         Optimizer(RegionPath& regionPath, MapInfo f2, MapInfo f3);
         void optimize();
 
-        std::vector<GuidanceActions> getOptimalGuidanceSequence();
+        std::vector<GuidanceActionTypes> getOptimalGuidanceSequence();
 };
