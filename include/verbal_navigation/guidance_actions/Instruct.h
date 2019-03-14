@@ -5,8 +5,12 @@
 
 class Instruct : public GuidanceAction {
     public:
-    Instruct(Region region);
-    void perform() override;
+        Instruct(std::vector<Region> regions, GuidanceActionTypes t);
+        void perform() override;
+        std::vector<Region> getRegions();
+        GuidanceActionTypes getType();
+
+
 };
 
 #endif

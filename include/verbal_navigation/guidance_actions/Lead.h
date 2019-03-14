@@ -5,8 +5,10 @@
 
 class Lead : public GuidanceAction {
     public:
-    Lead(Region region);
-    void perform() override;
+        Lead(std::vector<Region> regions, GuidanceActionTypes t);
+        std::vector<Region> getRegions();
+        GuidanceActionTypes getType();
+        void perform() override;
 };
 
 #endif

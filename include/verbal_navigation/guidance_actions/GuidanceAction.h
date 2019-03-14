@@ -7,10 +7,13 @@ enum GuidanceActionTypes { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T'};
 
 class GuidanceAction {
 protected:
-    Region region;
-    GuidanceAction(Region region) : region(region) {};
+    GuidanceAction(std::vector<Region> regions, GuidanceActionTypes t) : regions(regions), type(t) {};
 
 public:
+    std::vector<Region> regions;
+    GuidanceActionTypes type;
+    std::vector<Region> getRegions();
+    GuidanceActionTypes getType();
     virtual void perform() = 0;
 };
 

@@ -7,7 +7,6 @@
 #include <memory>
 
 #include <geometry_msgs/PoseStamped.h>
-
 #include "verbal_navigation/Predicates.h"
 
 enum class RegionType {ROOM, HALLWAY, OPEN_SPACE, ELEVATOR};

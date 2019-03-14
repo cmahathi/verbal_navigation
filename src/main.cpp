@@ -25,6 +25,7 @@
 #include "verbal_navigation/bwi_directions_generator.h"
 #include "verbal_navigation/Optimizer.h"
 #include "verbal_navigation/Sequencer.h"
+#include "verbal_navigation/guidance_actions/GuidanceAction.h"
 
 
 void sleepok(int t, ros::NodeHandle &nh) {
@@ -327,12 +328,24 @@ int main (int argc, char** argv) {
 	// for(auto currentAction = actionQueue.front(); !actionQueue.empty(); actionQueue.pop()) {
 	// 	currentAction->perform();
 	// }
-	auto currentAction = actionQueue.front();
+	//auto currentAction = actionQueue.front();
+	ROS_INFO("Size of action queue: %d", actionQueue.size());
 	while (!actionQueue.empty()) {
+		auto currentAction = actionQueue.front();
 		currentAction->perform();
-
+		if (currentAction->type == GuidanceActionTypes::INSTRUCT) {
+			auto regionInstr = currentAction->regions;
+			ROS_INFO("Region size: %d", regionInstr.size());
+			if (regionInstr.at(0).getFloor() == 2) {
+				std::string instr = mapInfo.buildInstructions(regionInstr, false, false, 3);
+				ROS_INFO("%s",instr.c_str());
+			}
+			if (regionInstr.at(0).getFloor() == 3) {
+				std::string instr = mapInfo3.buildInstructions(regionInstr, false, false, 3);
+				ROS_INFO("%s",instr.c_str());
+			}
+		}
 		actionQueue.pop();
-		currentAction = actionQueue.front();
 	}
 
 	// std::vector<Region> test(regionPath2.path.begin(), regionPath2.path.end()-1);

@@ -10,18 +10,23 @@
 #include <memory>
 
 namespace Actions {
-    static std::shared_ptr<GuidanceAction> makeGuidanceAction(GuidanceActionTypes T, Region& region) {
+    static std::shared_ptr<GuidanceAction> makeGuidanceAction(GuidanceActionTypes T, std::vector<Region> regions) {
+        //ROS_INFO ("Creating Guidance Action");
         switch (T)
         {
-            case GuidanceActionTypes::LEAD:
-                return std::make_shared<Lead>(region);
+            case GuidanceActionTypes::LEAD: {
+                return std::make_shared<Lead>(regions, GuidanceActionTypes::LEAD);
+            }
         
-            case GuidanceActionTypes::INSTRUCT:
-                return std::make_shared<Instruct>(region);
+            case GuidanceActionTypes::INSTRUCT: {
+                return std::make_shared<Instruct>(regions, GuidanceActionTypes::INSTRUCT);
+            }
 
-            case GuidanceActionTypes::TRANSITION:
-                return std::make_shared<Transition>(region);
-                
+            case GuidanceActionTypes::TRANSITION: {
+                auto t = std::make_shared<Transition>(regions, GuidanceActionTypes::TRANSITION);
+                return t;
+            }
+
             default:
                 ROS_ERROR("Attempt to construct GuidanceAction with invalid type");
                 return std::shared_ptr<GuidanceAction>(nullptr);

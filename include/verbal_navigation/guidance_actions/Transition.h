@@ -5,8 +5,10 @@
 
 class Transition : public GuidanceAction {
     public:
-    Transition(Region region);
-    void perform() override;
+        Transition(std::vector<Region> regions, GuidanceActionTypes t);
+        std::vector<Region> getRegions();
+        GuidanceActionTypes getType();
+        void perform() override;
 };
 
 #endif

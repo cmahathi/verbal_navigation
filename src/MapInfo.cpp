@@ -128,11 +128,11 @@ void MapInfo::buildRegionsToMapItemsMap() {
 std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotTransition, bool elevator, int nextFloor = 0) {
 
   // iterate through all the regions except the last one
-  // ROS_INFO("Num Regions: %d", regions.path.size());
-  // ROS_INFO("Regions in path: %d", regions.size());
-  // for (int i = 0; i < regions.size(); i++) {
-  //   ROS_INFO("Region: %s", regions[i].getCommonName().c_str());
-  // }
+  //ROS_INFO("Num Regions: %d", regions.path.size());
+  ROS_INFO("Regions in path: %d", regions.size());
+  for (int i = 0; i < regions.size(); i++) {
+    ROS_INFO("Region: %s", regions[i].getCommonName().c_str());
+  }
   ROS_INFO("Building Instructions...");
 
   for (int ix = 0; ix < regions.size() - 1; ix ++) {
@@ -216,15 +216,17 @@ std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotT
   //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
   arrival->addDirection(getDirectionBetween(regions.at(regions.size()-2), (regions.at(regions.size()-1))));
   regions.back().setInstruction(arrival);
-
+  ROS_INFO("Generate directions region size: %d", regions.size());
   return generateDirections(regions);
 }
 
-std::string MapInfo::generateDirections(std::vector<Region>& regionList) {
+std::string MapInfo::generateDirections(std::vector<Region>& regionListNew) {
   // iterate over generated instructions, building natural language directions and ignoring duplicate instructions.
+  ROS_INFO("Generate directions region size: %d", regionListNew.size());
   std::string lastInstruction = "";
   int i = 0;
-  for(auto& region : regionList) {
+  directions = "";
+  for(auto& region : regionListNew) {
     std::string naturalInstruction = region.getInstruction()->toNaturalLanguage();
     if(lastInstruction != naturalInstruction) {
       directions.append(naturalInstruction);
