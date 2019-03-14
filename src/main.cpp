@@ -324,8 +324,15 @@ int main (int argc, char** argv) {
 	auto actionQueue = sequencer.getGuidanceActionSequence();
 
 	//TODO FIX queue not traversig properly.
-	for(auto currentAction = actionQueue.front(); !actionQueue.empty(); actionQueue.pop()) {
+	// for(auto currentAction = actionQueue.front(); !actionQueue.empty(); actionQueue.pop()) {
+	// 	currentAction->perform();
+	// }
+	auto currentAction = actionQueue.front();
+	while (!actionQueue.empty()) {
 		currentAction->perform();
+
+		actionQueue.pop();
+		currentAction = actionQueue.front();
 	}
 
 	// std::vector<Region> test(regionPath2.path.begin(), regionPath2.path.end()-1);
