@@ -165,6 +165,7 @@ add_executable(BWI_Guide
     src/Optimizer.cpp
     src/DomainInfo.cpp
     src/Sequencer.cpp
+    src/Actions.cpp
     )
 
 ## Rename C++ executable without prefix

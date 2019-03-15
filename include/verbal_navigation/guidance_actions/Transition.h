@@ -1,13 +1,13 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 
-#include "verbal_navigation/guidance_actions/GuidanceAction.h"
+#include "verbal_navigation/guidance_actions/Instruct.h"
 
-//Should extend instruct?
-class Transition : public GuidanceAction {
+//Should extend instruct
+class Transition : public Instruct {
     public:
     //TODO add speech client reference to constructor
-    Transition(Region region);
+    Transition(Region region, std::shared_ptr<ros::ServiceClient> speechClient);
     void perform() override;
 };
 

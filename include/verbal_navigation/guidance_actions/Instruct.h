@@ -2,11 +2,12 @@
 #define INSTRUCT_H
 
 #include "verbal_navigation/guidance_actions/GuidanceAction.h"
+#include "verbal_navigation/Wavenet.h"
 
 class Instruct : public GuidanceAction {
     public:
     //TODO Add speech API client reference to constructor
-    Instruct(std::vector<Region> regions);
+    Instruct(std::vector<Region> regions, std::shared_ptr<ros::ServiceClient> speechClient);
     void perform() override;
 };
 

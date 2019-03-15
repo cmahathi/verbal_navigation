@@ -1,6 +1,7 @@
 #include "verbal_navigation/Sequencer.h"
 
-Sequencer::Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence) : guidanceActionSequence() {
+Sequencer::Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence, ros::NodeHandle& nh) : guidanceActionSequence() {
+    Actions::initializeClients(nh);
     generateGuidanceActionSequence(actionSequence, regionSequence);
 }
 
@@ -9,7 +10,7 @@ void Sequencer::generateGuidanceActionSequence(std::vector<GuidanceActionTypes>&
         ROS_ERROR("Lists of regions and actions to sequence are different sizes!");
     }
 
-    //ROS_INFO("Length of region path: %d", regionSequence.size());
+    //Put all sequential regions with the same action type into GuidanceActions
     int i = 0;
     while(i < actionSequence.size()) {
         auto type = actionSequence.at(i);

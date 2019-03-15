@@ -318,7 +318,7 @@ int main (int argc, char** argv) {
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();
 	ROS_INFO("Successfully optimized without dying");
 
-	Sequencer sequencer(optimalSequence, regionPath.path);
+	Sequencer sequencer(optimalSequence, regionPath.path, nh);
 
 	auto actionQueue = sequencer.getGuidanceActionSequence();
 

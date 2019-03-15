@@ -5,26 +5,45 @@
 #include <verbal_navigation/guidance_actions/Lead.h>
 #include <verbal_navigation/guidance_actions/Instruct.h>
 #include <verbal_navigation/guidance_actions/Transition.h>
+#include "verbal_navigation/Wavenet.h"
 
 #include "verbal_navigation/Region.h"
 #include <memory>
 
-namespace Actions {
-    //TODO Add ros::ServiceClient to constructor
+// Factory class for GuidanceActions
+class Actions {
+    static bool clientsInitialized;
+    static std::shared_ptr<ros::ServiceClient> speech_client;
+    static std::shared_ptr<ros::ServiceClient> go_to_location_client;
+    static std::shared_ptr<ros::ServiceClient> goToLocationClient;
+
+public:
+    static void initializeClients(ros::NodeHandle& node) {
+        // speech_client = std::shared_ptr<ros::ServiceClient>(node.serviceClient <verbal_navigation::Wavenet> ("/wavenet"));
+	    // speech_client->waitForExistence();
+        // go_to_location_client = new node.serviceClient <gotolocation>;
+	    // go_to_location_client->waitForExistence();
+        clientsInitialized = true;
+    }
+
     static std::shared_ptr<GuidanceAction> makeGuidanceAction(GuidanceActionTypes T, std::vector<Region> regions) {
-        //ROS_INFO ("Creating Guidance Action");
+        if(!clientsInitialized) {
+            ROS_ERROR("Attempt to construct GuidanceActions before clients are initialized!");
+            return std::shared_ptr<GuidanceAction>(nullptr);
+        }
+
         switch (T)
         {
             case GuidanceActionTypes::LEAD: {
-                return std::make_shared<Lead>(regions);
+                return std::make_shared<Lead>(regions, go_to_location_client);
             }
         
             case GuidanceActionTypes::INSTRUCT: {
-                return std::make_shared<Instruct>(regions);
+                return std::make_shared<Instruct>(regions, speech_client);
             }
 
             case GuidanceActionTypes::TRANSITION: {
-                return std::make_shared<Transition>(regions.front());
+                return std::make_shared<Transition>(regions.front(), speech_client);
             }
 
             default:
@@ -32,6 +51,6 @@ namespace Actions {
                 return std::shared_ptr<GuidanceAction>(nullptr);
         }
     }
-}
+};
 
 #endif
