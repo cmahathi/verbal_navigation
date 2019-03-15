@@ -10,21 +10,21 @@
 #include <memory>
 
 namespace Actions {
+    //TODO Add ros::ServiceClient to constructor
     static std::shared_ptr<GuidanceAction> makeGuidanceAction(GuidanceActionTypes T, std::vector<Region> regions) {
         //ROS_INFO ("Creating Guidance Action");
         switch (T)
         {
             case GuidanceActionTypes::LEAD: {
-                return std::make_shared<Lead>(regions, GuidanceActionTypes::LEAD);
+                return std::make_shared<Lead>(regions);
             }
         
             case GuidanceActionTypes::INSTRUCT: {
-                return std::make_shared<Instruct>(regions, GuidanceActionTypes::INSTRUCT);
+                return std::make_shared<Instruct>(regions);
             }
 
             case GuidanceActionTypes::TRANSITION: {
-                auto t = std::make_shared<Transition>(regions, GuidanceActionTypes::TRANSITION);
-                return t;
+                return std::make_shared<Transition>(regions.front());
             }
 
             default:

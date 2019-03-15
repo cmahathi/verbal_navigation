@@ -1,12 +1,14 @@
 #include "verbal_navigation/guidance_actions/Instruct.h"
 
-Instruct::Instruct(std::vector<Region> regions, GuidanceActionTypes t) : GuidanceAction(regions, t) {}
+Instruct::Instruct(std::vector<Region> regions) : GuidanceAction(regions) {}
 
 void Instruct::perform() {
-    ROS_INFO("Instruct");
-    for (int i = 0; i < regions.size(); i++) {
-        ROS_INFO("\t%s", regions.at(i).getName().c_str());
+    for(auto& region : regions) {
+        if(region.getInstruction() == nullptr) {
+            ROS_ERROR("Instruction not set for %s", region.getCommonName().c_str());
+        }
+        else {
+            ROS_INFO("%s: %s", region.getCommonName().c_str(), region.getInstruction()->toNaturalLanguage().c_str());
+        }
     }
-
-    
 }

@@ -5,12 +5,9 @@
 
 class Instruct : public GuidanceAction {
     public:
-        Instruct(std::vector<Region> regions, GuidanceActionTypes t);
-        void perform() override;
-        std::vector<Region> getRegions();
-        GuidanceActionTypes getType();
-
-
+    //TODO Add speech API client reference to constructor
+    Instruct(std::vector<Region> regions);
+    void perform() override;
 };
 
 #endif

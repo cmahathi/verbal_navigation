@@ -10,29 +10,19 @@ void Sequencer::generateGuidanceActionSequence(std::vector<GuidanceActionTypes>&
     }
 
     //ROS_INFO("Length of region path: %d", regionSequence.size());
-    GuidanceActionTypes type = actionSequence.at(0);
-    std::vector<Region> currentActionVector;
-    currentActionVector.push_back(regionSequence.at(0));
-    for(int i = 1; i < actionSequence.size(); ++i) {
-        //guidanceActionSequence.push(Actions::makeGuidanceAction(actionSequence.at(i), regionSequence.at(i)));
-        if (type == actionSequence.at(i)) {
+    int i = 0;
+    while(i < actionSequence.size()) {
+        auto type = actionSequence.at(i);
+        std::vector<Region> currentActionVector;
+
+        do {
             currentActionVector.push_back(regionSequence.at(i));
-            //ROS_INFO("%d: Added region %s to action", i, regionSequence.at(i).getName().c_str());
-        }
-        else {
-            //ROS_INFO("%d: Creating new action starting with region %s", i, regionSequence.at(i).getName().c_str());
-            std::vector<Region> v(currentActionVector);
-            guidanceActionSequence.push(Actions::makeGuidanceAction(type, v));
-            //ROS_INFO("Guidance action created");
-            type = actionSequence.at(i);
-            currentActionVector.clear();
-            currentActionVector.push_back(regionSequence.at(i));
-            //ROS_INFO("%d: Action created successfully.", i);
-        }
+            i++;
+        } while (i < actionSequence.size() && actionSequence.at(i-1) == actionSequence.at(i));
+
+        guidanceActionSequence.push(Actions::makeGuidanceAction(type, currentActionVector));
     }
-   // ROS_INFO("About to do last region");
-    std::vector<Region> v(currentActionVector);
-    guidanceActionSequence.push(Actions::makeGuidanceAction(type, v));
+
     ROS_INFO("Finished sequencing");
 }
 

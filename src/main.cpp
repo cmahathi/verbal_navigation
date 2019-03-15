@@ -246,8 +246,7 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath2, destinationName, "2");
-	auto path2 =mapInfo.getRegionPath().path;
-	finalDirections = mapInfo.buildInstructions(path2, false, true, 3);
+	finalDirections = mapInfo.buildInstructions(false, true, 3);
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
@@ -301,8 +300,7 @@ int main (int argc, char** argv) {
 
 	// do the heavy lifting in this class
 	MapInfo mapInfo3 = directionsGenerator.GenerateDirectionsForPathOnMap(pose_list, mapPath3, destinationName, "3ne");
-	auto path3 = mapInfo3.getRegionPath().path;
-	finalDirections.append(mapInfo3.buildInstructions(path3, false, false, 0));
+	finalDirections.append(mapInfo3.buildInstructions(false, false, 0));
 	ROS_INFO("***");
 	ROS_INFO("FINAL DIRECTIONS: %s", finalDirections.c_str());
 	ROS_INFO("***");
@@ -333,23 +331,22 @@ int main (int argc, char** argv) {
 	while (!actionQueue.empty()) {
 		auto currentAction = actionQueue.front();
 		currentAction->perform();
-		if (currentAction->type == GuidanceActionTypes::INSTRUCT) {
-			auto regionInstr = currentAction->regions;
-			ROS_INFO("Region size: %d", regionInstr.size());
-			if (regionInstr.at(0).getFloor() == 2) {
-				std::string instr = mapInfo.buildInstructions(regionInstr, false, false, 3);
-				ROS_INFO("%s",instr.c_str());
-			}
-			if (regionInstr.at(0).getFloor() == 3) {
-				std::string instr = mapInfo3.buildInstructions(regionInstr, false, false, 3);
-				ROS_INFO("%s",instr.c_str());
-			}
-		}
+		// if (currentAction->type == GuidanceActionTypes::INSTRUCT) {
+		// 	auto regionInstr = currentAction->regions;
+		// 	ROS_INFO("Region size: %d", regionInstr.size());
+		// 	if (regionInstr.at(0).getFloor() == 2) {
+		// 		std::string instr = mapInfo.buildInstructions(false, false, 3);
+		// 		ROS_INFO("%s",instr.c_str());
+		// 	}
+		// 	if (regionInstr.at(0).getFloor() == 3) {
+		// 		std::string instr = mapInfo3.buildInstructions(false, false, 3);
+		// 		ROS_INFO("%s",instr.c_str());
+		// 	}
+		// }
 		actionQueue.pop();
 	}
 
-	// std::vector<Region> test(regionPath2.path.begin(), regionPath2.path.end()-1);
-	// std::string testInstr = mapInfo.buildInstructions(test, true, false, 3);
+	// std::string testInstr = mapInfo.buildInstructions(true, false, 3);
 	// ROS_INFO("*********************Test Instructions***************");
 	// ROS_INFO("%s", testInstr.c_str());
 

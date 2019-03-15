@@ -125,20 +125,20 @@ void MapInfo::buildRegionsToMapItemsMap() {
 
 
 // builds a list of predicates representing the verbal instructions for this path
-std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotTransition, bool elevator, int nextFloor = 0) {
-
+std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int nextFloor = 0) {
+  auto& regionList = regions.path;
   // iterate through all the regions except the last one
   //ROS_INFO("Num Regions: %d", regions.path.size());
-  ROS_INFO("Regions in path: %d", regions.size());
-  for (int i = 0; i < regions.size(); i++) {
-    ROS_INFO("Region: %s", regions[i].getCommonName().c_str());
+  ROS_INFO("regionList in path: %d", regionList.size());
+  for (int i = 0; i < regionList.size(); i++) {
+    ROS_INFO("Region: %s", regionList[i].getCommonName().c_str());
   }
   ROS_INFO("Building Instructions...");
 
-  for (int ix = 0; ix < regions.size() - 1; ix ++) {
-    auto& thisRegion = regions[ix];
+  for (int ix = 0; ix < regionList.size() - 1; ix ++) {
+    auto& thisRegion = regionList.at(ix);
     
-    auto& nextRegion = regions[ix + 1];
+    auto& nextRegion = regionList.at(ix + 1);
     auto thisRegionName = thisRegion.getCommonName();
     auto nextRegionName = nextRegion.getCommonName();
 
@@ -211,13 +211,13 @@ std::string MapInfo::buildInstructions(std::vector<Region>& regions, bool robotT
   }
 
   // generate the final predicate to tell the user how to arrive at destination
-  std::string regionName = labelToCommonNameMap[regions.at(regions.size()-1).getName()];
+  std::string regionName = labelToCommonNameMap[regionList.at(regionList.size()-1).getName()];
   auto arrival = std::make_shared<Arrival>(regionName, robotTransition, elevator, nextFloor);
   //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
-  arrival->addDirection(getDirectionBetween(regions.at(regions.size()-2), (regions.at(regions.size()-1))));
-  regions.back().setInstruction(arrival);
-  ROS_INFO("Generate directions region size: %d", regions.size());
-  return generateDirections(regions);
+  arrival->addDirection(getDirectionBetween(regionList.at(regionList.size()-2), (regionList.at(regionList.size()-1))));
+  regionList.back().setInstruction(arrival);
+  ROS_INFO("Generate directions region size: %d", regionList.size());
+  return generateDirections(regionList);
 }
 
 std::string MapInfo::generateDirections(std::vector<Region>& regionListNew) {

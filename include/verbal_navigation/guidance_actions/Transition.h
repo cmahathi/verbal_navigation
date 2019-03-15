@@ -3,12 +3,12 @@
 
 #include "verbal_navigation/guidance_actions/GuidanceAction.h"
 
+//Should extend instruct?
 class Transition : public GuidanceAction {
     public:
-        Transition(std::vector<Region> regions, GuidanceActionTypes t);
-        std::vector<Region> getRegions();
-        GuidanceActionTypes getType();
-        void perform() override;
+    //TODO add speech client reference to constructor
+    Transition(Region region);
+    void perform() override;
 };
 
 #endif

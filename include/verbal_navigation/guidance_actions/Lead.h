@@ -5,10 +5,9 @@
 
 class Lead : public GuidanceAction {
     public:
-        Lead(std::vector<Region> regions, GuidanceActionTypes t);
-        std::vector<Region> getRegions();
-        GuidanceActionTypes getType();
-        void perform() override;
+    //TODO Add goToLocation client refernce to constructor
+    Lead(std::vector<Region> regions);
+    void perform() override;
 };
 
 #endif
