@@ -6,7 +6,7 @@
 class Lead : public GuidanceAction {
     public:
     //TODO Add goToLocation client refernce to constructor
-    Lead(std::vector<Region> regions, std::shared_ptr<ros::ServiceClient> goToLocationClient);
+    Lead(std::vector<Region> regions, ros::ServiceClient& goToLocationClient);
     void perform() override;
 };
 

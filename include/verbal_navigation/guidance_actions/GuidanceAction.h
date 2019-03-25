@@ -9,8 +9,8 @@ enum GuidanceActionTypes { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T'};
 class GuidanceAction {
 protected:
     std::vector<Region> regions;
-    std::shared_ptr<ros::ServiceClient> actionServiceClient;
-    GuidanceAction(std::vector<Region> regions, std::shared_ptr<ros::ServiceClient> serviceClient) : regions(regions), actionServiceClient(serviceClient) {};
+    ros::ServiceClient& actionServiceClient;
+    GuidanceAction(std::vector<Region> regions, ros::ServiceClient& serviceClient) : regions(regions), actionServiceClient(serviceClient) {};
 
 public:
     virtual void perform() = 0;

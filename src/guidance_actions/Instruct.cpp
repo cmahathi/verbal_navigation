@@ -1,6 +1,6 @@
 #include "verbal_navigation/guidance_actions/Instruct.h"
 
-Instruct::Instruct(std::vector<Region> regions, std::shared_ptr<ros::ServiceClient> speechClient) : GuidanceAction(regions, speechClient)  {}
+Instruct::Instruct(std::vector<Region> regions, ros::ServiceClient& speechClient) : GuidanceAction(regions, speechClient)  {}
 
 void Instruct::perform() {
     std::string directions;

@@ -7,7 +7,7 @@
 class Transition : public Instruct {
     public:
     //TODO add speech client reference to constructor
-    Transition(Region region, std::shared_ptr<ros::ServiceClient> speechClient);
+    Transition(Region region, ros::ServiceClient& speechClient);
     void perform() override;
 };
 

@@ -13,17 +13,19 @@
 // Factory class for GuidanceActions
 class Actions {
     static bool clientsInitialized;
-    static std::shared_ptr<ros::ServiceClient> speech_client;
-    static std::shared_ptr<ros::ServiceClient> go_to_location_client;
-    static std::shared_ptr<ros::ServiceClient> goToLocationClient;
+    static ros::ServiceClient speech_client;
+    static ros::ServiceClient go_to_location_client;
+    static ros::ServiceClient goToLocationClient;
 
 public:
     static void initializeClients(ros::NodeHandle& node) {
-        // speech_client = std::shared_ptr<ros::ServiceClient>(node.serviceClient <verbal_navigation::Wavenet> ("/wavenet"));
-	    // speech_client->waitForExistence();
-        // go_to_location_client = new node.serviceClient <gotolocation>;
-	    // go_to_location_client->waitForExistence();
-        clientsInitialized = true;
+        if(!clientsInitialized) {
+            speech_client = node.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+            // speech_client->waitForExistence();
+            // go_to_location_client = new node.serviceClient <gotolocation>;
+            // go_to_location_client->waitForExistence();
+            clientsInitialized = true;
+        }
     }
 
     static std::shared_ptr<GuidanceAction> makeGuidanceAction(GuidanceActionTypes T, std::vector<Region> regions) {
