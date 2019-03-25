@@ -1,6 +1,7 @@
 #include "verbal_navigation/Sequencer.h"
 
-Sequencer::Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence) : guidanceActionSequence() {
+Sequencer::Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence, ros::NodeHandle& nh) : guidanceActionSequence() {
+    Actions::initializeClients(nh);
     generateGuidanceActionSequence(actionSequence, regionSequence);
 }
 
@@ -8,9 +9,22 @@ void Sequencer::generateGuidanceActionSequence(std::vector<GuidanceActionTypes>&
     if(actionSequence.size() != regionSequence.size()) {
         ROS_ERROR("Lists of regions and actions to sequence are different sizes!");
     }
-    for(int i = 0; i < actionSequence.size(); ++i) {
-        guidanceActionSequence.push(Actions::makeGuidanceAction(actionSequence.at(i), regionSequence.at(i)));
+
+    //Put all sequential regions with the same action type into GuidanceActions
+    int i = 0;
+    while(i < actionSequence.size()) {
+        auto type = actionSequence.at(i);
+        std::vector<Region> currentActionVector;
+
+        do {
+            currentActionVector.push_back(regionSequence.at(i));
+            i++;
+        } while (i < actionSequence.size() && actionSequence.at(i-1) == actionSequence.at(i));
+
+        guidanceActionSequence.push(Actions::makeGuidanceAction(type, currentActionVector));
     }
+
+    ROS_INFO("Finished sequencing");
 }
 
 std::queue<std::shared_ptr<GuidanceAction>> Sequencer::getGuidanceActionSequence() {

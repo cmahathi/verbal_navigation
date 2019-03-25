@@ -2,13 +2,15 @@
 #define GUIDANCE_ACTION_H
 
 #include "verbal_navigation/Region.h"
+#include <ros/ros.h>
 
 enum GuidanceActionTypes { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T'};
 
 class GuidanceAction {
 protected:
-    Region region;
-    GuidanceAction(Region region) : region(region) {};
+    std::vector<Region> regions;
+    ros::ServiceClient& actionServiceClient;
+    GuidanceAction(std::vector<Region> regions, ros::ServiceClient& serviceClient) : regions(regions), actionServiceClient(serviceClient) {};
 
 public:
     virtual void perform() = 0;

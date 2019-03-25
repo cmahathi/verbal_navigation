@@ -1,7 +1,9 @@
 #include "verbal_navigation/guidance_actions/Transition.h"
 
-Transition::Transition(Region region) : GuidanceAction(region) {}
+Transition::Transition(Region region, ros::ServiceClient& speechClient) : Instruct({region}, speechClient) {}
 
 void Transition::perform() {
-    ROS_INFO("%s: Transition", region.getCommonName().c_str());
+    for(auto& region : regions) {
+        ROS_INFO("%s: Transition", region.getCommonName().c_str());
+    }
 }

@@ -7,10 +7,11 @@
 
 class Sequencer {
     std::queue<std::shared_ptr<GuidanceAction>> guidanceActionSequence;
+
     void generateGuidanceActionSequence(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence);
 
 public:
-    Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence);
+    Sequencer(std::vector<GuidanceActionTypes>& actionSequence, std::vector<Region>& regionSequence, ros::NodeHandle& nh);
     std::queue<std::shared_ptr<GuidanceAction>> getGuidanceActionSequence();
 };
 

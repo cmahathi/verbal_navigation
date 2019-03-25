@@ -1,11 +1,13 @@
 #ifndef TRANSITION_H
 #define TRANSITION_H
 
-#include "verbal_navigation/guidance_actions/GuidanceAction.h"
+#include "verbal_navigation/guidance_actions/Instruct.h"
 
-class Transition : public GuidanceAction {
+//Should extend instruct
+class Transition : public Instruct {
     public:
-    Transition(Region region);
+    //TODO add speech client reference to constructor
+    Transition(Region region, ros::ServiceClient& speechClient);
     void perform() override;
 };
 

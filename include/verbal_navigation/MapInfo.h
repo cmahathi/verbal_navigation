@@ -31,9 +31,6 @@ class MapInfo {
   // ordered list of poses returned by the translator from start to dest
   std::vector<geometry_msgs::PoseStamped> poseList;
 
-  // ordered list of the names of regions that the path traverses
-  std::vector<std::string> regionList;
-
   // keys: region names; values: list of points in that region
   std::map<std::string, std::vector<geometry_msgs::PoseStamped>> regionToPosesMap;
 
@@ -83,7 +80,7 @@ public:
   // 2 regions must have orientation difference >= ANGLE_THRESHOLD for a turn instruction to be created
   static constexpr double ANGLE_THRESHOLD = M_PI/6;
 
-  std::string buildInstructions(std::vector<Region>& regions, bool robotTransition, bool elevator, int nextFloor);
+  std::string buildInstructions(bool robotTransition, bool elevator, int nextFloor);
   MapInfo(bwi_logical_translator::BwiLogicalTranslator& translator, std::vector<geometry_msgs::PoseStamped> path, std::string dest, std::string floor);
   std::string generateDirections(std::vector<std::shared_ptr<Instruction>>& instructionList);
   std::string generateDirections(std::vector<Region>& regionList);
