@@ -21,6 +21,9 @@ public:
     static void initializeClients(ros::NodeHandle& node) {
         if(!clientsInitialized) {
             speech_client = node.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+            speech_client.waitForExistence();
+            ROS_INFO("Speech Client Found!");
+            ROS_INFO("Location client unimplemented");
             // speech_client->waitForExistence();
             // go_to_location_client = new node.serviceClient <gotolocation>;
             // go_to_location_client->waitForExistence();

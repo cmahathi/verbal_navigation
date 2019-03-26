@@ -10,10 +10,12 @@ void Instruct::perform() {
         }
         else {
             directions += region.getInstruction()->toNaturalLanguage();
-            ROS_INFO("%s: %s", region.getCommonName().c_str(), region.getInstruction()->toNaturalLanguage().c_str());
+            //ROS_INFO("%s: %s", region.getCommonName().c_str(), region.getInstruction()->toNaturalLanguage().c_str());
         }
     }
+
 	verbal_navigation::Wavenet wavService;
     wavService.request.text = directions;
-	// actionServiceClient->call(wavService);
+	actionServiceClient.call(wavService);
+    ROS_INFO("Speaking %s", directions.c_str());
 }

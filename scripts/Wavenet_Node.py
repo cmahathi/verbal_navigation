@@ -35,7 +35,7 @@ def handle_wavenet_request(req):
 
     os.system("cvlc output.mp3")
     os.remove("output.mp3")
-    return WavenetResponse(True)
+    return
 
 def wavenet_server():
     rospy.init_node('wavenet_server')

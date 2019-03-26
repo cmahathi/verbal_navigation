@@ -314,6 +314,13 @@ int main (int argc, char** argv) {
 	regionPath = regionPath2;
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
+	// ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+	// speech_client.waitForExistence();
+	// ROS_INFO("Speech Client Found!");
+	// verbal_navigation::Wavenet wavService;
+	// wavService.request.text = finalDirections;
+	//speech_client.call(wavService);
+
 	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();
 	ROS_INFO("Successfully optimized without dying");
@@ -351,12 +358,7 @@ int main (int argc, char** argv) {
 	// ROS_INFO("%s", testInstr.c_str());
 
 	// MAKE SURE SERVICE IS RUNNING: rosrun verbal_navigation Wavenet_Node.py
-	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
-	speech_client.waitForExistence();
-	ROS_INFO("Speech Client Found!");
-	verbal_navigation::Wavenet wavService;
-	wavService.request.text = finalDirections;
-	//speech_client.call(wavService);
+
 	//ROS_INFO("Total region path size: %d", regionPath.size());
 
 	// update robot's position and set up for new goal pose.
