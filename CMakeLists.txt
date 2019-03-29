@@ -4,6 +4,15 @@ project(verbal_navigation)
 ## Compile as C++11, supported in ROS Kinetic and newer
  add_compile_options(-std=c++11)
 
+find_package(OpenGL REQUIRED)
+include_directories(${OpenGL_INCLUDE_DIRS})
+link_directories(${OpenGL_LIBRARY_DIRS})
+add_definitions(${OpenGL_DEFINITIONS})
+
+find_package(GLUT REQUIRED)
+include_directories(${GLUT_INCLUDE_DIRS})
+link_directories(${GLUT_LIBRARY_DIRS})
+add_definitions(${GLUT_DEFINITIONS})
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -132,6 +141,7 @@ include_directories(
  /usr/include/eigen3/
  ${YAML_CPP_INCLUDE_DIRS}
  ${Boost_INCLUDE_DIRS}
+  ${QT_INCLUDES}
 )
 
 ## Declare a C++ library
@@ -166,6 +176,7 @@ add_executable(BWI_Guide
     src/DomainInfo.cpp
     src/Sequencer.cpp
     src/Actions.cpp
+    src/utexas_guidance/animation.cpp
     )
 
 ## Rename C++ executable without prefix
@@ -183,6 +194,8 @@ add_executable(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
+  ${OPENGL_LIBRARIES}
+   ${GLUT_LIBRARY}
  )
 
 #############

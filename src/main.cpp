@@ -14,6 +14,8 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include "verbal_navigation/Wavenet.h"
+// #include <qapplication.h>
+
 
 #include <sound_play/sound_play.h>
 #include <unistd.h>
@@ -26,6 +28,9 @@
 #include "verbal_navigation/Optimizer.h"
 #include "verbal_navigation/Sequencer.h"
 #include "verbal_navigation/guidance_actions/GuidanceAction.h"
+
+#include "utexas_guidance/common.h"
+#include "utexas_guidance/animation.h"
 
 
 void sleepok(int t, ros::NodeHandle &nh) {
@@ -76,8 +81,21 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 
 int main (int argc, char** argv) {
 	ROS_INFO("Welcome to the Verbal Navgiation Project");
+    boost::geometry::model::point<float, 3, boost::geometry::cs::cartesian> p1(0.0, 0.0, 0.0);
+    boost::geometry::model::point<float, 3, boost::geometry::cs::cartesian> p2(1.0, 1.0, 0.0);
 
+	glutInit( & argc, argv );
+	QApplication application(argc, argv);
 
+  	Viewer viewer;
+
+  	viewer.setWindowTitle("out");
+
+  	viewer.show();
+
+  	application.exec();
+	
+	utexas_guidance::drawLine(p1, p2);
 	ros::init(argc, argv, "BWI_Guide");
 	ros::NodeHandle nh("~");
 
