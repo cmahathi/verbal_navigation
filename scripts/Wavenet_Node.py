@@ -4,6 +4,7 @@ import rospy
 from verbal_navigation.srv import *
 from google.cloud import texttospeech
 from mutagen.mp3 import MP3
+from playsound import playsound
 import os
 
 def handle_wavenet_request(req):
@@ -34,12 +35,16 @@ def handle_wavenet_request(req):
         out.write(response.audio_content)
         print('Audio content written to file "output.mp3"')
 
-    os.system("cvlc output.mp3")
+    print ("before speaking\n")
+
+    os.system("cvlc output.mp3 && exit")
+    print ("After speaking, before deleting")
     audio = MP3("output.mp3")
     print(audio.info.length)
 
-    os.remove("output.mp3")
-    return
+    # os.remove("output.mp3")
+    print ("About to return")
+    return WavenetResponse(True)
 
 def wavenet_server():
     rospy.init_node('wavenet_server')
