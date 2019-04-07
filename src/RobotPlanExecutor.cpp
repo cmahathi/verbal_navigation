@@ -37,6 +37,14 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       ROS_INFO("Speaking: %s", msg.instructions.c_str());
       //speech_client.call(srv);
    }
+   else if (action_type.compare("T") == 0) {
+      verbal_navigation::Wavenet srv;
+      std::string txt = msg.instructions;
+      txt.append(" My robotic colleague will meet you there.");
+      srv.request.text = txt;
+      ROS_INFO("Speaking: %s", txt.c_str());
+      //speech_client.call(srv);
+   }
 }
 
 int goto_location(geometry_msgs::Pose dest_pose) {
@@ -45,16 +53,18 @@ int goto_location(geometry_msgs::Pose dest_pose) {
    goal.target_pose.header.stamp = ros::Time::now();
    goal.target_pose.pose = dest_pose;
 
-   move_client->sendGoal(goal);
-   move_client->waitForResult();
+   ROS_INFO("Moving to goal");
+   // move_client->sendGoal(goal);
+   // move_client->waitForResult();
 
-   return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
+   //return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
+   return 1;
 }
 
 int main(int argc, char **argv){
    ros::init(argc, argv, "RobotPlanExecutor");
    ros::NodeHandle n("~");
-   ros::Subscriber plan_sub = n.subscribe("/Robot_Plan", 1000, planCallback);
+   ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
    
    MoveBaseClient mc("move_base", true);
    move_client = &mc;

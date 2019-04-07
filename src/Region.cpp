@@ -93,3 +93,10 @@ int Region::getNumNeighbors () {
 std::shared_ptr<Instruction> Region::getInstruction() {
     return instruction;
 }
+
+geometry_msgs::Pose Region::getInitialPose() {
+    return path.at(0).pose;
+}
+geometry_msgs::Pose Region::getEndPose() {
+    return path.at(path.size()-1).pose;
+}
