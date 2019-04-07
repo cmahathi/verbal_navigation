@@ -3,6 +3,7 @@
 
 #include "verbal_navigation/Region.h"
 #include <ros/ros.h>
+#include "verbal_navigation/Robot_Action.h"
 
 enum GuidanceActionTypes { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T'};
 
@@ -14,6 +15,7 @@ protected:
 
 public:
     virtual void perform() = 0;
+    virtual verbal_navigation::Robot_Action createMessage() = 0;
 };
 
 #endif
