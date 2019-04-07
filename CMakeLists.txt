@@ -59,11 +59,10 @@ endif()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   Path.msg
+  )
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -81,7 +80,8 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
+  std_msgs 
+  geometry_msgs # Or other packages containing msgs
 )
 
 ################################################
@@ -115,9 +115,11 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
+  CATKIN_DEPENDS message_runtime
 #  LIBRARIES verbal_navigation
 #  CATKIN_DEPENDS other_catkin_pkg
   DEPENDS Boost
+
 )
 
 ###########
@@ -148,6 +150,10 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
+add_executable(RobotPlanExecutor
+  src/RobotPlanExecutor.cpp
+)
+
 add_executable(BWI_Guide
 		src/main.cpp
 		src/FuturePoseStamped.cpp
@@ -168,6 +174,8 @@ add_executable(BWI_Guide
     src/Actions.cpp
     )
 
+
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -180,6 +188,12 @@ add_executable(BWI_Guide
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(BWI_Guide
+   ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES}
+   ${YAML_CPP_LIBRARIES}
+ )
+
+  target_link_libraries(RobotPlanExecutor
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
