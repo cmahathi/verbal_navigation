@@ -132,14 +132,11 @@ include_directories(
  include
  ${catkin_INCLUDE_DIRS}
  /usr/include/eigen3/
+ /home/users/c6321/Documents/catkin-ws/src/verbal_navigation/TastySocket/
  ${YAML_CPP_INCLUDE_DIRS}
  ${Boost_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/verbal_navigation.cpp
-# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -150,13 +147,13 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
-add_executable(RobotPlanExecutor
-  src/RobotPlanExecutor.cpp
-)
+#add_executable(RobotPlanExecutor
+#  src/RobotPlanExecutor.cpp
+#)
 
 add_executable(BWI_Guide
-		src/main.cpp
-		src/FuturePoseStamped.cpp
+	src/main.cpp
+	src/FuturePoseStamped.cpp
     src/MapInfo.cpp
     src/language_predicates/Instruction.cpp
     src/language_predicates/VerbPhrase.cpp
@@ -191,13 +188,14 @@ add_executable(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
+    /home/users/c6321/Documents/catkin-ws/src/verbal_navigation/TastySocket/Debug/libTastySocket.a
  )
 
-  target_link_libraries(RobotPlanExecutor
-   ${catkin_LIBRARIES}
-   ${Boost_LIBRARIES}
-   ${YAML_CPP_LIBRARIES}
- )
+#  target_link_libraries(RobotPlanExecutor
+#   ${catkin_LIBRARIES}
+#   ${Boost_LIBRARIES}
+#   ${YAML_CPP_LIBRARIES}
+# )
 
 #############
 ## Install ##

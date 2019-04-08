@@ -18,6 +18,10 @@
 #include <sound_play/sound_play.h>
 #include <unistd.h>
 
+#include "TastySocket.h"
+#include "TastyServer.h"
+#include "TastyClient.h"
+
 #include "verbal_navigation/FuturePoseStamped.h"
 #include "verbal_navigation/MapInfo.h"
 #include "verbal_navigation/Predicates.h"
@@ -77,7 +81,24 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 int main (int argc, char** argv) {
 	ROS_INFO("Welcome to the Verbal Navgiation Project");
 
+	auto socket = CTastySocket::Create("127.0.0.1", 33333);
+	socket->Bind();
+	socket->Listen(3);
 
+	ROS_INFO("%s:%u",socket->IPAddress().c_str(), socket->Port());
+
+	CTastyServer nav_server(socket->IPAddress(), socket->Port());
+	while(!nav_server.IsConnected());
+	ROS_INFO("Created server!");
+
+	CTastyClient nav_client(socket->IPAddress(), socket->Port());
+
+	while(!nav_client.IsConnected());
+
+	ROS_INFO("Connected to server!");
+	socket->Close();
+}
+	/*
 	ros::init(argc, argv, "BWI_Guide");
 	ros::NodeHandle nh("~");
 
@@ -332,3 +353,5 @@ int main (int argc, char** argv) {
 // inline std::vector<bwi_planning_common::Door> getDoorList() const {
 //  	return doors_;
 //  }
+
+*/
