@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   sound_play
   rospy
   message_generation
+  visualization_msgs
 )
 find_package(PkgConfig REQUIRED)
 ## System dependencies are found with CMake's conventions
