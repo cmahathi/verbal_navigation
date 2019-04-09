@@ -96,11 +96,12 @@ int main (int argc, char** argv) {
 	ros::Subscriber sub = nh.subscribe("/initialpose", 100, &FuturePoseStamped::setFromPoseWithCovarianceStamped, &initialPose);
 
 	// SWAP FLOOR MAPS HERE - possibly automate later
+	// NOTE: to run in the simulator, the 2 multimap_file lines in simulation_vx.launch MUST be changed to $(find utexas_gdc)/maps/real/multimap/multimap.yaml
 	std::string projectDir = ros::package::getPath("verbal_navigation");
-	boost::filesystem::path mapPath2 = projectDir + "/src/multimap/2/2.yaml";
-	boost::filesystem::path dataPath2 = projectDir + "/src/multimap/2";
-	boost::filesystem::path mapPath3 = projectDir + "/src/multimap/3ne/3ne.yaml";
-	boost::filesystem::path dataPath3 = projectDir + "/src/multimap/3ne";
+	boost::filesystem::path mapPath2 = projectDir + "/src/maps_real/2/2.yaml";
+	boost::filesystem::path dataPath2 = projectDir + "/src/maps_real/2";
+	boost::filesystem::path mapPath3 = projectDir + "/src/maps_real/3ne/3ne.yaml";
+	boost::filesystem::path dataPath3 = projectDir + "/src/maps_real/3ne";
 
 	std::vector<geometry_msgs::PoseStamped> pose_list;
 	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
