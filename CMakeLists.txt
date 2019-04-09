@@ -28,6 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
   sound_play
   rospy
   message_generation
+  rqt_gui
 )
 find_package(PkgConfig REQUIRED)
 ## System dependencies are found with CMake's conventions
@@ -125,9 +126,12 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES verbal_navigation
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS rqt_gui
   DEPENDS Boost
 )
+
+
+
 
 ###########
 ## Build ##
@@ -194,7 +198,7 @@ add_executable(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
-  ${OPENGL_LIBRARIES}
+   ${OPENGL_LIBRARIES}
    ${GLUT_LIBRARY}
  )
 
