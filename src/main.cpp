@@ -316,12 +316,12 @@ int main (int argc, char** argv) {
 	regionPath = regionPath2;
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
-	// ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
-	// speech_client.waitForExistence();
-	// ROS_INFO("Speech Client Found!");
-	// verbal_navigation::Wavenet wavService;
-	// wavService.request.text = finalDirections;
-	//speech_client.call(wavService);
+	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+	speech_client.waitForExistence();
+	ROS_INFO("Speech Client Found!");
+	verbal_navigation::Wavenet wavService;
+	wavService.request.text = finalDirections;
+	speech_client.call(wavService);
 
 	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();

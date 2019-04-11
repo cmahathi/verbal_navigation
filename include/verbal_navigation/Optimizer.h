@@ -8,7 +8,7 @@ class Optimizer {
     private:
         static constexpr double ROBOT_VELOCITY = 0.5;
         static constexpr double HUMAN_VELOCITY = 1.4;
-        static constexpr double SPEECH_TIME = 5.0;
+        static constexpr double SPEECH_TIME = 2.0;
         std::vector<Region>& segmentedPath;
         MapInfo floor2;
         MapInfo floor3;

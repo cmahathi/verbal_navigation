@@ -247,10 +247,12 @@ MapItem MapInfo::getClosestLandmarkTo(geometry_msgs::PoseStamped pose) {
   MapItem* closestLandmark;
   // iterate over all landmarks
   for(auto& landmark : landmarkList) {
-    auto dist = landmark.distanceTo(pose.pose).data;
-    if(dist < shortestDistance) {
-      closestLandmark = &landmark;
-      shortestDistance = dist;
+    if (landmark.getName().compare("dest") != 0) {
+      auto dist = landmark.distanceTo(pose.pose).data;
+      if(dist < shortestDistance) {
+        closestLandmark = &landmark;
+        shortestDistance = dist;
+      }
     }
   }
   return *closestLandmark;
