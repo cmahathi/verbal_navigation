@@ -84,9 +84,7 @@ void Optimizer::backtrackPath() {
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action) {
     if (action == GuidanceActionTypes::INSTRUCT || action == GuidanceActionTypes::TRANSITION) {
         double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (double)(numInstructedRegions+1);
-        if (numInstructedRegions == 0) {
-            acc += SPEECH_TIME;
-        }
+        acc += SPEECH_TIME;
         return acc;
     }
     else {
