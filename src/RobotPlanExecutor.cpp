@@ -8,6 +8,7 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include "verbal_navigation/Robot_Action.h"
+#include "TastyClient.h"
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 MoveBaseClient* move_client;
@@ -78,6 +79,7 @@ int main(int argc, char **argv){
    speech_client.waitForExistence();
 	ROS_INFO("Speech Client Found!");
 
+   
    ros::spin();
    
 }

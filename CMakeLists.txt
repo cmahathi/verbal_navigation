@@ -132,7 +132,7 @@ include_directories(
  include
  ${catkin_INCLUDE_DIRS}
  /usr/include/eigen3/
- /home/users/c6321/Documents/catkin-ws/src/verbal_navigation/TastySocket/
+ ${CMAKE_SOURCE_DIR}/include/TastySocket/
  ${YAML_CPP_INCLUDE_DIRS}
  ${Boost_INCLUDE_DIRS}
 )
@@ -147,9 +147,9 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 
-#add_executable(RobotPlanExecutor
-#  src/RobotPlanExecutor.cpp
-#)
+add_executable(RobotPlanExecutor
+  src/RobotPlanExecutor.cpp
+)
 
 add_executable(BWI_Guide
 	src/main.cpp
@@ -188,14 +188,14 @@ add_executable(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
-    /home/users/c6321/Documents/catkin-ws/src/verbal_navigation/TastySocket/Debug/libTastySocket.a
+   ${CMAKE_SOURCE_DIR}/include/TastySocket/Debug/libTastySocket.a
  )
 
-#  target_link_libraries(RobotPlanExecutor
-#   ${catkin_LIBRARIES}
-#   ${Boost_LIBRARIES}
-#   ${YAML_CPP_LIBRARIES}
-# )
+  target_link_libraries(RobotPlanExecutor
+   ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES}
+   ${YAML_CPP_LIBRARIES}
+ )
 
 #############
 ## Install ##
