@@ -81,22 +81,22 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 int main (int argc, char** argv) {
 	ROS_INFO("Welcome to the Verbal Navgiation Project");
 
-	auto socket = CTastySocket::Create("127.0.0.1", 33333);
-	socket->Bind();
-	socket->Listen(3);
-
-	ROS_INFO("%s:%u",socket->IPAddress().c_str(), socket->Port());
-
-	CTastyServer nav_server(socket->IPAddress(), socket->Port());
-	while(!nav_server.IsConnected());
-	ROS_INFO("Created server!");
-
-	CTastyClient nav_client(socket->IPAddress(), socket->Port());
-
-	while(!nav_client.IsConnected());
-
+	CTastyServer nav_server("128.83.143.224", 33335);
+	ROS_INFO("Server Status:%d", nav_server.InitializeServerIfNecessary());
+	CTastyClient nav_client("128.83.143.233", 33333);
+	
+	std::string message = "Hell World!";
+	TastyMessage m(message);
+	TastyMessage e(100);
+	while(!nav_client.IsConnected()) {
+		nav_client.Send(m);
+		nav_server.Receive(e);
+		ROS_INFO(e.Buffer());
+		// ROS_INFO("%d:%s, %d, %d", nav_server.Receive(e), e.Buffer(), m.MessageSize(), e.MessageSize());
+	};
 	ROS_INFO("Connected to server!");
-	socket->Close();
+
+	nav_server.Close();
 }
 	/*
 	ros::init(argc, argv, "BWI_Guide");
