@@ -60,5 +60,8 @@ public:
   double getTraversibility();
   int getFloor();
   std::shared_ptr<Instruction> getInstruction();
+  geometry_msgs::Pose getInitialPose();
+  geometry_msgs::Pose getEndPose();
+
 };
 #endif

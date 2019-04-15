@@ -26,6 +26,7 @@
 #include "verbal_navigation/Optimizer.h"
 #include "verbal_navigation/Sequencer.h"
 #include "verbal_navigation/guidance_actions/GuidanceAction.h"
+#include "verbal_navigation/Robot_Action.h"
 
 
 void sleepok(int t, ros::NodeHandle &nh) {
@@ -81,6 +82,7 @@ int main (int argc, char** argv) {
 	ros::init(argc, argv, "BWI_Guide");
 	ros::NodeHandle nh("~");
 
+	ros::Publisher plan_pub = nh.advertise<verbal_navigation::Robot_Action>("/robot_plan", 1000);
 
 	FuturePoseStamped initialPose;
 	FuturePoseStamped goalPose;
@@ -288,19 +290,9 @@ int main (int argc, char** argv) {
 	ROS_INFO("Size of action queue: %d", actionQueue.size());
 	while (!actionQueue.empty()) {
 		auto currentAction = actionQueue.front();
-		currentAction->perform();
-		// if (currentAction->type == GuidanceActionTypes::INSTRUCT) {
-		// 	auto regionInstr = currentAction->regions;
-		// 	ROS_INFO("Region size: %d", regionInstr.size());
-		// 	if (regionInstr.at(0).getFloor() == 2) {
-		// 		std::string instr = mapInfo.buildInstructions(false, false, 3);
-		// 		ROS_INFO("%s",instr.c_str());
-		// 	}
-		// 	if (regionInstr.at(0).getFloor() == 3) {
-		// 		std::string instr = mapInfo3.buildInstructions(false, false, 3);
-		// 		ROS_INFO("%s",instr.c_str());
-		// 	}
-		// }
+		verbal_navigation::Robot_Action msg = currentAction->createMessage();
+		plan_pub.publish(msg);
+		sleep(5);
 		actionQueue.pop();
 	}
 

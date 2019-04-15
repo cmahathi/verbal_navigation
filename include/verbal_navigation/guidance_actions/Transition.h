@@ -9,6 +9,9 @@ class Transition : public Instruct {
     //TODO add speech client reference to constructor
     Transition(Region region, ros::ServiceClient& speechClient);
     void perform() override;
+    verbal_navigation::Robot_Action createMessage() override;    
+
+
 };
 
 #endif
