@@ -2,19 +2,20 @@
 #define ACTION_CLIENT_H
 
 #include "TastyClient.h"
-#include "verbal_navigation/ActionServer.h"
+#include "verbal_navigation/ActionStream.h"
 #include "verbal_navigation/Robot_Action.h"
 
 using namespace std;
 
-class ActionClient {
+class ActionClient : public ActionStream {
 public:
     ActionClient(string clientIP, string hostIP, port_t hostPort);
 
 private:
+    string hostIP;
     CTastyClient client;
-    establishLinkToHost(string clientIP);
-    Robot_Action waitForAction();
+    void establishLinkToHost(string clientIP);
+    // Robot_Action waitForAction();
 };
 
 #endif

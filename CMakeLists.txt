@@ -169,6 +169,9 @@ add_executable(BWI_Guide
     src/DomainInfo.cpp
     src/Sequencer.cpp
     src/Actions.cpp
+    src/ActionServer.cpp
+    src/ActionClient.cpp
+    src/ActionStream.cpp
     )
 
 
