@@ -10,6 +10,7 @@ using namespace std;
 class ActionClient : public ActionStream {
 public:
     ActionClient(string clientIP, string hostIP, port_t hostPort);
+    ~ActionClient();
 
 private:
     string hostIP;

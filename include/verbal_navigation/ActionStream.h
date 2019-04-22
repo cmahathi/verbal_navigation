@@ -11,7 +11,7 @@
 class ActionStream {
     protected:
     std::shared_ptr<TastyMessage> receiveAll(CTastyStream* stream, int numBytes);
-    void sendAll(CTastyStream* stream, void* message);
+    void sendAll(CTastyStream* stream, void* buffer, size_t bytes);
     char* convertToBuffer(std::string str);
 };
 

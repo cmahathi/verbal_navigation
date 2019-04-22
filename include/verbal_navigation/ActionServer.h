@@ -21,6 +21,7 @@ public:
 
 private:
     port_t masterPort;
+    string serverIP;
     // The master server
     CTastyServer server;
     // The servers that manage individual clients

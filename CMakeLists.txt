@@ -149,6 +149,8 @@ include_directories(
 
 add_executable(RobotPlanExecutor
   src/RobotPlanExecutor.cpp
+  src/ActionClient.cpp
+  src/ActionStream.cpp
 )
 
 add_executable(BWI_Guide
@@ -198,6 +200,7 @@ add_executable(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
+   ${CMAKE_SOURCE_DIR}/include/TastySocket/Debug/libTastySocket.a
  )
 
 #############

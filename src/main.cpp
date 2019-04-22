@@ -80,6 +80,8 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 int main (int argc, char** argv) {
 	ActionServer server("127.0.0.1", 33333);
 	server.waitForClientConnection();
+	server.waitForClientConnection();
+	server.waitForClientConnection();
 }
 	/*
 	ROS_INFO("Welcome to the Verbal Navgiation Project");

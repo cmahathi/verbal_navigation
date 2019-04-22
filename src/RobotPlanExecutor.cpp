@@ -8,7 +8,8 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include "verbal_navigation/Robot_Action.h"
-#include "TastyClient.h"
+#include "verbal_navigation/ActionClient.h"
+#include <TastyClient.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 MoveBaseClient* move_client;
@@ -63,23 +64,26 @@ int goto_location(geometry_msgs::Pose dest_pose) {
 }
 
 int main(int argc, char **argv){
-   ros::init(argc, argv, "RobotPlanExecutor");
-   ros::NodeHandle n("~");
-   ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
+   ActionClient client0("127.0.0.1", "127.0.0.1", 33333);
+   ActionClient client1("127.0.0.1", "127.0.0.1", 33333);
+   ActionClient client2("127.0.0.1", "127.0.0.1", 33333);
+   // ros::init(argc, argv, "RobotPlanExecutor");
+   // ros::NodeHandle n("~");
+   // ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
    
-   MoveBaseClient mc("move_base", true);
-   move_client = &mc;
-   while(!move_client->waitForServer(ros::Duration(5.0))){
-      ROS_INFO("Waiting for the move_base action server to come up");
-   }
-   ROS_INFO("MoveBase Client Found!");
+   // MoveBaseClient mc("move_base", true);
+   // move_client = &mc;
+   // while(!move_client->waitForServer(ros::Duration(5.0))){
+   //    ROS_INFO("Waiting for the move_base action server to come up");
+   // }
+   // ROS_INFO("MoveBase Client Found!");
 
 
-   speech_client = n.serviceClient<verbal_navigation::Wavenet>("/wavenet");
-   speech_client.waitForExistence();
-	ROS_INFO("Speech Client Found!");
+   // speech_client = n.serviceClient<verbal_navigation::Wavenet>("/wavenet");
+   // speech_client.waitForExistence();
+	// ROS_INFO("Speech Client Found!");
 
    
-   ros::spin();
+   // ros::spin();
    
 }
