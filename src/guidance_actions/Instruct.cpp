@@ -22,7 +22,7 @@ void Instruct::perform() {
 
 verbal_navigation::Robot_Action Instruct::createMessage() {
     verbal_navigation::Robot_Action msg;
-    msg.action_type = "I";
+    msg.action_type = 'I';
     std::string directions = "";
     for(auto& region : regions) {
         if(region.getInstruction() == nullptr) {
@@ -34,7 +34,7 @@ verbal_navigation::Robot_Action Instruct::createMessage() {
         }
     }
     msg.instructions = directions;
-    msg.initial_pose = regions.at(0).getInitialPose();
-    msg.end_pose = regions.at(regions.size()-1).getEndPose();
+    msg.initial_pose = regions.front().getInitialPose();
+    msg.end_pose = regions.back().getEndPose();
     return msg;
 }

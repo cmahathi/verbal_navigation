@@ -5,7 +5,7 @@
 #include <ros/ros.h>
 #include "verbal_navigation/Robot_Action.h"
 
-enum GuidanceActionTypes { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T'};
+enum GuidanceActionTypes { LEAD = 'L', INSTRUCT = 'I', TRANSITION = 'T', INITIALIZE = 'N'};
 
 class GuidanceAction {
 protected:

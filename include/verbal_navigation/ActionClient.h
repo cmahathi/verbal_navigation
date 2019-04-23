@@ -16,7 +16,7 @@ private:
     string hostIP;
     CTastyClient client;
     void establishLinkToHost(string clientIP);
-    // Robot_Action waitForAction();
+    verbal_navigation::Robot_Action waitForAction();
 };
 
 #endif

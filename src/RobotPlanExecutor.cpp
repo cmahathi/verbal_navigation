@@ -10,6 +10,7 @@
 #include "verbal_navigation/Robot_Action.h"
 #include "verbal_navigation/ActionClient.h"
 #include <TastyClient.h>
+#include "verbal_navigation/Actions.h"
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 MoveBaseClient* move_client;
@@ -19,12 +20,12 @@ int goto_location(geometry_msgs::Pose dest_pose);
 void planCallback(const verbal_navigation::Robot_Action& msg) {
 
    //do something with the robot id 
-   std::string action_type = msg.action_type;
-   if (action_type.compare("initialize") == 0){
+   auto action_type = msg.action_type;
+   if (action_type == GuidanceActionTypes::INITIALIZE){
       geometry_msgs::Pose init_pose = msg.initial_pose;
       int success = goto_location(init_pose);
    }
-   else if (action_type.compare("L") == 0){
+   else if (action_type == GuidanceActionTypes::LEAD){
       verbal_navigation::Wavenet srv;
       srv.request.text = "Follow me!";
       ROS_INFO("Speaking: Follow me!");
@@ -33,13 +34,13 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       geometry_msgs::Pose final_pose = msg.end_pose;
       int success = goto_location(final_pose);
    }
-   else if (action_type.compare("I") == 0){
+   else if (action_type == GuidanceActionTypes::INSTRUCT){
       verbal_navigation::Wavenet srv;
       srv.request.text = msg.instructions;
       ROS_INFO("Speaking: %s", msg.instructions.c_str());
       //speech_client.call(srv);
    }
-   else if (action_type.compare("T") == 0) {
+   else if (action_type == GuidanceActionTypes::TRANSITION) {
       verbal_navigation::Wavenet srv;
       std::string txt = msg.instructions;
       txt.append(" My robotic colleague will meet you there.");
@@ -64,9 +65,10 @@ int goto_location(geometry_msgs::Pose dest_pose) {
 }
 
 int main(int argc, char **argv){
-   ActionClient client0("127.0.0.1", "127.0.0.1", 33333);
-   ActionClient client1("127.0.0.1", "127.0.0.1", 33333);
-   ActionClient client2("127.0.0.1", "127.0.0.1", 33333);
+   ActionClient client("127.0.0.1", "127.0.0.1", 33333);
+   auto action = client.waitForAction();
+   ROS_INFO("Action received");
+   // Hopefully we have all the data for the action and can now process it.
    // ros::init(argc, argv, "RobotPlanExecutor");
    // ros::NodeHandle n("~");
    // ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);

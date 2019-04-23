@@ -23,3 +23,14 @@ void ActionClient::establishLinkToHost(string clientIP) {
     client = CTastyClient(hostIP, portNumber);
     ROS_INFO("Action client connected at %s:%d", hostIP.c_str(), portNumber);
 }
+
+verbal_navigation::Robot_Action ActionClient::waitForAction() {
+    // Listen for how many bytes are in the message
+    auto message = receiveAll(&client, sizeof(size_t));
+    size_t bytesToReceive = *((size_t*)message->Buffer());
+
+    // Receive the message and interpret it as a Robot_Action
+    message = receiveAll(&client, bytesToReceive);
+    auto action = *((verbal_navigation::Robot_Action*)message->Buffer());
+    return action;
+}

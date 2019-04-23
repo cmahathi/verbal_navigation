@@ -5,6 +5,7 @@
 #include "verbal_navigation/Actions.h"
 #include "verbal_navigation/ActionStream.h"
 #include "verbal_navigation/Robot_Action.h"
+#include <ros/serialization.h>
 #include <memory>
 #include <vector>
 
@@ -18,7 +19,8 @@ public:
     // int sendAction(client_fd client, Action action);
     int numClients();
     client_fd waitForClientConnection();
-
+    void sendActionToClient(std::shared_ptr<GuidanceAction> action, client_fd clientFD);
+    void close(client_fd clientFD);
 private:
     port_t masterPort;
     string serverIP;
