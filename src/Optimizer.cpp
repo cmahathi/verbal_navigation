@@ -101,8 +101,9 @@ void Optimizer::updateMin(double accumulatedTime) {
 bool Optimizer::domainTransition(int regionCount) {
     if (regionCount >= segmentedPath.size() - 1)
         return false;
-    if (segmentedPath.at(regionCount).getName().compare("") == 0)
+    if (domains.getRobotByRegion(segmentedPath.at(regionCount+1).getName()).compare("") == 0)
         return false;
+
     return domains.isDomainTransition(segmentedPath.at(regionCount).getName(), segmentedPath.at(regionCount+1).getName());
 }
 

@@ -98,10 +98,10 @@ int main (int argc, char** argv) {
 	// SWAP FLOOR MAPS HERE - possibly automate later
 	// NOTE: to run in the simulator, the 2 multimap_file lines in simulation_vx.launch MUST be changed to $(find utexas_gdc)/maps/real/multimap/multimap.yaml
 	std::string projectDir = ros::package::getPath("verbal_navigation");
-	boost::filesystem::path mapPath2 = projectDir + "/src/multimap/2/2.yaml";
-	boost::filesystem::path dataPath2 = projectDir + "/src/multimap/2";
-	boost::filesystem::path mapPath3 = projectDir + "/src/multimap/3ne/3ne.yaml";
-	boost::filesystem::path dataPath3 = projectDir + "/src/multimap/3ne";
+	boost::filesystem::path mapPath2 = projectDir + "/src/maps_real/2/2.yaml";
+	boost::filesystem::path dataPath2 = projectDir + "/src/maps_real/2";
+	boost::filesystem::path mapPath3 = projectDir + "/src/maps_real/3ne/3ne.yaml";
+	boost::filesystem::path dataPath3 = projectDir + "/src/maps_real/3ne";
 
 	std::vector<geometry_msgs::PoseStamped> pose_list;
 	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
@@ -171,7 +171,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("Able to change levels!");
 
 	changeToFloor(change_level_client, "2ndFloor");
-	sleep(1);
+	sleep(3);
 	// get the landmark "start"
 	bwi_logical_translator::BwiLogicalTranslator translator2;
 	ros::param::set("~map_file", mapPath2.string());
@@ -255,7 +255,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("***");
 
 	changeToFloor(change_level_client, "3rdFloor");
-	sleep(1);
+	sleep(3);
 
 
 	bwi_logical_translator::BwiLogicalTranslator translator3;
@@ -338,9 +338,14 @@ int main (int argc, char** argv) {
 	// }
 	//auto currentAction = actionQueue.front();
 	ROS_INFO("Size of action queue: %d", actionQueue.size());
+	std::string last_id = "";
 	while (!actionQueue.empty()) {
 		auto currentAction = actionQueue.front();
 		verbal_navigation::Robot_Action msg = currentAction->createMessage();
+		if (msg.robot_id.compare("") == 0 || msg.action_type.compare("T") == 0) {
+			msg.robot_id = last_id;
+		}
+		last_id = msg.robot_id;
 		plan_pub.publish(msg);
 		sleep(5);
 		actionQueue.pop();

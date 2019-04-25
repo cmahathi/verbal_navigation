@@ -33,6 +33,7 @@ verbal_navigation::Robot_Action Instruct::createMessage() {
             //ROS_INFO("%s: %s", region.getCommonName().c_str(), region.getInstruction()->toNaturalLanguage().c_str());
         }
     }
+    msg.robot_id = domains.getRobotByRegion(regions.at(0).getName());
     msg.instructions = directions;
     msg.initial_pose = regions.at(0).getInitialPose();
     msg.end_pose = regions.at(regions.size()-1).getEndPose();

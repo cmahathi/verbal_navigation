@@ -11,6 +11,7 @@ void Transition::perform() {
 verbal_navigation::Robot_Action Transition::createMessage() {
     verbal_navigation::Robot_Action msg;
     msg.action_type = "T";
+    msg.robot_id = domains.getRobotByRegion(regions.at(0).getName());
     msg.initial_pose = regions.at(0).getInitialPose();
     msg.end_pose = regions.at(regions.size()-1).getEndPose();
     msg.instructions = regions.at(0).getInstruction()->toNaturalLanguage();
