@@ -54,6 +54,7 @@ std::string DomainInfo::getRobotByRegion (std::string region) {
 }
 
 bool DomainInfo::isDomainTransition (std::string region1, std::string region2) {
+    
     if (regionToRobotMap[region1].compare(regionToRobotMap[region2]) == 0) {
         //ROS_INFO("Regions %s and %s are in the same domain\n",region1.c_str(), region2.c_str());
         return false;

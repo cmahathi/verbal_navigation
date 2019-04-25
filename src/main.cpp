@@ -98,10 +98,10 @@ int main (int argc, char** argv) {
 	// SWAP FLOOR MAPS HERE - possibly automate later
 	// NOTE: to run in the simulator, the 2 multimap_file lines in simulation_vx.launch MUST be changed to $(find utexas_gdc)/maps/real/multimap/multimap.yaml
 	std::string projectDir = ros::package::getPath("verbal_navigation");
-	boost::filesystem::path mapPath2 = projectDir + "/src/maps_real/2/2.yaml";
-	boost::filesystem::path dataPath2 = projectDir + "/src/maps_real/2";
-	boost::filesystem::path mapPath3 = projectDir + "/src/maps_real/3ne/3ne.yaml";
-	boost::filesystem::path dataPath3 = projectDir + "/src/maps_real/3ne";
+	boost::filesystem::path mapPath2 = projectDir + "/src/multimap/2/2.yaml";
+	boost::filesystem::path dataPath2 = projectDir + "/src/multimap/2";
+	boost::filesystem::path mapPath3 = projectDir + "/src/multimap/3ne/3ne.yaml";
+	boost::filesystem::path dataPath3 = projectDir + "/src/multimap/3ne";
 
 	std::vector<geometry_msgs::PoseStamped> pose_list;
 	bwi_directions_generator::BwiDirectionsGenerator directionsGenerator;
@@ -317,12 +317,12 @@ int main (int argc, char** argv) {
 	regionPath = regionPath2;
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
-	ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
-	speech_client.waitForExistence();
-	ROS_INFO("Speech Client Found!");
-	verbal_navigation::Wavenet wavService;
-	wavService.request.text = finalDirections;
-	speech_client.call(wavService);
+	// ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
+	// //speech_client.waitForExistence();
+	// ROS_INFO("Speech Client Found!");
+	// verbal_navigation::Wavenet wavService;
+	// wavService.request.text = finalDirections;
+	// speech_client.call(wavService);
 
 	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();

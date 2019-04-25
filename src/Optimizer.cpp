@@ -101,6 +101,8 @@ void Optimizer::updateMin(double accumulatedTime) {
 bool Optimizer::domainTransition(int regionCount) {
     if (regionCount >= segmentedPath.size() - 1)
         return false;
+    if (segmentedPath.at(regionCount).getName().compare("") == 0)
+        return false;
     return domains.isDomainTransition(segmentedPath.at(regionCount).getName(), segmentedPath.at(regionCount+1).getName());
 }
 
@@ -148,7 +150,7 @@ double Optimizer::calculateTraversibility (Region r) {
                                 break;
         case RegionType::HALLWAY:  traversibility += 1;
                                 break;
-        case RegionType::OPEN_SPACE:  traversibility += 3;
+        case RegionType::OPEN_SPACE:  traversibility += 5;
                                 break;
         case RegionType::ELEVATOR:  traversibility += 10;
                                 break;
