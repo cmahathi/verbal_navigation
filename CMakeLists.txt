@@ -61,7 +61,7 @@ endif()
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   Path.msg
+   Robot_Action.msg
   )
 
 ## Generate services in the 'srv' folder
@@ -81,7 +81,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs 
-  geometry_msgs # Or other packages containing msgs
+  geometry_msgs
 )
 
 ################################################

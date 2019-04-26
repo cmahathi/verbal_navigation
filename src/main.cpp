@@ -26,6 +26,7 @@
 #include "verbal_navigation/Optimizer.h"
 #include "verbal_navigation/Sequencer.h"
 #include "verbal_navigation/guidance_actions/GuidanceAction.h"
+#include "verbal_navigation/Robot_Action.h"
 
 
 void sleepok(int t, ros::NodeHandle &nh) {
@@ -81,6 +82,7 @@ int main (int argc, char** argv) {
 	ros::init(argc, argv, "BWI_Guide");
 	ros::NodeHandle nh("~");
 
+	ros::Publisher plan_pub = nh.advertise<verbal_navigation::Robot_Action>("/robot_plan", 1000);
 
 	FuturePoseStamped initialPose;
 	FuturePoseStamped goalPose;
@@ -119,7 +121,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("Able to change levels!");
 
 	changeToFloor(change_level_client, "2ndFloor");
-	sleep(1);
+	sleep(3);
 	// get the landmark "start"
 	bwi_logical_translator::BwiLogicalTranslator translator2;
 	ros::param::set("~map_file", mapPath2.string());
@@ -203,7 +205,7 @@ int main (int argc, char** argv) {
 	ROS_INFO("***");
 
 	changeToFloor(change_level_client, "3rdFloor");
-	sleep(1);
+	sleep(3);
 
 
 	bwi_logical_translator::BwiLogicalTranslator translator3;
@@ -266,11 +268,11 @@ int main (int argc, char** argv) {
 	regionPath.path.insert (regionPath.path.end(), regionPath3.path.begin(), regionPath3.path.end());
 
 	// ros::ServiceClient speech_client = nh.serviceClient <verbal_navigation::Wavenet> ("/wavenet");
-	// speech_client.waitForExistence();
+	// //speech_client.waitForExistence();
 	// ROS_INFO("Speech Client Found!");
 	// verbal_navigation::Wavenet wavService;
 	// wavService.request.text = finalDirections;
-	//speech_client.call(wavService);
+	// speech_client.call(wavService);
 
 	Optimizer optimizer(regionPath, mapInfo, mapInfo3);
 	auto optimalSequence = optimizer.getOptimalGuidanceSequence();
@@ -286,21 +288,16 @@ int main (int argc, char** argv) {
 	// }
 	//auto currentAction = actionQueue.front();
 	ROS_INFO("Size of action queue: %d", actionQueue.size());
+	std::string last_id = "";
 	while (!actionQueue.empty()) {
 		auto currentAction = actionQueue.front();
-		currentAction->perform();
-		// if (currentAction->type == GuidanceActionTypes::INSTRUCT) {
-		// 	auto regionInstr = currentAction->regions;
-		// 	ROS_INFO("Region size: %d", regionInstr.size());
-		// 	if (regionInstr.at(0).getFloor() == 2) {
-		// 		std::string instr = mapInfo.buildInstructions(false, false, 3);
-		// 		ROS_INFO("%s",instr.c_str());
-		// 	}
-		// 	if (regionInstr.at(0).getFloor() == 3) {
-		// 		std::string instr = mapInfo3.buildInstructions(false, false, 3);
-		// 		ROS_INFO("%s",instr.c_str());
-		// 	}
-		// }
+		verbal_navigation::Robot_Action msg = currentAction->createMessage();
+		if (msg.robot_id.compare("") == 0 || msg.action_type.compare("T") == 0) {
+			msg.robot_id = last_id;
+		}
+		last_id = msg.robot_id;
+		plan_pub.publish(msg);
+		sleep(5);
 		actionQueue.pop();
 	}
 

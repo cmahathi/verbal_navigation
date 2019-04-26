@@ -135,7 +135,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
   }
   ROS_INFO("Building Instructions...");
 
-  for (int ix = 0; ix < regionList.size() - 1; ix ++) {
+  for (int ix = 0; ix < regionList.size() - 2; ix ++) {
     auto& thisRegion = regionList.at(ix);
     
     auto& nextRegion = regionList.at(ix + 1);
@@ -163,7 +163,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
       auto posesInThisRegion = thisRegion.getPath();
       geometry_msgs::PoseStamped boundary = posesInThisRegion.back();
 
-      MapItem closestLandmark = getClosestLandmarkTo(boundary);
+      MapItem closestLandmark = getClosestLandmarkTo(boundary, thisRegion);
       // TODO: Can we build the landmark MapItems as we parse the YAML file?
       closestLandmark.setCommonName(labelToCommonNameMap[closestLandmark.getName()]);
       //ROS_INFO("MapItem label: %s, common name: %s", closestLandmark.getName().c_str(), labelToCommonNameMap[closestLandmark.getName()].c_str());
@@ -175,7 +175,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
       //           closestLandmark.getName().c_str(),
       //           landmarkToBoundaryDistance);
 
-      if (mapItemInRegion(thisRegion.getName(), closestLandmark) || mapItemInRegion(nextRegion.getName(), closestLandmark)) {
+      if (mapItemInRegion(thisRegion.getName(), closestLandmark)) {
 
         // if the landmark is close enough to the turn location, use it
         if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
@@ -227,7 +227,12 @@ std::string MapInfo::generateDirections(std::vector<Region>& regionListNew) {
   int i = 0;
   directions = "";
   for(auto& region : regionListNew) {
-    std::string naturalInstruction = region.getInstruction()->toNaturalLanguage();
+    std::string naturalInstruction;
+    if (region.getInstruction() == NULL)
+      naturalInstruction = "";
+    else
+      naturalInstruction = region.getInstruction()->toNaturalLanguage();
+
     if(lastInstruction != naturalInstruction) {
       directions.append(naturalInstruction);
     }
@@ -242,15 +247,18 @@ std::string MapInfo::generateDirections(std::vector<Region>& regionListNew) {
 
 // input: any point on the map
 // returns the MapItem with closest Euclidean distance to the specified point
-MapItem MapInfo::getClosestLandmarkTo(geometry_msgs::PoseStamped pose) {
+MapItem MapInfo::getClosestLandmarkTo(geometry_msgs::PoseStamped pose, Region region) {
   double shortestDistance = std::numeric_limits<double>::max();
   MapItem* closestLandmark;
   // iterate over all landmarks
   for(auto& landmark : landmarkList) {
-    auto dist = landmark.distanceTo(pose.pose).data;
-    if(dist < shortestDistance) {
-      closestLandmark = &landmark;
-      shortestDistance = dist;
+    //ROS_INFO("landmark getName %s", landmark.getName().c_str());
+    if (landmark.getName().compare("dest") != 0 && landmark.getName().compare("start") != 0/*&& mapItemInRegion(region.getName(), landmark.getName())*/) {
+      auto dist = landmark.distanceTo(pose.pose).data;
+      if(dist < shortestDistance) {
+        closestLandmark = &landmark;
+        shortestDistance = dist;
+      }
     }
   }
   return *closestLandmark;
@@ -343,6 +351,7 @@ std_msgs::Float64 MapInfo::distanceBetween(geometry_msgs::Pose firstPose, geomet
 }
 
 bool MapInfo::mapItemInRegion(std::string region, MapItem item) {
+
   std::string name = item.getName();
   auto itemList = regionToMapItemsMap[region];
   for (MapItem i : itemList) {
@@ -352,6 +361,7 @@ bool MapInfo::mapItemInRegion(std::string region, MapItem item) {
   }
   return false;
 }
+
 
 bool MapInfo::readAttributesFile(const std::string& filename) {
   ROS_INFO(boost::filesystem::current_path().string().c_str());

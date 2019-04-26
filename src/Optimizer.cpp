@@ -84,9 +84,8 @@ void Optimizer::backtrackPath() {
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action) {
     if (action == GuidanceActionTypes::INSTRUCT || action == GuidanceActionTypes::TRANSITION) {
         double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (double)(numInstructedRegions+1);
-        if (numInstructedRegions == 0) {
-            acc += SPEECH_TIME;
-        }
+        acc += SPEECH_TIME;
+        
         return acc;
     }
     else {
@@ -102,6 +101,9 @@ void Optimizer::updateMin(double accumulatedTime) {
 bool Optimizer::domainTransition(int regionCount) {
     if (regionCount >= segmentedPath.size() - 1)
         return false;
+    if (domains.getRobotByRegion(segmentedPath.at(regionCount+1).getName()).compare("") == 0)
+        return false;
+
     return domains.isDomainTransition(segmentedPath.at(regionCount).getName(), segmentedPath.at(regionCount+1).getName());
 }
 
@@ -149,7 +151,7 @@ double Optimizer::calculateTraversibility (Region r) {
                                 break;
         case RegionType::HALLWAY:  traversibility += 1;
                                 break;
-        case RegionType::OPEN_SPACE:  traversibility += 3;
+        case RegionType::OPEN_SPACE:  traversibility += 5;
                                 break;
         case RegionType::ELEVATOR:  traversibility += 10;
                                 break;
