@@ -7,6 +7,7 @@
 #include <libgen.h>
 #include <stdexcept>
 #include "ros/ros.h"
+#include "ros/package.h"
 #include <boost/filesystem.hpp>
 
 class DomainInfo {

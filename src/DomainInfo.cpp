@@ -5,11 +5,10 @@ DomainInfo::DomainInfo() {
 }
 
 void DomainInfo::read_domain_info () {
-    ROS_INFO(boost::filesystem::current_path().string().c_str());
-    std::string fullPath = boost::filesystem::current_path().string() + filename;
+    std::string fullPath = ros::package::getPath("verbal_navigation") + filename;
 
     if (!boost::filesystem::exists(fullPath)) {
-      ROS_INFO("DOMAIN FILE NOT FOUND\nRun from verbal_nav directory");
+      ROS_ERROR("%s : DOMAIN FILE NOT FOUND", fullPath.c_str());
       return;
     }
 
