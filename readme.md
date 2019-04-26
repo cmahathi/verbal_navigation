@@ -33,6 +33,8 @@ Run node:
 
  `rosrun verbal_navigation Trigger_Node.py`
 
+This node reads a rosbag, then publishes everything in it when triggered. We will need to record a rosbag of the actions that we want the robot to take, then this node will publish them to be executed by Robot_Plan_Executor node.
+
 ### Mapping Script
 Run from directory verbal_navigation/src/multimap/[floor]
 
