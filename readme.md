@@ -24,6 +24,14 @@ Run robot subscriber node:
 
 `rosrun verbal_navigation RobotPlanExecutor`
 
+### Run Trigger Node
+Install easygui library:
+
+`pip install easygui`
+
+Run node:
+
+ `rosrun verbal_navigation Trigger_Node.py`
 
 ### Mapping Script
 Run from directory verbal_navigation/src/multimap/[floor]
