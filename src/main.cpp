@@ -25,7 +25,7 @@
 #include "verbal_navigation/bwi_directions_generator.h"
 #include "verbal_navigation/Optimizer.h"
 #include "verbal_navigation/Sequencer.h"
-#include "verbal_navigation/guidance_actions/GuidanceAction.h"
+#include "verbal_navigation/Actions.h"
 #include "verbal_navigation/Robot_Action.h"
 #include "verbal_navigation/ActionServer.h"
 #include "verbal_navigation/ActionClient.h"
@@ -78,11 +78,7 @@ void changeToFloor(ros::ServiceClient& change_floor_client, std::string floor_id
 
 
 int main (int argc, char** argv) {
-	ActionServer server("127.0.0.1", 33333);
-	auto client = server.waitForClientConnection();
-	// server.sendActionToClient()
-}
-	/*
+
 	ROS_INFO("Welcome to the Verbal Navgiation Project");
 
 
@@ -295,12 +291,17 @@ int main (int argc, char** argv) {
 	// }
 	//auto currentAction = actionQueue.front();
 	ROS_INFO("Size of action queue: %d", actionQueue.size());
-	while (!actionQueue.empty()) {
+	ActionServer server("127.0.0.1", 33333);
+	auto client = server.waitForClientConnection();
+	// server.sendActionToClient()
+	while (ros::ok && !actionQueue.empty()) {
 		auto currentAction = actionQueue.front();
-		verbal_navigation::Robot_Action msg = currentAction->createMessage();
-		plan_pub.publish(msg);
+		server.sendActionToClient(currentAction, client);
+		ROS_INFO("Finished sending");
+		// verbal_navigation::Robot_Action msg = currentAction->createMessage();
+		// plan_pub.publish(msg);
 		sleep(5);
-		actionQueue.pop();
+		// actionQueue.pop();
 	}
 
 	// std::string testInstr = mapInfo.buildInstructions(true, false, 3);
@@ -331,5 +332,3 @@ int main (int argc, char** argv) {
 // inline std::vector<bwi_planning_common::Door> getDoorList() const {
 //  	return doors_;
 //  }
-
-*/

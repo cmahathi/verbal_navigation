@@ -28,9 +28,11 @@ verbal_navigation::Robot_Action ActionClient::waitForAction() {
     // Listen for how many bytes are in the message
     auto message = receiveAll(&client, sizeof(size_t));
     size_t bytesToReceive = *((size_t*)message->Buffer());
+    ROS_INFO("Receiving %d bytes", bytesToReceive);
 
     // Receive the message and interpret it as a Robot_Action
     message = receiveAll(&client, bytesToReceive);
+    ROS_INFO("Rec'd %d bytes", bytesToReceive);
     auto action = *((verbal_navigation::Robot_Action*)message->Buffer());
     return action;
 }

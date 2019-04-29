@@ -11,6 +11,7 @@
 #include <memory>
 
 // Factory class for GuidanceActions
+
 class Actions {
     static bool clientsInitialized;
     static ros::ServiceClient speech_client;

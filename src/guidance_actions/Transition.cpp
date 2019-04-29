@@ -2,7 +2,7 @@
 
 Transition::Transition(Region region, ros::ServiceClient& speechClient) : Instruct({region}, speechClient) {}
 
-void Transition::perform() {
+ActionData Transition::getActionData() {
     for(auto& region : regions) {
         ROS_INFO("%s: Transition", region.getCommonName().c_str());
     }

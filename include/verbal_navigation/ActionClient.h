@@ -12,11 +12,11 @@ public:
     ActionClient(string clientIP, string hostIP, port_t hostPort);
     ~ActionClient();
 
+    verbal_navigation::Robot_Action waitForAction();
 private:
     string hostIP;
     CTastyClient client;
     void establishLinkToHost(string clientIP);
-    verbal_navigation::Robot_Action waitForAction();
 };
 
 #endif

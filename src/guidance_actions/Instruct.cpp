@@ -2,7 +2,7 @@
 
 Instruct::Instruct(std::vector<Region> regions, ros::ServiceClient& speechClient) : GuidanceAction(regions, speechClient)  {}
 
-void Instruct::perform() {
+ActionData  Instruct::getActionData() {
     std::string directions;
     for(auto& region : regions) {
         if(region.getInstruction() == nullptr) {

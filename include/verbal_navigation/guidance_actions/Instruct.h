@@ -8,7 +8,7 @@ class Instruct : public GuidanceAction {
     public:
     //TODO Add speech API client reference to constructor
     Instruct(std::vector<Region> regions, ros::ServiceClient& speechClient);
-    void perform() override;
+    ActionData getActionData() override;
     verbal_navigation::Robot_Action createMessage() override;
 
 };

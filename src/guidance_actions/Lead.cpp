@@ -2,7 +2,7 @@
 
 Lead::Lead(std::vector<Region> regions, ros::ServiceClient& goToLocationClient) : GuidanceAction(regions, goToLocationClient) {}
 
-void Lead::perform() {
+ActionData Lead::getActionData() {
     for(auto& region : regions) {
         ROS_INFO("%s: Lead", region.getCommonName().c_str());
     }
