@@ -10,7 +10,6 @@ class Instruct : public GuidanceAction {
     Instruct(std::vector<Region> regions, ros::ServiceClient& speechClient);
     ActionData getActionData() override;
     verbal_navigation::Robot_Action createMessage() override;
-
 };
 
 #endif

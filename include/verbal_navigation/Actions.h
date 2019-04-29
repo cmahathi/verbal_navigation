@@ -1,6 +1,7 @@
 #ifndef ACTIONS_H
 #define ACTIONS_H
 
+#include <verbal_navigation/guidance_actions/ActionData.h>
 #include <verbal_navigation/guidance_actions/GuidanceAction.h>
 #include <verbal_navigation/guidance_actions/Lead.h>
 #include <verbal_navigation/guidance_actions/Instruct.h>

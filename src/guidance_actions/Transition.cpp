@@ -3,10 +3,14 @@
 Transition::Transition(Region region, ros::ServiceClient& speechClient) : Instruct({region}, speechClient) {}
 
 ActionData Transition::getActionData() {
-    for(auto& region : regions) {
-        ROS_INFO("%s: Transition", region.getCommonName().c_str());
-    }
+    return ActionData(GuidanceActionTypes::TRANSITION, regions.front().getInitialPose(), regions.back().getEndPose(), getCombinedDirections());
 }
+
+// void Transition::debug() {
+//     for(auto& region : regions) {
+//         ROS_INFO("%s: Transition", region.getCommonName().c_str());
+//     }
+// }
 
 verbal_navigation::Robot_Action Transition::createMessage() {
     verbal_navigation::Robot_Action msg;

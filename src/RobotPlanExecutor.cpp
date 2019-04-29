@@ -65,12 +65,17 @@ int goto_location(geometry_msgs::Pose dest_pose) {
 }
 
 int main(int argc, char **argv){
-   ActionClient client("127.0.0.1", "127.0.0.1", 33333);
-   auto action = client.waitForAction();
-   ROS_INFO("Action received");
    // Hopefully we have all the data for the action and can now process it.
-   // ros::init(argc, argv, "RobotPlanExecutor");
-   // ros::NodeHandle n("~");
+   ros::init(argc, argv, "RobotPlanExecutor");
+   ros::NodeHandle n("~");
+
+   ActionClient client("127.0.0.1", "127.0.0.1", 33333);
+   while(ros::ok()) {
+      auto action = client.waitForAction();
+      action.debug();
+      ros::spinOnce();
+   }
+
    // ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
    
    // MoveBaseClient mc("move_base", true);

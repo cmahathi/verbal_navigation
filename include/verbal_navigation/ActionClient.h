@@ -3,7 +3,7 @@
 
 #include "TastyClient.h"
 #include "verbal_navigation/ActionStream.h"
-#include "verbal_navigation/Robot_Action.h"
+#include "verbal_navigation/Actions.h"
 
 using namespace std;
 
@@ -12,7 +12,7 @@ public:
     ActionClient(string clientIP, string hostIP, port_t hostPort);
     ~ActionClient();
 
-    verbal_navigation::Robot_Action waitForAction();
+    ActionData waitForAction();
 private:
     string hostIP;
     CTastyClient client;

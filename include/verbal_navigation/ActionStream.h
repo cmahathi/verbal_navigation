@@ -13,6 +13,7 @@ class ActionStream {
     std::shared_ptr<TastyMessage> receiveAll(CTastyStream* stream, int numBytes);
     void sendAll(CTastyStream* stream, void* buffer, size_t bytes);
     char* convertToBuffer(std::string str);
+    size_t receiveNextMessageSize(CTastyStream* stream);
 };
 
 #endif

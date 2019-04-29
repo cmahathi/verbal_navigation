@@ -27,3 +27,10 @@ char* ActionStream::convertToBuffer(std::string str) {
     str.copy(buff, str.size());
     return buff;
 }
+
+size_t ActionStream::receiveNextMessageSize(CTastyStream* stream) {
+    auto message = receiveAll(stream, sizeof(size_t));
+    size_t bytesToReceive = *((size_t*)message->Buffer());
+    ROS_INFO("Receiving %d bytes", bytesToReceive);
+    return bytesToReceive;
+}

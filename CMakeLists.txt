@@ -151,6 +151,7 @@ add_executable(RobotPlanExecutor
   src/RobotPlanExecutor.cpp
   src/ActionClient.cpp
   src/ActionStream.cpp
+  src/ActionData.cpp
 )
 
 add_executable(BWI_Guide

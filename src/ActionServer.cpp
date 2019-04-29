@@ -23,11 +23,14 @@ client_fd ActionServer::waitForClientConnection() {
 
 //Sends the size of the ros message, then the message itself
 void ActionServer::sendActionToClient(std::shared_ptr<GuidanceAction> action, client_fd clientFD) {
-    auto message = action->createMessage();
-    size_t bytes = ros::serialization::serializationLength(message);
+    auto message = action->getActionData();
+    ROS_INFO("Sending %d bytes", message.instructionSize);
+    size_t bytes = sizeof(ActionData);
     auto client = &clientConnections.at(clientFD);
     sendAll(client, &bytes, sizeof(size_t));
     sendAll(client, &message, bytes);
+    sendAll(client, &message.instructionSize, sizeof(size_t));
+    sendAll(client, message.instructions, message.instructionSize);
 }
 
 void ActionServer::close(client_fd clientFD) {

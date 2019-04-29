@@ -300,8 +300,7 @@ int main (int argc, char** argv) {
 		ROS_INFO("Finished sending");
 		// verbal_navigation::Robot_Action msg = currentAction->createMessage();
 		// plan_pub.publish(msg);
-		sleep(5);
-		// actionQueue.pop();
+		actionQueue.pop();
 	}
 
 	// std::string testInstr = mapInfo.buildInstructions(true, false, 3);

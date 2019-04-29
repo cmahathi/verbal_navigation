@@ -24,15 +24,21 @@ void ActionClient::establishLinkToHost(string clientIP) {
     ROS_INFO("Action client connected at %s:%d", hostIP.c_str(), portNumber);
 }
 
-verbal_navigation::Robot_Action ActionClient::waitForAction() {
+ActionData ActionClient::waitForAction() {
     // Listen for how many bytes are in the message
-    auto message = receiveAll(&client, sizeof(size_t));
-    size_t bytesToReceive = *((size_t*)message->Buffer());
-    ROS_INFO("Receiving %d bytes", bytesToReceive);
+    auto bytesToReceive = receiveNextMessageSize(&client);
 
     // Receive the message and interpret it as a Robot_Action
-    message = receiveAll(&client, bytesToReceive);
+    auto message = receiveAll(&client, bytesToReceive);
+    ActionData action = *((ActionData*)message->Buffer());
     ROS_INFO("Rec'd %d bytes", bytesToReceive);
-    auto action = *((verbal_navigation::Robot_Action*)message->Buffer());
+    
+    action.instructionSize = receiveNextMessageSize(&client);
+
+    message = receiveAll(&client, action.instructionSize);
+    ROS_INFO("Rec'd %d bytes", action.instructionSize);
+    action.instructions = new char[action.instructionSize];
+    memcpy(action.instructions, message->Buffer(), action.instructionSize);
+
     return action;
 }

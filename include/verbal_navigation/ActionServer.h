@@ -4,7 +4,6 @@
 #include "TastyServer.h"
 #include "verbal_navigation/Actions.h"
 #include "verbal_navigation/ActionStream.h"
-#include "verbal_navigation/Robot_Action.h"
 #include <ros/serialization.h>
 #include <memory>
 #include <vector>
