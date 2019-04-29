@@ -194,14 +194,14 @@ add_executable(BWI_Guide
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
-   ${CMAKE_SOURCE_DIR}/include/TastySocket/Debug/libTastySocket.a
+   ${CMAKE_SOURCE_DIR}/include/TastySocket/libTastySocket.a
  )
 
   target_link_libraries(RobotPlanExecutor
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
    ${YAML_CPP_LIBRARIES}
-   ${CMAKE_SOURCE_DIR}/include/TastySocket/Debug/libTastySocket.a
+   ${CMAKE_SOURCE_DIR}/include/TastySocket/libTastySocket.a
  )
 
 #############
