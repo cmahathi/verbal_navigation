@@ -135,7 +135,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
   }
   ROS_INFO("Building Instructions...");
 
-  for (int ix = 0; ix < regionList.size() - 2; ix ++) {
+  for (int ix = 0; ix < regionList.size() - 1; ix ++) {
     auto& thisRegion = regionList.at(ix);
     
     auto& nextRegion = regionList.at(ix + 1);
@@ -153,7 +153,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     auto direction = getDirectionBetween(thisRegion, nextRegion);
-    if(direction != Directions::STRAIGHT) {
+    if(direction != Directions::STRAIGHT && ix != regionList.size()-2) {
       auto turnIns = std::make_shared<VerbPhrase>("turn");
       turnIns->setStartRegion(thisRegionName);
       turnIns->setEndRegion(nextRegionName);
@@ -175,7 +175,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
       //           closestLandmark.getName().c_str(),
       //           landmarkToBoundaryDistance);
 
-      if (mapItemInRegion(thisRegion.getName(), closestLandmark)) {
+      //if (mapItemInRegion(thisRegion.getName(), closestLandmark)) {
 
         // if the landmark is close enough to the turn location, use it
         if (landmarkToBoundaryDistance < MapInfo::DISTANCE_THRESHOLD) {
@@ -202,7 +202,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
             turnIns->addPreposition(Preposition("towards", nextRegion));
           }
         }
-      }
+      //}
       // add the finished turn instruction to its respective region
       thisRegion.setInstruction(turnIns);
 
@@ -233,9 +233,9 @@ std::string MapInfo::generateDirections(std::vector<Region>& regionListNew) {
     else
       naturalInstruction = region.getInstruction()->toNaturalLanguage();
 
-    if(lastInstruction != naturalInstruction) {
+    //if(lastInstruction != naturalInstruction) {
       directions.append(naturalInstruction);
-    }
+    //}
     lastInstruction = naturalInstruction;
   }
   return directions;
@@ -317,10 +317,10 @@ Directions MapInfo::getDirectionBetween(Region fromRegion, Region toRegion) {
 
   //ROS_INFO("Angle between %s and %s: %lf", fromRegion.getName().c_str(), toRegion..getName().c_str(), angle);
 
-  if(angle > MapInfo::ANGLE_THRESHOLD) {
+  if(angle >= MapInfo::ANGLE_THRESHOLD) {
     return Directions::LEFT;
   }
-  else if(angle < -MapInfo::ANGLE_THRESHOLD) {
+  else if(angle <= -MapInfo::ANGLE_THRESHOLD) {
     return Directions::RIGHT;
   }
 

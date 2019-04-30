@@ -64,7 +64,7 @@ int goto_location(geometry_msgs::Pose dest_pose) {
 int main(int argc, char **argv){
    ros::init(argc, argv, "RobotPlanExecutor");
    ros::NodeHandle n("~");
-   ros::Subscriber plan_sub = n.subscribe("/robot_plan_pregen", 1000, planCallback);
+   ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
    
    MoveBaseClient mc("move_base", true);
    move_client = &mc;

@@ -199,6 +199,6 @@ landmarks:
     common_name: "two posters"
   - name: o3_514_trashcan
     common_name: "trashcan"
-  - name: o3_desk1
+  - name: o3_500_center-cubicles
     common_name: "center cubicles"
 ...

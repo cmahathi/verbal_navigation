@@ -160,7 +160,7 @@ int main (int argc, char** argv) {
 		std::string destinationDoor = "d2_elev_west";
 		auto destination = new geometry_msgs::PoseStamped;
 
-		auto goalPoints = translator2.getDoor(destinationDoor).approach_points[0];
+		auto goalPoints = translator2.getDoor(destinationDoor).approach_points[1];
 		// ROS_INFO("FOUND DOOR");
 		// Need to convert this point2f (pixel coords on map) to a poseStamped for our goal pose
 		destination->pose.position.x = goalPoints.x;
@@ -297,7 +297,7 @@ int main (int argc, char** argv) {
 		}
 		last_id = msg.robot_id;
 		plan_pub.publish(msg);
-		sleep(5);
+		sleep(.5);
 		actionQueue.pop();
 	}
 

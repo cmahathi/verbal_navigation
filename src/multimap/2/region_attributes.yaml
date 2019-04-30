@@ -95,8 +95,8 @@ landmarks:
     common_name: "trashcan"
   - name: plaque
     common_name: "Dell Computer Science Hall sign"
-  - name: bench_1
-    common_name: "wooden bench" 
+  - name: wood_benches_1
+    common_name: "wooden bench"
   - name: bench_2
     common_name: "wooden bench" 
   - name: wall_map
