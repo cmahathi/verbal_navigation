@@ -3,8 +3,6 @@
 import rospy
 from verbal_navigation.srv import *
 from google.cloud import texttospeech
-from mutagen.mp3 import MP3
-from playsound import playsound
 import os
 
 def handle_wavenet_request(req):
@@ -39,8 +37,7 @@ def handle_wavenet_request(req):
 
     os.system("cvlc output.mp3 && exit")
     print ("After speaking, before deleting")
-    audio = MP3("output.mp3")
-    print(audio.info.length)
+
 
     # os.remove("output.mp3")
     print ("About to return")

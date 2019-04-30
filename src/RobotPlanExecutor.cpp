@@ -17,6 +17,7 @@ int goto_location(geometry_msgs::Pose dest_pose);
 void planCallback(const verbal_navigation::Robot_Action& msg) {
 
    //do something with the robot id 
+   if (msg.robot_id.compare("r2") == 0) {
    std::string action_type = msg.action_type;
    if (action_type.compare("initialize") == 0){
       geometry_msgs::Pose init_pose = msg.initial_pose;
@@ -26,7 +27,7 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       verbal_navigation::Wavenet srv;
       srv.request.text = "Follow me!";
       ROS_INFO("Speaking: Follow me!");
-      //speech_client.call(srv);
+      speech_client.call(srv);
 
       geometry_msgs::Pose final_pose = msg.end_pose;
       int success = goto_location(final_pose);
@@ -35,7 +36,7 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       verbal_navigation::Wavenet srv;
       srv.request.text = msg.instructions;
       ROS_INFO("Speaking: %s", msg.instructions.c_str());
-      //speech_client.call(srv);
+      speech_client.call(srv);
    }
    else if (action_type.compare("T") == 0) {
       verbal_navigation::Wavenet srv;
@@ -43,7 +44,8 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       txt.append(" My robotic colleague will meet you there.");
       srv.request.text = txt;
       ROS_INFO("Speaking: %s", txt.c_str());
-      //speech_client.call(srv);
+      speech_client.call(srv);
+   }
    }
 }
 
@@ -54,11 +56,10 @@ int goto_location(geometry_msgs::Pose dest_pose) {
    goal.target_pose.pose = dest_pose;
 
    ROS_INFO("Moving to goal");
-   // move_client->sendGoal(goal);
-   // move_client->waitForResult();
+   move_client->sendGoal(goal);
+   move_client->waitForResult();
 
-   //return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
-   return 1;
+   return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
 }
 
 int main(int argc, char **argv){
