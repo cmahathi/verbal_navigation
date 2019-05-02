@@ -84,10 +84,10 @@ void Optimizer::backtrackPath() {
 }
 
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action) {
+
     if (action == GuidanceActionTypes::INSTRUCT) {
-        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (double)(numInstructedRegions+1);
+        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (1 + (double)(numInstructedRegions+1));
         acc += SPEECH_TIME;
-        
         return acc;
     }
     else if (action == GuidanceActionTypes::TRANSITION) {
@@ -136,7 +136,7 @@ void Optimizer::calculateRobotTimes() {
 
 void Optimizer::calculateBaseHumanTimes() {
     for (auto& region : segmentedPath) {
-        region.base_human_time = region.getLength() / HUMAN_VELOCITY * region.getNumNeighbors();
+        region.base_human_time = region.getLength() / HUMAN_VELOCITY * (region.getNumNeighbors()*2);
     }
 }
 

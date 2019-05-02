@@ -12,11 +12,13 @@
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 MoveBaseClient* move_client;
 ros::ServiceClient speech_client;
+ros::Publisher test_pub;
 int goto_location(geometry_msgs::Pose dest_pose);
 
 void planCallback(const verbal_navigation::Robot_Action& msg) {
 
    //do something with the robot id 
+   if (msg.robot_id.compare("r2") == 0) {
    std::string action_type = msg.action_type;
    if (action_type.compare("initialize") == 0){
       geometry_msgs::Pose init_pose = msg.initial_pose;
@@ -26,7 +28,7 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       verbal_navigation::Wavenet srv;
       srv.request.text = "Follow me!";
       ROS_INFO("Speaking: Follow me!");
-      //speech_client.call(srv);
+      speech_client.call(srv);
 
       geometry_msgs::Pose final_pose = msg.end_pose;
       int success = goto_location(final_pose);
@@ -35,7 +37,7 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       verbal_navigation::Wavenet srv;
       srv.request.text = msg.instructions;
       ROS_INFO("Speaking: %s", msg.instructions.c_str());
-      //speech_client.call(srv);
+      speech_client.call(srv);
    }
    else if (action_type.compare("T") == 0) {
       verbal_navigation::Wavenet srv;
@@ -43,29 +45,30 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
       txt.append(" My robotic colleague will meet you there.");
       srv.request.text = txt;
       ROS_INFO("Speaking: %s", txt.c_str());
-      //speech_client.call(srv);
+      speech_client.call(srv);
+   }
    }
 }
 
 int goto_location(geometry_msgs::Pose dest_pose) {
    move_base_msgs::MoveBaseGoal goal;
-   goal.target_pose.header.frame_id = "base_link";
+   goal.target_pose.header.frame_id = "level_mux_map";
    goal.target_pose.header.stamp = ros::Time::now();
    goal.target_pose.pose = dest_pose;
-
+   
+   //test_pub.publish(goal.target_pose);
    ROS_INFO("Moving to goal");
-   // move_client->sendGoal(goal);
-   // move_client->waitForResult();
-
-   //return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
-   return 1;
+   move_client->sendGoal(goal);
+   move_client->waitForResult();
+   //return 0;
+   return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
 }
 
 int main(int argc, char **argv){
    ros::init(argc, argv, "RobotPlanExecutor");
    ros::NodeHandle n("~");
    ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
-   
+   test_pub = n.advertise<geometry_msgs::PoseStamped>("/test_pose", 100);
    MoveBaseClient mc("move_base", true);
    move_client = &mc;
    while(!move_client->waitForServer(ros::Duration(5.0))){
