@@ -98,5 +98,5 @@ geometry_msgs::Pose Region::getInitialPose() {
     return path.at(0).pose;
 }
 geometry_msgs::Pose Region::getEndPose() {
-    return path.at(path.size()-1).pose;
+    return path.at((int)(path.size()*.9)).pose;
 }

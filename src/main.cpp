@@ -289,7 +289,9 @@ int main (int argc, char** argv) {
 	//auto currentAction = actionQueue.front();
 	ROS_INFO("Size of action queue: %d", actionQueue.size());
 	std::string last_id = "";
+	// int ix = 0;
 	while (!actionQueue.empty()) {
+		// ROS_INFO("%d", ix++);
 		auto currentAction = actionQueue.front();
 		verbal_navigation::Robot_Action msg = currentAction->createMessage();
 		if (msg.robot_id.compare("") == 0 || msg.action_type.compare("T") == 0) {
