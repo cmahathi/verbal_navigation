@@ -294,7 +294,7 @@ int main (int argc, char** argv) {
 		// ROS_INFO("%d", ix++);
 		auto currentAction = actionQueue.front();
 		verbal_navigation::Robot_Action msg = currentAction->createMessage();
-		if (msg.robot_id.compare("") == 0 || msg.action_type.compare("T") == 0) {
+		if (msg.robot_id.compare("") == 0 /*|| msg.action_type.compare("T") == 0*/) {
 			msg.robot_id = last_id;
 		}
 		last_id = msg.robot_id;

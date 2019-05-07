@@ -20,7 +20,7 @@ void Sequencer::generateGuidanceActionSequence(std::vector<GuidanceActionTypes>&
             currentActionVector.push_back(regionSequence.at(i));
             ROS_INFO("Region: %s\tAction: %c", regionSequence.at(i).getName().c_str(), type);
             i++;
-        } while (i < actionSequence.size() && actionSequence.at(i-1) == actionSequence.at(i));
+        } while (i < actionSequence.size() && actionSequence.at(i-1) == actionSequence.at(i) && actionSequence.at(i) != GuidanceActionTypes::TRANSITION);
 
         guidanceActionSequence.push(Actions::makeGuidanceAction(type, currentActionVector));
     }
