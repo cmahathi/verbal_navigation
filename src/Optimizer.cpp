@@ -12,22 +12,23 @@ Optimizer::Optimizer (RegionPath& regionPath, MapInfo f2, MapInfo f3) : segmente
 void Optimizer::optimize () {
     debug = false;
     currentMinTime = std::numeric_limits<double>::max();
+    std::string robot_id = domains.getRobotByRegion(segmentedPath.at(0).getName());
     if(debug) {
         ROS_INFO("Regions in path: %d", segmentedPath.size());
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
-    calculateRegionTime(0.0, 0, 0, GuidanceActionTypes::LEAD, false);
+    calculateRegionTime(0.0, 0, 0, GuidanceActionTypes::LEAD, false, robot_id);
     //ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
 
     if (debug) {
         ROS_INFO("\n\n\n");
         ROS_INFO("-----------------RECURSION TREE------------------------");
     }
-    calculateRegionTime(0.0, 0, 0, GuidanceActionTypes::INSTRUCT, false);
+    calculateRegionTime(0.0, 0, 0, GuidanceActionTypes::INSTRUCT, false, robot_id);
     ROS_INFO("Final Path: %s\nTime: %lf", pathToString(currentMinPath).c_str(), currentMinTime);
 }
 
-void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action, bool transition) {
+void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action, bool transition, std::string robot_id) {
     // Base case: we have calcualated the time for every region in the path
     if (regionCounter == segmentedPath.size()) {
         // Result: we have found a new minimum time combination
@@ -52,22 +53,23 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
 
     regionCounter++;
     // Try the remaining possible follow-up actions to this action for the next region
-    if (transition || domainTransition(regionCounter)) {
-        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::TRANSITION, false);
-        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, true);
+    if (transition || domainTransition(regionCounter, robot_id)) {
+        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::TRANSITION, false, domains.getRobotByRegion(segmentedPath.at(regionCounter+1).getName()));
+        calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, true, robot_id);
     }
     else {
         if (action == GuidanceActionTypes::INSTRUCT) {
-            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, transition);
+            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, transition, robot_id);
         }
         else if (action == GuidanceActionTypes::TRANSITION) {
-            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::INSTRUCT, false);
-            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, false);
+            // ROS_INFO("Transition to %s at %s", robot_id.c_str(), segmentedPath.at(regionCounter-1).getName().c_str());
+            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::INSTRUCT, false, robot_id);
+            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, false, robot_id);
         }
         else {
             // action == GuidanceActionTypes::LEAD
-            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, transition);
-            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, transition);
+            calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, transition, robot_id);
+            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, transition, robot_id);
         }
     }
     backtrackPath();
@@ -82,11 +84,16 @@ void Optimizer::backtrackPath() {
 }
 
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action) {
-    if (action == GuidanceActionTypes::INSTRUCT || action == GuidanceActionTypes::TRANSITION) {
-        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (1 + (double)(numInstructedRegions+1));
+
+    if (action == GuidanceActionTypes::INSTRUCT) {
+        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (1+(double)(numInstructedRegions+1));
+
         acc += SPEECH_TIME;
         
         return acc;
+    }
+    else if (action == GuidanceActionTypes::TRANSITION) {
+        return accumulatedTime + (segmentedPath.at(regionCounter).base_human_time)/(segmentedPath.at(regionCounter).getNumNeighbors() * .5) + SPEECH_TIME;
     }
     else {
         return accumulatedTime + segmentedPath.at(regionCounter).robot_time;
@@ -98,13 +105,17 @@ void Optimizer::updateMin(double accumulatedTime) {
     currentMinTime = accumulatedTime;
 }
 
-bool Optimizer::domainTransition(int regionCount) {
+bool Optimizer::domainTransition(int regionCount, std::string cur_robot_id) {
     if (regionCount >= segmentedPath.size() - 1)
         return false;
-    if (domains.getRobotByRegion(segmentedPath.at(regionCount+1).getName()).compare("") == 0)
-        return false;
 
-    return domains.isDomainTransition(segmentedPath.at(regionCount).getName(), segmentedPath.at(regionCount+1).getName());
+    std::string next_robot_id = domains.getRobotByRegion(segmentedPath.at(regionCount+1).getName());
+    if (next_robot_id.compare("") != 0 && next_robot_id.compare(cur_robot_id) != 0) {
+        ROS_INFO("Domain transition detected: %s to %s, robots %s to %s", segmentedPath.at(regionCount).getName().c_str(), segmentedPath.at(regionCount+1).getName().c_str(), cur_robot_id.c_str(), next_robot_id.c_str());
+        return true;
+    }
+    ROS_INFO("NOT domain transition: %s to %s, robots %s to %s", segmentedPath.at(regionCount).getName().c_str(), segmentedPath.at(regionCount+1).getName().c_str(), cur_robot_id.c_str(), next_robot_id.c_str());
+    return false;
 }
 
 

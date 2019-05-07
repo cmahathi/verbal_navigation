@@ -25,12 +25,12 @@ class Optimizer {
         void printPathInfo();
         void calculateRobotTimes();
         void calculateBaseHumanTimes();
-        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action, bool transition);
+        void calculateRegionTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action, bool transition, std::string robot_id);
         void updatePath(GuidanceActionTypes action);
         void backtrackPath();
         double calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action);
         void updateMin(double accumulatedTime);
-        bool domainTransition(int regionCount);
+        bool domainTransition(int regionCount, std::string cur_robot_id);
         std::string pathToString (std::vector<GuidanceActionTypes> path);
 
 
