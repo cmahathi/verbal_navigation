@@ -18,7 +18,8 @@ def wait_for_trigger():
 if __name__ == "__main__":
     rospy.init_node('Trigger_Node')
 
-    bag = rosbag.Bag('plan_test1.bag')
+
+    bag = rosbag.Bag('robot_plan_final.bag')
     for topic, msg, t in bag.read_messages(topics=['/robot_plan']):
         messageQueue.append(msg)
     bag.close()

@@ -60,7 +60,7 @@ int goto_location(geometry_msgs::Pose dest_pose) {
    ROS_INFO("Moving to goal");
    move_client->sendGoal(goal);
    move_client->waitForResult();
-   //return 0;
+
    return move_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
 }
 
