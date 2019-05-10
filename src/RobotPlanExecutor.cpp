@@ -12,6 +12,7 @@
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 MoveBaseClient* move_client;
 ros::ServiceClient speech_client;
+ros::Publisher test_pub;
 int goto_location(geometry_msgs::Pose dest_pose);
 
 void planCallback(const verbal_navigation::Robot_Action& msg) {
@@ -51,10 +52,11 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
 
 int goto_location(geometry_msgs::Pose dest_pose) {
    move_base_msgs::MoveBaseGoal goal;
-   goal.target_pose.header.frame_id = "base_link";
+   goal.target_pose.header.frame_id = "level_mux_map";
    goal.target_pose.header.stamp = ros::Time::now();
    goal.target_pose.pose = dest_pose;
-
+   
+   //test_pub.publish(goal.target_pose);
    ROS_INFO("Moving to goal");
    move_client->sendGoal(goal);
    move_client->waitForResult();
@@ -66,7 +68,7 @@ int main(int argc, char **argv){
    ros::init(argc, argv, "RobotPlanExecutor");
    ros::NodeHandle n("~");
    ros::Subscriber plan_sub = n.subscribe("/robot_plan", 1000, planCallback);
-   
+   test_pub = n.advertise<geometry_msgs::PoseStamped>("/test_pose", 100);
    MoveBaseClient mc("move_base", true);
    move_client = &mc;
    while(!move_client->waitForServer(ros::Duration(5.0))){
