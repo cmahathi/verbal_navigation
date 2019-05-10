@@ -11,7 +11,7 @@ regions:
   - name: l2_200b
     common_name: "hallway with the wall of colorful cubes"
     type: 1
-    neighbors: 4
+    neighbors: 2
   - name: l2_200c
     common_name: "open area"
     type: 2
@@ -19,7 +19,7 @@ regions:
   - name: l2_200d
     common_name: "hallway"
     type: 1
-    neighbors: 3
+    neighbors: 1
   - name: l2_200e
     common_name: "hallway"
     type: 1
@@ -31,7 +31,7 @@ regions:
   - name: l2_200a
     common_name: "hallway"
     type: 1
-    neighbors: 4
+    neighbors: 3
   - name: l2_300
     common_name: "hallway"
     type: 1
@@ -39,11 +39,11 @@ regions:
   - name: l2_600
     common_name: "hallway"
     type: 1
-    neighbors: 4
+    neighbors: 2
   - name:  l2_100
     common_name: "atrium"
     type: 2
-    neighbors: 6
+    neighbors: 4
   - name: l2_102
     common_name: "qualcomm cafe"
     type: 0
@@ -63,7 +63,7 @@ regions:
   - name: l2_702
     common_name: "advising center"
     type: 0
-    neighbors: 3
+    neighbors: 2
   - name: l2_400
     common_name: "hallway"
     type: 1

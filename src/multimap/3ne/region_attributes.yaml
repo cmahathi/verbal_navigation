@@ -31,7 +31,7 @@ regions:
   - name: l3_400
     common_name: "hallway"
     type: 1
-    neighbors: 21
+    neighbors: 6
   - name: l3_402
     common_name: "Justin Hart's office"
     type: 0
@@ -79,7 +79,7 @@ regions:
   - name: l3_434
     common_name: "hallway"
     type: 1
-    neighbors: 3
+    neighbors: 2
   - name: l3_436
     common_name: "robot soccer field"
     type: 0
@@ -111,7 +111,7 @@ regions:
   - name: l3_500
     common_name: "hallway"
     type: 1
-    neighbors: 19
+    neighbors: 6
   - name: l3_502
     common_name: "Stacy Miller's office"
     type: 0
@@ -119,7 +119,7 @@ regions:
   - name: l3_200
     common_name: "hallway"
     type: 1
-    neighbors: 4
+    neighbors: 2
   - name: l3_508
     common_name: "Peter Stone's office"
     type: 0
