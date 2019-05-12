@@ -31,7 +31,7 @@ regions:
   - name: l3_400
     common_name: "hallway"
     type: 1
-    neighbors: 6
+    neighbors: 1
   - name: l3_402
     common_name: "Justin Hart's office"
     type: 0

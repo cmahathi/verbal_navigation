@@ -64,12 +64,14 @@ void Optimizer::calculateRegionTime(double accumulatedTime, int numInstructedReg
         else if (action == GuidanceActionTypes::TRANSITION) {
             // ROS_INFO("Transition to %s at %s", robot_id.c_str(), segmentedPath.at(regionCounter-1).getName().c_str());
             calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::INSTRUCT, false, robot_id);
-            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, false, robot_id);
+            if (domains.getRobotByRegion(segmentedPath.at(regionCounter).getName()).compare("") != 0)
+                calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, false, robot_id);
         }
         else {
             // action == GuidanceActionTypes::LEAD
             calculateRegionTime(accumulatedTime, numInstructedRegions+1, regionCounter, GuidanceActionTypes::INSTRUCT, transition, robot_id);
-            calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, transition, robot_id);
+            if (domains.getRobotByRegion(segmentedPath.at(regionCounter).getName()).compare("") != 0)
+                calculateRegionTime(accumulatedTime, 0, regionCounter, GuidanceActionTypes::LEAD, transition, robot_id);
         }
     }
     backtrackPath();
@@ -86,7 +88,7 @@ void Optimizer::backtrackPath() {
 double Optimizer::calculateAccumulatedTime(double accumulatedTime, int numInstructedRegions, int regionCounter, GuidanceActionTypes action) {
 
     if (action == GuidanceActionTypes::INSTRUCT) {
-        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (1 + ((double)(numInstructedRegions+1)));
+        double acc = accumulatedTime + segmentedPath.at(regionCounter).base_human_time * (1.5 + ((double)(numInstructedRegions)));
 
         acc += SPEECH_TIME;
         return acc;
@@ -132,12 +134,15 @@ void Optimizer::preprocess () {
 void Optimizer::calculateRobotTimes() {
     for (auto& region : segmentedPath) {
         region.robot_time = region.getLength() / ROBOT_VELOCITY * region.getTraversibility();
+        if (region.getType() == RegionType::HALLWAY) {
+            region.robot_time += region.getLength();
+        }
     }
 }
 
 void Optimizer::calculateBaseHumanTimes() {
     for (auto& region : segmentedPath) {
-        region.base_human_time = region.getLength() / HUMAN_VELOCITY * (region.getNumNeighbors()*2);
+        region.base_human_time = region.getLength() / HUMAN_VELOCITY * (region.getNumNeighbors() * 1.5);
     }
 }
 
@@ -161,7 +166,7 @@ double Optimizer::calculateTraversibility (Region r) {
                                 break;
         case RegionType::HALLWAY:  traversibility += 1;
                                 break;
-        case RegionType::OPEN_SPACE:  traversibility += 5;
+        case RegionType::OPEN_SPACE:  traversibility += 6;
                                 break;
         case RegionType::ELEVATOR:  traversibility += 10;
                                 break;

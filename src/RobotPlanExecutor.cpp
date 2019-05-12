@@ -42,7 +42,7 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
    else if (action_type.compare("T") == 0) {
       verbal_navigation::Wavenet srv;
       std::string txt = msg.instructions;
-      txt.append(" My robotic colleague will meet you there.");
+      txt.append(" Meet my robotic collegue there, and press their spacebar to activate.");
       srv.request.text = txt;
       ROS_INFO("Speaking: %s", txt.c_str());
       speech_client.call(srv);
