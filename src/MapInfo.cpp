@@ -218,6 +218,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
   //auto arrival = std::make_shared<Arrival>(destinationCommonName);  
   arrival->addDirection(getDirectionBetween(regionList.at(regionList.size()-2), (regionList.at(regionList.size()-1))));
   regionList.back().setInstruction(arrival);
+  regionList.back().addDirection(arrival->toNaturalLanguage());
   ROS_INFO("Generate directions region size: %d", regionList.size());
   return generateDirections(regionList);
 }
