@@ -18,7 +18,7 @@ int goto_location(geometry_msgs::Pose dest_pose);
 void planCallback(const verbal_navigation::Robot_Action& msg) {
 
    //do something with the robot id 
-   if (msg.robot_id.compare("r2") == 0) {
+   if (msg.robot_id.compare("r3") == 0) {
    std::string action_type = msg.action_type;
    if (action_type.compare("initialize") == 0){
       geometry_msgs::Pose init_pose = msg.initial_pose;
@@ -42,7 +42,7 @@ void planCallback(const verbal_navigation::Robot_Action& msg) {
    else if (action_type.compare("T") == 0) {
       verbal_navigation::Wavenet srv;
       std::string txt = msg.instructions;
-      txt.append(" Meet my robotic collegue there, and press their spacebar to activate.");
+      txt.append(" When you see my robotic colleague, press their spacebar to continue.");
       srv.request.text = txt;
       ROS_INFO("Speaking: %s", txt.c_str());
       speech_client.call(srv);
