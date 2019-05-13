@@ -30,6 +30,7 @@ protected:
   double traversibility;
   std::vector<geometry_msgs::PoseStamped> path;
   std::shared_ptr<Instruction> instruction;
+  std::string directions;
 
 public:
   double robot_time;
@@ -47,6 +48,7 @@ public:
   void setTraversibility(double n);
   void setFloor(int f);
   void setInstruction(std::shared_ptr<Instruction> i);
+  void addDirection (std::string dir);
 
   void appendPoseToPath(geometry_msgs::PoseStamped pose);
 
@@ -60,6 +62,7 @@ public:
   double getTraversibility();
   int getFloor();
   std::shared_ptr<Instruction> getInstruction();
+  std::string getDirection();
   geometry_msgs::Pose getInitialPose();
   geometry_msgs::Pose getEndPose();
 

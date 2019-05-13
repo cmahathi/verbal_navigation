@@ -29,7 +29,7 @@ verbal_navigation::Robot_Action Instruct::createMessage() {
             ROS_ERROR("Instruction not set for %s", region.getCommonName().c_str());
         }
         else {
-            directions += region.getInstruction()->toNaturalLanguage();
+            directions += region.getDirection();
             //ROS_INFO("%s: %s", region.getCommonName().c_str(), region.getInstruction()->toNaturalLanguage().c_str());
         }
     }

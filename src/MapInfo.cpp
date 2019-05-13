@@ -150,6 +150,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
     travelIns->addPreposition(Preposition("through", regionItem));
 
     thisRegion.setInstruction(travelIns);
+    thisRegion.addDirection(travelIns->toNaturalLanguage());
 
     // if we are turning left or right, then instantiate a "Turn" verb phrase
     auto direction = getDirectionBetween(thisRegion, nextRegion);
@@ -205,6 +206,7 @@ std::string MapInfo::buildInstructions(bool robotTransition, bool elevator, int 
       //}
       // add the finished turn instruction to its respective region
       thisRegion.setInstruction(turnIns);
+      nextRegion.addDirection(turnIns->toNaturalLanguage());
 
       //ROS_INFO("Instruction generated: %s", turnIns->toNaturalLanguage().c_str());
     } // end of the if clause for turning
